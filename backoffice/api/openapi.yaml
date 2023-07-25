@@ -1,0 +1,1864 @@
+openapi: 3.0.0
+info:
+  title: Buku Sawit Back-office API
+  description: Lorem Ipsum Dolor Sit Amer
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: it@nino911.id
+  version: 0.0.1
+servers:
+- url: /
+paths:
+  /api/v1/register:
+    post:
+      tags:
+      - Customer Registration
+      summary: Register a new account
+      operationId: registerAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterAccountRequest'
+      responses:
+        "200":
+          description: Account registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                mesage: Account Registered Successfully
+        "400":
+          description: Registration Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              example:
+                success: false
+                errorCode: REGISTRATION_INPUT_VALIDATION_ERROR
+                message: Input Validation Error
+                errors:
+                - field: email
+                  message: Format email tidak valid!
+                - field: password
+                  message: Password harus memiliki panjang minimal 8 karakter!
+      x-swagger-router-controller: CustomerRegistration
+  /api/v1/activation/{activationCode}:
+    get:
+      tags:
+      - Customer Registration
+      summary: Activate a registered account
+      operationId: activateAccount
+      parameters:
+      - name: activationCode
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Account activation successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountActivationSuccessResponse'
+        "404":
+          description: Activation code not found or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountActivationExpiredResponse'
+              example:
+                success: false
+                errorCode: ACTIVATION_LINK_EXPIRED
+                message: Activation Link Was Expired
+      x-swagger-router-controller: CustomerRegistration
+  /api/v1/login:
+    post:
+      tags:
+      - Authentication
+      summary: User login
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSuccessResponse'
+              example:
+                success: true
+                message: Login Successfully
+                data:
+                  acessToken: EXAMPLE_TOKEN
+                  customerId: 62cb1d94-85ee-4704-a4bf-43340807d717
+        "400":
+          description: Login Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              example:
+                success: false
+                errorCode: CREDENTIAL_INPUT_VALIDATION_ERROR
+                message: Input Validation Error
+                errors:
+                - field: email
+                  message: Format email tidak valid!
+                - field: password
+                  message: Password harus memiliki panjang minimal 8 karakter!
+        "401":
+          description: Invalid Login Credentials
+          content:
+            aplication/json:
+              schema:
+                $ref: '#/components/schemas/LoginInvalidResponse'
+              examples:
+                emailNotFound:
+                  value:
+                    success: false
+                    errorCode: CREDENTIAL_EMAIL_NOT_REGISTERED
+                    message: E-Mail Not Registered
+                passwordMismatch:
+                  value:
+                    success: false
+                    errorCode: CREDENTIAL_PASSWORD_MISMATCH
+                    message: Password Mismatch
+      x-swagger-router-controller: Authentication
+  /api/v1/logout:
+    post:
+      tags:
+      - Authentication
+      summary: User Logout
+      operationId: logout
+      responses:
+        "200":
+          description: Logout Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: User Logged out Successfully
+        "500":
+          description: General Error From Server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIErrorResponse'
+              example:
+                success: false
+                errorCode: INTERNAL_SERVER_ERROR
+                message: Internal Server Error
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: Authentication
+  /api/v1/subscription/status:
+    get:
+      tags:
+      - Subscription Management
+      summary: Get Subscription Status of a User
+      operationId: getSubscriptionStatus
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionStatusSuccessResponse'
+              examples:
+                Active Subscription:
+                  value:
+                    success: true
+                    message: Subscription Status Fetched Successfully
+                    data:
+                      packageName: Paket 12 Bulan
+                      isActive: true
+                      expiredAt: 2024-07-20
+                Expired Subscription:
+                  value:
+                    success: true
+                    message: Subscription Status Fetched Successfully
+                    data:
+                      packageName: Paket 12 Bulan
+                      isActive: false
+                      expiredAt: 2023-07-20
+                Never Subscribed:
+                  value:
+                    success: true
+                    message: Empty Subscription Status
+                    data: {}
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SubscriptionManagement
+  /api/v1/subscription/history:
+    get:
+      tags:
+      - Subscription Management
+      summary: Get History of Subscription Purchased
+      operationId: getSubscriptionPaymentHistory
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionHistorySuccessResponse'
+              examples:
+                Default:
+                  value:
+                    success: true
+                    message: Subscription History Fetched Successfully
+                    data:
+                    - invoiceNumber: 14022
+                      packageName: Paket 12 Bulan
+                      duration: 12
+                      total: 1500000
+                      paymentStatus: Paid
+                      createdAt: 2022-07-20 17:12:38.120
+                    - invoiceNumber: 14045
+                      packageName: Paket 12 Bulan
+                      duration: 12
+                      total: 1500000
+                      paymentStatus: Paid
+                      createdAt: 2023-07-20 16:12:38.120
+                Never Subscribed:
+                  value:
+                    success: true
+                    message: Empty Subscription History
+                    data: []
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SubscriptionManagement
+  /api/v1/subscription/packages:
+    get:
+      tags:
+      - Subscription Management
+      summary: Get list of subscription's packages
+      operationId: getSubscriptionPackages
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionPackageListSuccessResponse'
+              examples:
+                default:
+                  value:
+                    success: true
+                    message: Subscription Packages Fetched Successfully
+                    data:
+                    - packageId: 62cb1d94-85ee-4704-a4bf-43340807d717
+                      name: Paket 6 Bulan
+                      price: 750000
+                      discount: 0
+                      duration: 6
+                      description: Lorem Ipsum Dolor Sit Amet.
+                    - packageId: 92cb1d94-85ee-4704-a4bf-43340807d717
+                      name: Paket 12 Bulan
+                      price: 1500000
+                      discount: 0
+                      duration: 6
+                      description: Lorem Ipsum Dolor Sit Amet.
+                empty:
+                  value:
+                    success: true
+                    message: Subscription Packages Empty
+                    data: []
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SubscriptionManagement
+  /api/v1/subscription/cart:
+    post:
+      tags:
+      - Subscription Management
+      summary: Store selected package to cart
+      operationId: makeCart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionCartRequest'
+            example:
+              packageId: 92cb1d94-85ee-4704-a4bf-43340807d717
+      responses:
+        "201":
+          description: Store to card successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionCartSuccessResponse'
+              example:
+                success: true
+                message: Store to Cart Successful
+                data:
+                  packageId: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  name: Paket 12 Bulan
+                  price: 1500000
+                  discount: 0
+                  duration: 6
+                  tax: 0
+                  total: 1500000
+        "404":
+          description: Subscription Package Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIErrorResponse'
+              example:
+                success: false
+                errorCode: SUBSCRIPTION_PACKAGE_NOT_FOUND
+                message: Subscription's Package Not Found.
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SubscriptionManagement
+  /api/v1/payment:
+    post:
+      tags:
+      - Subscription Management
+      summary: Make a payment for a subscription package
+      operationId: makePayment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+            example:
+              packageId: 92cb1d94-85ee-4704-a4bf-43340807d717
+              paymentCode: BCA
+      responses:
+        "200":
+          description: Payment successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SubscriptionManagement
+  /api/v1/profile:
+    get:
+      tags:
+      - Profile Account Information
+      summary: Get account details
+      operationId: getAccountDetails
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileAccountResponse'
+              example:
+                success: true
+                message: Account Information Fetched Successfully
+                data:
+                  firstName: Tsukiko
+                  lastName: Sorano
+                  companyName: PT. Kira Kira Sukses
+                  companyAddress: "Jl. Pasar Senen No. 10, Jakarta Pusat, DKI Jakarta"
+                  email: airani@example.com
+                  phoneNumber: "6281375157218"
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: ProfileAccountInformation
+    put:
+      tags:
+      - Profile Account Information
+      summary: Update account details
+      operationId: updateAccountDetails
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdateRequest'
+            example:
+              email: airaniii@example.com
+              phoneNumber: "62811600654"
+              currentPassword: Sayalupa123
+              newPassword: SoundofSnow
+      responses:
+        "200":
+          description: Account details updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Account details updated successfully
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              example:
+                success: false
+                errorCode: PROFILE_UPDATE_VALIDATION_ERROR
+                message: Input Validation Error
+                errors:
+                - field: email
+                  message: Format email tidak valid.
+                - field: phoneNumber
+                  message: Format nomor handphone tidak valid
+                - field: currentPassword
+                  message: Password sekarang salah
+                - field: newPassword
+                  message: Panjang password harus minimal 8 karakter
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: ProfileAccountInformation
+  /api/v1/products:
+    get:
+      tags:
+      - Product Management
+      summary: Get a list of products
+      operationId: getProductList
+      parameters:
+      - name: showNameOnly
+        in: query
+        description: "If **true**, the endpoint returns only products name."
+        required: false
+        allowEmptyValue: true
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+              examples:
+                Default:
+                  value:
+                    success: true
+                    message: Product List Fetched Successfully
+                    data:
+                    - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                      name: TBS Brondolan
+                      price: 150000
+                    - id: 93cb1d94-85ee-4704-a4bf-43340807d717
+                      name: TBS Perkarangan
+                      price: 200000
+                    - id: 94cb1d94-85ee-4704-a4bf-43340807d717
+                      name: TBS Plasma
+                      price: 300000
+                Empty:
+                  value:
+                    success: true
+                    message: Empty Product List
+                    data: []
+                Name Only:
+                  value:
+                    success: true
+                    message: Product List Fetched Successfully
+                    data:
+                    - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                      name: TBS Brondolan
+                    - id: 93cb1d94-85ee-4704-a4bf-43340807d717
+                      name: TBS Perkarangan
+                    - id: 94cb1d94-85ee-4704-a4bf-43340807d717
+                      name: TBS Plasma
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: ProductManagement
+  /api/v1/products/{productId}:
+    get:
+      tags:
+      - Product Management
+      summary: Get product details by ID
+      operationId: getProductById
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+              example:
+                success: true
+                message: Product List Fetched Successfully
+                data:
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  name: TBS Brondolan
+                  price: 150000
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: ProductManagement
+  /api/v1/products/store:
+    post:
+      tags:
+      - Product Management
+      summary: Store Product
+      operationId: storeProduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductFormRequest'
+            examples:
+              Default:
+                value:
+                  name: TBS Brondolan
+                  price: 200000
+              Missing Price Field:
+                value:
+                  name: TBS Brondolan
+              Missing Name Field:
+                value:
+                  price: 200000
+              Missing All Fields:
+                value: {}
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Product Stored Successfully
+        "400":
+          description: Input Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              examples:
+                Missing Price Field:
+                  value:
+                    success: false
+                    errorCode: PRODUCT_STORE_VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                    - field: productPrice
+                      message: Product price required
+                Missing Name Field:
+                  value:
+                    success: false
+                    errorCode: PRODUCT_STORE_VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                    - field: productName
+                      message: Product name required
+                Missing All Fields:
+                  value:
+                    success: false
+                    errorCode: PRODUCT_STORE_VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                    - field: productName
+                      message: Product name required
+                    - field: productPrice
+                      message: Product price required
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: ProductManagement
+  /api/v1/products/update:
+    put:
+      tags:
+      - Product Management
+      summary: Update Product details by ID
+      operationId: updateProductById
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdateFormRequest'
+            example:
+              id: 92cb1d94-85ee-4704-a4bf-43340807d717
+              name: TBS Brondolans
+              price: 200000
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Product Updated Successfully
+        "400":
+          description: Input Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              examples:
+                Product ID Not Found:
+                  value:
+                    success: false
+                    errorCode: PRODUCT_UPDATE_VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                    - field: productId
+                      message: Product ID not found
+                Missing All Fields:
+                  value:
+                    success: false
+                    errorCode: PRODUCT_UPDATE_VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                    - field: name
+                      message: Product name required
+                    - field: price
+                      message: Product price required
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: ProductManagement
+  /api/v1/products/delete/{productId}:
+    delete:
+      tags:
+      - Product Management
+      summary: Delete products
+      operationId: dropProduct
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Product Deleted Successfully
+        "400":
+          description: Input Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              example:
+                success: false
+                errorCode: PRODUCT_UPDATE_VALIDATION_ERROR
+                message: Input Validation error
+                errors:
+                - field: id
+                  message: Product ID Not Found
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: ProductManagement
+  /api/v1/suppliers:
+    get:
+      tags:
+      - Supplier Management
+      summary: Get a list of suppliers
+      operationId: getSupplierList
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+              examples:
+                Default:
+                  value:
+                    success: true
+                    message: Supplier List Fetched Successfully
+                    data:
+                    - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                      name: Kebun X
+                    - id: 93cb1d94-85ee-4704-a4bf-43340807d717
+                      name: Kebun Y
+                    - id: 94cb1d94-85ee-4704-a4bf-43340807d717
+                      name: Kebun Z
+                Empty:
+                  value:
+                    success: true
+                    message: Empty Supplier List
+                    data: []
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SupplierManagement
+  /api/v1/suppliers/{supplierId}:
+    get:
+      tags:
+      - Supplier Management
+      summary: Get supplier details by ID
+      operationId: getSupplierById
+      parameters:
+      - name: supplierId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_3'
+              example:
+                success: true
+                message: Supplier List Fetched Successfully
+                data:
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  name: Supplier Dummy
+                  address: Jl. Testing No. 99
+                  phoneNumber: "628137157218"
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SupplierManagement
+  /api/v1/suppliers/store:
+    post:
+      tags:
+      - Supplier Management
+      summary: Store Supplier
+      operationId: storeSupplier
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierFormRequest'
+            examples:
+              Default:
+                value:
+                  name: Supplier Dummy ax
+                  address: Jl. Dummy No. 123
+                  phoneNumber: "62811600654"
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Supplier Stored Successfully
+        "400":
+          description: Input Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              example:
+                success: false
+                errorCode: SUPPLIER_STORE_VALIDATION_ERROR
+                message: Input Validation error
+                errors:
+                - field: name
+                  message: Supplier name required
+                - field: address
+                  message: Supplier price required
+                - field: phoneNumber
+                  message: Supplier phone number required
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SupplierManagement
+  /api/v1/suppliers/update:
+    put:
+      tags:
+      - Supplier Management
+      summary: Update supplier details by ID
+      operationId: updateSupplierById
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierUpdateFormRequest'
+            examples:
+              Change Name:
+                value:
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  name: Supplier Flashbacker
+              Change Address:
+                value:
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  address: Jl. Coba lagi
+              Change Phone Number:
+                value:
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  phoneNumber: "62811600654"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Product Updated Successfully
+        "400":
+          description: Input Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              examples:
+                Product ID Not Found:
+                  value:
+                    success: false
+                    errorCode: SUPPLIER_UPDATE_VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                    - field: id
+                      message: Supplier ID not found
+                Missing All Fields:
+                  value:
+                    success: false
+                    errorCode: SUPPLIER_UPDATE_VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                    - field: name
+                      message: Nama supplier tidak boleh kosong
+                    - field: address
+                      message: Alamat supplier tidak boleh kosong
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SupplierManagement
+  /api/v1/suppliers/delete/{supplierId}:
+    delete:
+      tags:
+      - Supplier Management
+      summary: Delete Supplier
+      operationId: dropSupplier
+      parameters:
+      - name: supplierId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Product Deleted Successfully
+        "400":
+          description: Input Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              example:
+                success: false
+                errorCode: PRODUCT_UPDATE_VALIDATION_ERROR
+                message: Input Validation error
+                errors:
+                - field: id
+                  message: Product ID Not Found
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SupplierManagement
+  /api/v1/reports/dashboard:
+    get:
+      tags:
+      - Purchase and Sales Reports
+      summary: Get Daily Reports for Dashboard
+      operationId: getDashboardReport
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_4'
+              example:
+                success: true
+                message: Dashboard Report Fetched Successfully
+                data:
+                  totalPurchases: 1500
+                  totalSales: 1200
+                  purchasesProducts:
+                  - name: TBS Brondolan
+                    total: 1200
+                  - name: TBS Perkarangan
+                    total: 1200
+                  - name: TBS Plasma
+                    total: 1200
+                  salesProducts:
+                  - name: TBS Brondolan
+                    total: 1200
+                  - name: TBS Perkarangan
+                    total: 1200
+                  - name: TBS Plasma
+                    total: 1200
+                  purchasesPaymentMethods:
+                  - name: Cash
+                    total: 1300
+                  - name: Transfer
+                    total: 1300
+                  salesPaymentMethods:
+                  - name: Cash
+                    total: 1300
+                  - name: Transfer
+                    total: 1300
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: PurchaseAndSalesReports
+  /api/v1/reports:
+    get:
+      tags:
+      - Purchase and Sales Reports
+      summary: Get Report of Purchases and Sales
+      operationId: getReports
+      parameters:
+      - name: filters
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/ReportFilter'
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_5'
+              example:
+                success: true
+                message: Report Fetched Successfully
+                data:
+                - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  transactionDate: 2023-07-24 15:00:25.120
+                  transactionType: Purchased
+                  supplierName: UD Supplier 1
+                  productName: TBS Plasma
+                  totalWeight: 1500
+                  receivedWeight: 750
+                  total: 260000
+                  paymentMethod: Cash
+                  paymentStatus: Paid
+                  deliveryStatus: Partial Deliveed
+                  createdBy: Supardi
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: PurchaseAndSalesReports
+  /api/v1/report/{transactionId}:
+    get:
+      tags:
+      - Purchase and Sales Reports
+      summary: Get Transaction Detail from Id
+      operationId: getTransactionById
+      parameters:
+      - name: transactionId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_6'
+              example:
+                success: true
+                message: Transaction Detail Fetched Successfully
+                data:
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  transactionDate: 2023-07-24 15:00:25.120
+                  transactionType: Purchased
+                  supplierName: UD Supplier 1
+                  productName: TBS Plasma
+                  createdBy: Supardi
+                  grossWeight: 2500
+                  tareWeight: 1000
+                  nettoWeight: 1500
+                  dedicationPersentage: 4
+                  totalWeight: 1440
+                  receivedWeight: 750
+                  price: 50000
+                  total: 72000000
+                  vehicleRegistrationNumber: BK 123 ABC
+                  paymentMethod: Cash
+                  paymentStatus: Paid
+                  deliveryStatus: Partial Deliveed
+                  sourceOfPurcahse: "-"
+                  proofImages:
+                  - https://link.id/a
+                  - https://link.id/b
+                  - https://link.id/c
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: PurchaseAndSalesReports
+  /api/v1/transactions/sales:
+    get:
+      tags:
+      - Sales Transaction
+      summary: Get Recently Recorded Sales Transaction
+      operationId: getSales
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_7'
+              example:
+                success: true
+                message: Sales Fetched Successfully
+                data:
+                - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  productId: TBS Plasma
+                  transactionDate: 2023-07-24 15:00:25.120
+                  totalWeight: 1500
+                  receivedWeight: 750
+                  total: 260000
+                  paymentMethod: Cash
+                  paymentStatus: Paid
+                  deliveryStatus: Partial Deliveed
+                  isPaid: true
+                  isDelivered: false
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SalesTransaction
+  /api/v1/transactions/sales/{transactionId}:
+    get:
+      tags:
+      - Sales Transaction
+      summary: Get Sales Transaction By Id
+      operationId: getSalesTransactionById
+      parameters:
+      - name: transactionId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_8'
+              example:
+                success: true
+                message: Sales Detail Fetched Successfully
+                data:
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  productId: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  transactionDate: 2023-07-24 15:00:25.120
+                  grossWeight: 2500
+                  tareWeight: 1000
+                  nettoWeight: 1500
+                  dedicationPersentage: 4
+                  totalWeight: 1440
+                  receivedWeight: 750
+                  price: 50000
+                  total: 72000000
+                  vehicleRegistrationNumber: BK 123 ABC
+                  paymentMethod: Cash
+                  paymentStatus: Paid
+                  deliveryStatus: Partial Deliveed
+                  sourceOfPurcahse: "-"
+                  proofImages:
+                  - https://link.id/a
+                  - https://link.id/b
+                  - https://link.id/c
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SalesTransaction
+  /api/v1/transactions/sales/store:
+    post:
+      tags:
+      - Sales Transaction
+      summary: Store Sales Transaction
+      operationId: storeSales
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionStoreBody'
+            example:
+              productId: 92cb1d94-85ee-4704-a4bf-43340807d717
+              grossWeight: 2500
+              tareWeight: 1000
+              dedicationPersentage: 4
+              receivedWeight: 750
+              price: 50000
+              total: 72000000
+              vehicleRegistrationNumber: BK 123 ABC
+              paymentMethod: Cash
+              paymentStatus: Paid
+              deliveryStatus: Partial Deliveed
+              sourceOfPurcahse: "-"
+              proofImages:
+              - blob string
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Sales Data Stored Successfully
+        "400":
+          description: Sales Store Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SalesTransaction
+  /api/v1/transactions/sales/update:
+    put:
+      tags:
+      - Sales Transaction
+      summary: Store Sales Transaction
+      operationId: updateSales
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/sales_update_body'
+            example:
+              id: 92cb1d94-85ee-4704-a4bf-43340807d717
+              productId: 92cb1d94-85ee-4704-a4bf-43340807d717
+              grossWeight: 2500
+              tareWeight: 1000
+              dedicationPersentage: 4
+              receivedWeight: 750
+              price: 50000
+              total: 72000000
+              vehicleRegistrationNumber: BK 123 ABC
+              paymentMethod: Cash
+              paymentStatus: Paid
+              deliveryStatus: Partial Deliveed
+              sourceOfPurcahse: "-"
+              proofImages:
+              - blob string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Sales Data Stored Successfully
+        "400":
+          description: Sales Store Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SalesTransaction
+components:
+  schemas:
+    APISuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      example:
+        success: true
+        message: message
+    APIErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        errorCode:
+          type: string
+        message:
+          type: string
+    APIValidationError:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/APIValidationError_errors'
+    RegisterAccountRequest:
+      required:
+      - companyAddress
+      - companyName
+      - email
+      - firstName
+      - lastName
+      - password
+      - phoneNumber
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        companyName:
+          type: string
+        companyAddress:
+          type: string
+        email:
+          type: string
+          format: email
+        phoneNumber:
+          type: string
+        password:
+          type: string
+    AccountActivationSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      example:
+        success: true
+        message: Account Activated Successfully
+    AccountActivationExpiredResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        errorCode:
+          type: string
+        message:
+          type: string
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      example:
+        email: airani@example.com
+        password: SayaLupa123
+    LoginSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/LoginSuccessResponse_data'
+      example:
+        data:
+          customerId: customerId
+          accessToken: accessToken
+        success: true
+        message: message
+    LoginInvalidResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        errorCode:
+          type: string
+        message:
+          type: string
+    SubscriptionStatusSuccessResponse:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/SubscriptionStatusSuccessResponse_data'
+    SubscriptionHistorySuccessResponse:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/SubscriptionHistorySuccessResponse_data'
+    SubscriptionPackageListSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/SubscriptionPackage'
+            - type: object
+              properties:
+                description:
+                  type: string
+      example:
+        data:
+        - ""
+        - ""
+        success: true
+        message: message
+    SubscriptionCartRequest:
+      type: object
+      properties:
+        packageID:
+          type: string
+    SubscriptionCartSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          allOf:
+          - $ref: '#/components/schemas/SubscriptionPackage'
+          - type: object
+            properties:
+              tax:
+                type: number
+              total:
+                type: number
+      example:
+        data: ""
+        success: true
+        message: message
+    SubscriptionPackage:
+      type: object
+      properties:
+        packageId:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        discount:
+          type: number
+        duration:
+          type: number
+    PaymentRequest:
+      type: object
+      properties:
+        packageId:
+          type: string
+        paymentMethod:
+          type: string
+    PaymentResponse:
+      type: object
+      properties:
+        transactionId:
+          type: string
+      example:
+        transactionId: transactionId
+    ProfileAccountResponse:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/ProfileAccountResponse_data'
+    ProfileUpdateRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        currentPassword:
+          type: string
+        newPassword:
+          type: string
+    ProductFormRequest:
+      required:
+      - name
+      - price
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: string
+    ProductUpdateFormRequest:
+      required:
+      - id
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: string
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+    SupplierFormRequest:
+      required:
+      - address
+      - name
+      - phoneNumber
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+        phoneNumber:
+          type: string
+    SupplierUpdateFormRequest:
+      required:
+      - id
+      type: object
+      properties:
+        id:
+          type: string
+        address:
+          type: string
+        phoneNumber:
+          type: string
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        phoneNumber:
+          type: string
+    DashboardReportResponse:
+      type: object
+      properties:
+        totalPurchases:
+          type: number
+        totalSales:
+          type: number
+        purchasesProducts:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardFilteredReport'
+        salesProducts:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardFilteredReport'
+        purchasesPaymentMethods:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardFilteredReport'
+        salesPaymentMethods:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardFilteredReport'
+    DashboardFilteredReport:
+      type: object
+      properties:
+        name:
+          type: string
+        total:
+          type: number
+    ReportFilter:
+      type: object
+      properties:
+        startDate:
+          type: string
+        endDate:
+          type: string
+        transactionType:
+          type: string
+        products:
+          type: array
+          items:
+            type: string
+            description: Product ID
+        suppliers:
+          type: array
+          items:
+            type: string
+            description: Supplier ID
+        paymentStatus:
+          type: string
+        paymentMethod:
+          type: string
+        deliveryStatus:
+          type: string
+    ReportsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        transactionDate:
+          type: string
+        transactionType:
+          type: string
+        supplierName:
+          type: string
+        productName:
+          type: string
+        totalWeight:
+          type: number
+        receivedWeight:
+          type: number
+        total:
+          type: number
+        paymentMethod:
+          type: string
+        paymentStatus:
+          type: string
+        deliveryStatus:
+          type: string
+        createdBy:
+          type: string
+    ReportDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        transactionDate:
+          type: string
+        transactionType:
+          type: string
+        supplierName:
+          type: string
+        productName:
+          type: string
+        createdBy:
+          type: string
+        grossWeight:
+          type: number
+        tareWeight:
+          type: number
+        nettoWeight:
+          type: number
+        dedicationPersentage:
+          type: number
+        totalWeight:
+          type: number
+        receivedWeight:
+          type: number
+        price:
+          type: number
+        total:
+          type: number
+        vehicleRegistrationNumber:
+          type: string
+        paymentMethod:
+          type: string
+        paymentStatus:
+          type: string
+        deliveryStatus:
+          type: string
+        sourceOfPurcahse:
+          type: string
+        additionalNotes:
+          type: string
+        proofImages:
+          $ref: '#/components/schemas/productImages'
+    TransactionListResponse:
+      type: object
+      properties:
+        productId:
+          type: string
+        transactionDate:
+          type: string
+        totalWeight:
+          type: number
+        receivedWeight:
+          type: number
+        total:
+          type: number
+        paymentMethod:
+          type: string
+        paymentStatus:
+          type: string
+        deliveryStatus:
+          type: string
+        isPaid:
+          type: boolean
+        isDelivered:
+          type: boolean
+    TransactionDetailResponse:
+      type: object
+      properties:
+        productId:
+          type: string
+        transactionDate:
+          type: string
+        grossWeight:
+          type: number
+        tareWeight:
+          type: number
+        nettoWeight:
+          type: number
+        dedicationPersentage:
+          type: number
+        totalWeight:
+          type: number
+        receivedWeight:
+          type: number
+        price:
+          type: number
+        total:
+          type: number
+        vehicleRegistrationNumber:
+          type: string
+        paymentMethod:
+          type: string
+        paymentStatus:
+          type: string
+        deliveryStatus:
+          type: string
+        sourceOfPurcahse:
+          type: string
+        additionalNotes:
+          type: string
+        proofImages:
+          $ref: '#/components/schemas/productImages'
+    TransactionStoreBody:
+      type: object
+      properties:
+        productId:
+          type: string
+        grossWeight:
+          type: number
+        tareWeight:
+          type: number
+        dedicationPersentage:
+          type: number
+        receivedWeight:
+          type: number
+        price:
+          type: number
+        total:
+          type: number
+        vehicleRegistrationNumber:
+          type: string
+        paymentMethod:
+          type: string
+        paymentStatus:
+          type: string
+        deliveryStatus:
+          type: string
+        sourceOfPurcahse:
+          type: string
+        additionalNotes:
+          type: string
+        proofImages:
+          $ref: '#/components/schemas/productImages'
+    productImages:
+      type: array
+      items:
+        type: string
+    inline_response_400:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APIErrorResponse'
+      - $ref: '#/components/schemas/APIValidationError'
+    inline_response_200:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/Product'
+    inline_response_200_1:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/Product'
+    inline_response_200_2:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/Supplier'
+    inline_response_200_3:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/Supplier'
+    inline_response_200_4:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/DashboardReportResponse'
+    inline_response_200_5:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/ReportsResponse'
+    inline_response_200_6:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/ReportDetailResponse'
+    inline_response_200_7:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              type: object
+              allOf:
+              - type: object
+                properties:
+                  id:
+                    type: string
+              - $ref: '#/components/schemas/TransactionListResponse'
+    inline_response_200_8:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+            - type: object
+              properties:
+                id:
+                  type: string
+            - $ref: '#/components/schemas/TransactionDetailResponse'
+    sales_update_body:
+      allOf:
+      - type: object
+        properties:
+          id:
+            type: string
+      - $ref: '#/components/schemas/TransactionStoreBody'
+    APIValidationError_errors:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    LoginSuccessResponse_data:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        customerId:
+          type: string
+      example:
+        customerId: customerId
+        accessToken: accessToken
+    SubscriptionStatusSuccessResponse_data:
+      type: object
+      properties:
+        packageName:
+          type: string
+        isActive:
+          type: boolean
+        expiredAt:
+          type: string
+    SubscriptionHistorySuccessResponse_data:
+      type: object
+      properties:
+        invoiceNumber:
+          type: number
+        packageName:
+          type: string
+        duration:
+          type: number
+        total:
+          type: number
+        paymentStatus:
+          type: string
+        createdAt:
+          type: string
+    ProfileAccountResponse_data:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        companyName:
+          type: string
+        companyAddress:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

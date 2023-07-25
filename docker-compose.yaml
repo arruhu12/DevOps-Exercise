@@ -1,0 +1,27 @@
+version: "3.5"
+services:
+  backend:
+    build: 
+      args:
+        - NODE_ENV=development
+      context: ./backoffice
+    restart: always
+    networks:
+      sawit-net:
+        ipv4_address: 192.168.15.2
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backoffice:/app/backoffice
+
+networks:
+  sawit-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 192.168.15.0/29
+        gateway: 192.168.15.1
+    driver_opts:
+      com.docker.network.bridge.name: sawit-net
+
