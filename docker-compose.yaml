@@ -7,21 +7,15 @@ services:
       context: ./backoffice
     restart: always
     networks:
-      sawit-net:
-        ipv4_address: 192.168.15.2
+      - sawit-net
     environment:
       - NODE_ENV=development
     volumes:
       - ./backoffice:/app/backoffice
+    ports:
+      - "8000:8000"
 
 networks:
   sawit-net:
     driver: bridge
-    ipam:
-      driver: default
-      config:
-      - subnet: 192.168.15.0/29
-        gateway: 192.168.15.1
-    driver_opts:
-      com.docker.network.bridge.name: sawit-net
 
