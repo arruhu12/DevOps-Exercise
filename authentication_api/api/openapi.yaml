@@ -1,8 +1,15 @@
 openapi: 3.0.0
 info:
   title: Buku Sawit Authentication API
-  description: "API ini dipakai untuk melakukan authentikasi sistem buku sawit, baik\
-    \ untuk front office maupun back office."
+  description: |-
+    API ini dipakai untuk melakukan authentikasi sistem buku sawit, baik untuk front office maupun back office.
+
+    # Keterangan Penggunaan API
+    Silahkan atur alamat API sesuai dengan ketentuan dan mode berikut ini.
+    ## Development Mode
+    ` http://localhost:8000`
+    ## Production Mode
+    ` http://192.168.10.2`
   contact:
     email: it@ninosoftwarehouse.id
   version: 0.1.0
