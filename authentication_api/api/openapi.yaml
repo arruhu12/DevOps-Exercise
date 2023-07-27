@@ -1,0 +1,343 @@
+openapi: 3.0.0
+info:
+  title: Buku Sawit Authentication API
+  description: "API ini dipakai untuk melakukan authentikasi sistem buku sawit, baik\
+    \ untuk front office maupun back office."
+  contact:
+    email: it@ninosoftwarehouse.id
+  version: 0.1.0
+servers:
+- url: /
+paths:
+  /api/v1/register:
+    post:
+      tags:
+      - Customer Registration
+      summary: Register a new account
+      operationId: registerAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterAccountRequest'
+            example:
+              firstName: Supardi
+              lasName: Minamoto
+              companyName: PT. Saya Mau
+              companyAddress: Jl. Serdang No. 1
+              email: supardi@sayamau.id
+              phoneNumber: "62811600654"
+              password: test12345678
+        required: true
+      responses:
+        "200":
+          description: Account registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                mesage: Account Registered Successfully
+        "400":
+          description: Registration Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              examples:
+                Invalid Input:
+                  value:
+                    success: false
+                    errorCode: INPUT_VALIDATION_ERROR
+                    message: Input Validation Error
+                    errors:
+                    - field: email
+                      message: Format email tidak valid!
+                    - field: password
+                      message: Password harus memiliki panjang minimal 8 karakter!
+                User Exists:
+                  value:
+                    success: false
+                    errorCode: REGISTER_USER_EXISTS
+                    message: User was exists
+      x-swagger-router-controller: CustomerRegistration
+  /api/v1/activation/{activationCode}:
+    get:
+      tags:
+      - Customer Registration
+      summary: Activate a registered account
+      operationId: activateAccount
+      parameters:
+      - name: activationCode
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Account activation successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountActivationSuccessResponse'
+        "400":
+          description: Activation code not found or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountActivationExpiredResponse'
+              example:
+                success: false
+                errorCode: ACTIVATION_LINK_INVALID
+                message: Activation Link Was Invalid or Expired
+      x-swagger-router-controller: CustomerRegistration
+  /api/v1/login:
+    post:
+      tags:
+      - Authentication
+      summary: User login
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              Primary User (Backoffice):
+                value:
+                  email: airani@example.com
+                  password: SayaLupa123
+              Employee User (Frontoffice or Backoffice):
+                value:
+                  username: airani
+                  password: SayaLupa123
+        required: true
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSuccessResponse'
+              example:
+                success: true
+                message: Login Successfully
+                data:
+                  acessToken: EXAMPLE_TOKEN
+                  customerId: 62cb1d94-85ee-4704-a4bf-43340807d717
+                  isNewAccount: false
+                  isSubscriptionAction: true
+                  isActive: true
+        "400":
+          description: Login Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              example:
+                success: false
+                errorCode: CREDENTIAL_INPUT_VALIDATION_ERROR
+                message: Input Validation Error
+                errors:
+                - field: email
+                  message: Format email tidak valid!
+                - field: password
+                  message: Password harus memiliki panjang minimal 8 karakter!
+        "401":
+          description: Invalid Login Credentials
+          content:
+            aplication/json:
+              schema:
+                $ref: '#/components/schemas/LoginInvalidResponse'
+              examples:
+                emailNotFound:
+                  value:
+                    success: false
+                    errorCode: CREDENTIAL_EMAIL_NOT_REGISTERED
+                    message: E-Mail Not Registered
+                usernameNotFound:
+                  value:
+                    success: false
+                    errorCode: CREDENTIAL_USERNAME_NOT_REGISTERED
+                    message: E-Mail Not Registered
+                passwordMismatch:
+                  value:
+                    success: false
+                    errorCode: CREDENTIAL_PASSWORD_MISMATCH
+                    message: Password Mismatch
+      x-swagger-router-controller: Authentication
+  /api/v1/logout:
+    post:
+      tags:
+      - Authentication
+      summary: User Logout
+      operationId: logout
+      responses:
+        "200":
+          description: Logout Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: User Logged out Successfully
+        "500":
+          description: General Error From Server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIErrorResponse'
+              example:
+                success: false
+                errorCode: INTERNAL_SERVER_ERROR
+                message: Internal Server Error
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: Authentication
+components:
+  schemas:
+    APISuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      example:
+        success: true
+        message: message
+    APIErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        errorCode:
+          type: string
+        message:
+          type: string
+    APIValidationError:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/APIValidationError_errors'
+    RegisterAccountRequest:
+      required:
+      - companyAddress
+      - companyName
+      - email
+      - firstName
+      - password
+      - phoneNumber
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        companyName:
+          type: string
+        companyAddress:
+          type: string
+        email:
+          type: string
+          format: email
+        phoneNumber:
+          type: string
+        password:
+          type: string
+    AccountActivationSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      example:
+        success: true
+        message: Account Activated Successfully
+    AccountActivationExpiredResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        errorCode:
+          type: string
+        message:
+          type: string
+    LoginRequest:
+      required:
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        password:
+          type: string
+    LoginSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/LoginSuccessResponse_data'
+      example:
+        data:
+          isNewAccount: true
+          isSubscriptionAction: true
+          accessToken: accessToken
+          isActive: true
+        success: true
+        message: message
+    LoginInvalidResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        errorCode:
+          type: string
+        message:
+          type: string
+    inline_response_400:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APIErrorResponse'
+      - $ref: '#/components/schemas/APIValidationError'
+    APIValidationError_errors:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    LoginSuccessResponse_data:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        isNewAccount:
+          type: boolean
+        isSubscriptionAction:
+          type: boolean
+        isActive:
+          type: boolean
+      example:
+        isNewAccount: true
+        isSubscriptionAction: true
+        accessToken: accessToken
+        isActive: true
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
