@@ -1,7 +1,7 @@
-FROM node:18-alpine
+FROM node:18.17-alpine
 
 # Copy Files
-WORKDIR /app/authentication_api
+WORKDIR /app/services/data_management
 RUN chown node:node ./
 USER node
 

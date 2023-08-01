@@ -1,0 +1,22 @@
+{
+  "name": "buku-sawit-authentication-api",
+  "version": "0.1.0",
+  "description": "API ini dipakai untuk melakukan authentikasi dan manajemen akun untuk sistem buku sawit, baik untuk Front office maupun Back office.  # Keterangan Penggunaan API Silahkan atur alamat API sesuai dengan ketentuan dan mode berikut ini. ## Development Mode ` http://localhost:8000` ## Production Mode ` http://192.168.10.2`",
+  "main": "index.js",
+  "scripts": {
+    "prestart": "npm install",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "swagger"
+  ],
+  "license": "Unlicense",
+  "private": true,
+  "dependencies": {
+    "connect": "^3.2.0",
+    "dotenv": "^16.3.1",
+    "js-yaml": "^3.3.0",
+    "mysql": "^2.18.1",
+    "oas3-tools": "^2.2.3"
+  }
+}

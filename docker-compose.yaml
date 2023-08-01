@@ -1,19 +1,61 @@
 version: "3.5"
 services:
-  authentication-api:
-    build: 
-      args:
-        - NODE_ENV=development
-      context: ./authentication_api
+  api-gateway:
+    build: ./gateway_api
     restart: always
     networks:
-      - sawit-net
-    environment:
-      - NODE_ENV=development
+      sawit-backend:
+        ipv4_address: 192.168.10.2
     volumes:
-      - ./authentication_api:/app/authentication_api
+      - ./gateway_api:/app/gateway_api
     ports:
       - "8000:8000"
+    depends_on:
+      - mysql
+  
+  data-management-service:
+    build: ./services/data_management
+    restart: always
+    networks:
+      sawit-backend:
+        ipv4_address: 192.168.10.3
+    volumes:
+      - ./services/data_management:/app/services/data_management
+    depends_on:
+      - mysql
+
+  subscription-service:
+    build: ./services/subscription
+    restart: always
+    networks:
+      sawit-backend:
+        ipv4_address: 192.168.10.4
+    volumes:
+      - ./services/subscription:/app/services/subscription
+    depends_on:
+      - mysql
+  
+  transaction-service:
+    build: ./services/transaction
+    restart: always
+    networks:
+      sawit-backend:
+        ipv4_address: 192.168.10.5
+    volumes:
+      - ./services/transaction:/app/services/transaction
+    depends_on:
+      - mysql
+
+  report-service:
+    build: ./services/report
+    restart: always
+    networks:
+      sawit-backend:
+        ipv4_address: 192.168.10.6
+    volumes:
+      - ./services/report:/app/services/report
+    depends_on:
+      - mysql
 
   mysql:
     image: 'mysql/mysql-server:8.0'
@@ -30,15 +72,23 @@ services:
       - 'sawit-mysql:/var/lib/mysql'
       - './scripts/database.sql:/docker-entrypoint-initdb.d/1.sql'
     networks:
-      - sawit-net
+      sawit-backend:
+        ipv4_address: 192.168.10.7
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
       retries: 3
       timeout: 5s
 
 networks:
-  sawit-net:
+  sawit-backend:
     driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.10.0/28
+          gateway: 192.168.10.1
+    driver_opts:
+      com.docker.network.bridge.name: sawit-backend
 
 volumes:
   sawit-mysql:

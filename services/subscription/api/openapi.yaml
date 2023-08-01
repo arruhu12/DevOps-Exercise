@@ -1,0 +1,356 @@
+openapi: 3.0.0
+info:
+  title: Buku Sawit Subscription API
+  description: |-
+    API ini dipakai untuk akses fitur berlangganan untuk sistem buku sawit.
+    API ini dapat diakses oleh main account melalui aplikasi backoffice.
+
+    # Keterangan Penggunaan API
+    Silahkan atur alamat API sesuai dengan ketentuan dan mode berikut ini.
+    ## Development Mode
+    ` http://localhost:8005`
+    ## Production Mode
+    ` http://192.168.10.7`
+  contact:
+    email: it@ninosoftwarehouse.id
+  version: 0.1.0
+servers:
+- url: /
+paths:
+  /api/v1/subscription/status:
+    get:
+      tags:
+      - Subscription Management
+      summary: Get Subscription Status of a User
+      operationId: getSubscriptionStatus
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionStatusSuccessResponse'
+              examples:
+                Active Subscription:
+                  value:
+                    success: true
+                    message: Subscription Status Fetched Successfully
+                    data:
+                      packageName: Paket 12 Bulan
+                      isActive: true
+                      expiredAt: 2024-07-20
+                Expired Subscription:
+                  value:
+                    success: true
+                    message: Subscription Status Fetched Successfully
+                    data:
+                      packageName: Paket 12 Bulan
+                      isActive: false
+                      expiredAt: 2023-07-20
+                Never Subscribed:
+                  value:
+                    success: true
+                    message: Empty Subscription Status
+                    data: {}
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SubscriptionManagement
+  /api/v1/subscription/history:
+    get:
+      tags:
+      - Subscription Management
+      summary: Get History of Subscription Purchased
+      operationId: getSubscriptionPaymentHistory
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionHistorySuccessResponse'
+              examples:
+                Default:
+                  value:
+                    success: true
+                    message: Subscription History Fetched Successfully
+                    data:
+                    - invoiceNumber: 14022
+                      packageName: Paket 12 Bulan
+                      duration: 12
+                      total: 1500000
+                      paymentStatus: Paid
+                      createdAt: 2022-07-20 17:12:38.120
+                    - invoiceNumber: 14045
+                      packageName: Paket 12 Bulan
+                      duration: 12
+                      total: 1500000
+                      paymentStatus: Paid
+                      createdAt: 2023-07-20 16:12:38.120
+                Never Subscribed:
+                  value:
+                    success: true
+                    message: Empty Subscription History
+                    data: []
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SubscriptionManagement
+  /api/v1/subscription/packages:
+    get:
+      tags:
+      - Subscription Management
+      summary: Get list of subscription's packages
+      operationId: getSubscriptionPackages
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionPackageListSuccessResponse'
+              examples:
+                default:
+                  value:
+                    success: true
+                    message: Subscription Packages Fetched Successfully
+                    data:
+                    - packageId: 62cb1d94-85ee-4704-a4bf-43340807d717
+                      name: Paket 6 Bulan
+                      price: 750000
+                      discount: 0
+                      duration: 6
+                      description: Lorem Ipsum Dolor Sit Amet.
+                    - packageId: 92cb1d94-85ee-4704-a4bf-43340807d717
+                      name: Paket 12 Bulan
+                      price: 1500000
+                      discount: 0
+                      duration: 12
+                      description: Lorem Ipsum Dolor Sit Amet.
+                empty:
+                  value:
+                    success: true
+                    message: Subscription Packages Empty
+                    data: []
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SubscriptionManagement
+  /api/v1/subscription/cart:
+    post:
+      tags:
+      - Subscription Management
+      summary: Store selected package to cart
+      operationId: makeCart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionCartRequest'
+            example:
+              packageId: 92cb1d94-85ee-4704-a4bf-43340807d717
+      responses:
+        "201":
+          description: Store to card successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionCartSuccessResponse'
+              example:
+                success: true
+                message: Store to Cart Successful
+                data:
+                  packageId: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  name: Paket 12 Bulan
+                  price: 1500000
+                  discount: 0
+                  duration: 6
+                  tax: 0
+                  total: 1500000
+        "404":
+          description: Subscription Package Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIErrorResponse'
+              example:
+                success: false
+                errorCode: SUBSCRIPTION_PACKAGE_NOT_FOUND
+                message: Subscription's Package Not Found.
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SubscriptionManagement
+  /api/v1/payment:
+    post:
+      tags:
+      - Subscription Management
+      summary: Make a payment for a subscription package
+      operationId: makePayment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+            example:
+              packageId: 92cb1d94-85ee-4704-a4bf-43340807d717
+              paymentCode: BCA
+      responses:
+        "200":
+          description: Payment successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SubscriptionManagement
+components:
+  schemas:
+    APISuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+    APIErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        errorCode:
+          type: string
+        message:
+          type: string
+    APIValidationError:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/APIValidationError_errors'
+    SubscriptionStatusSuccessResponse:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/SubscriptionStatusSuccessResponse_data'
+    SubscriptionHistorySuccessResponse:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/SubscriptionHistorySuccessResponse_data'
+    SubscriptionPackageListSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/SubscriptionPackage'
+            - type: object
+              properties:
+                description:
+                  type: string
+      example:
+        data:
+        - ""
+        - ""
+        success: true
+        message: message
+    SubscriptionCartRequest:
+      type: object
+      properties:
+        packageID:
+          type: string
+    SubscriptionCartSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          allOf:
+          - $ref: '#/components/schemas/SubscriptionPackage'
+          - type: object
+            properties:
+              tax:
+                type: number
+              total:
+                type: number
+      example:
+        data: ""
+        success: true
+        message: message
+    SubscriptionPackage:
+      type: object
+      properties:
+        packageId:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        discount:
+          type: number
+        duration:
+          type: number
+    PaymentRequest:
+      type: object
+      properties:
+        packageId:
+          type: string
+        paymentMethod:
+          type: string
+    PaymentResponse:
+      type: object
+      properties:
+        transactionId:
+          type: string
+      example:
+        transactionId: transactionId
+    APIValidationError_errors:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    SubscriptionStatusSuccessResponse_data:
+      type: object
+      properties:
+        packageName:
+          type: string
+        isActive:
+          type: boolean
+        expiredAt:
+          type: string
+    SubscriptionHistorySuccessResponse_data:
+      type: object
+      properties:
+        invoiceNumber:
+          type: number
+        packageName:
+          type: string
+        duration:
+          type: number
+        total:
+          type: number
+        paymentStatus:
+          type: string
+        createdAt:
+          type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

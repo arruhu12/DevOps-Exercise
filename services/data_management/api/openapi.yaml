@@ -1,0 +1,812 @@
+openapi: 3.0.0
+info:
+  title: Buku Sawit Data Management Service
+  description: "Service ini dipakai untuk melakukan manajemen data produk, supplier\
+    \ dan karyawan untuk sistem buku sawit."
+  contact:
+    email: it@ninosoftwarehouse.id
+  version: 0.1.0
+servers:
+- url: /
+paths:
+  /api/v1/products:
+    get:
+      tags:
+      - Product Management
+      summary: Get a list of products
+      operationId: getProductList
+      parameters:
+      - name: showNameOnly
+        in: query
+        description: "If **true**, the endpoint returns only products name."
+        required: false
+        allowEmptyValue: true
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+              examples:
+                Default:
+                  value:
+                    success: true
+                    message: Product List Fetched Successfully
+                    data:
+                    - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                      name: TBS Brondolan
+                      price: 150000
+                    - id: 93cb1d94-85ee-4704-a4bf-43340807d717
+                      name: TBS Perkarangan
+                      price: 200000
+                    - id: 94cb1d94-85ee-4704-a4bf-43340807d717
+                      name: TBS Plasma
+                      price: 300000
+                Empty:
+                  value:
+                    success: true
+                    message: Empty Product List
+                    data: []
+                Name Only:
+                  value:
+                    success: true
+                    message: Product List Fetched Successfully
+                    data:
+                    - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                      name: TBS Brondolan
+                    - id: 93cb1d94-85ee-4704-a4bf-43340807d717
+                      name: TBS Perkarangan
+                    - id: 94cb1d94-85ee-4704-a4bf-43340807d717
+                      name: TBS Plasma
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: ProductManagement
+  /api/v1/products/{productId}:
+    get:
+      tags:
+      - Product Management
+      summary: Get product details by ID
+      operationId: getProductById
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+              example:
+                success: true
+                message: Product List Fetched Successfully
+                data:
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  name: TBS Brondolan
+                  price: 150000
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: ProductManagement
+  /api/v1/products/store:
+    post:
+      tags:
+      - Product Management
+      summary: Store Product
+      operationId: storeProduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/products_store_body'
+            examples:
+              Default:
+                value:
+                  name: TBS Brondolan
+                  price: "200000"
+              Missing Price Field:
+                value:
+                  name: TBS Brondolan
+              Missing Name Field:
+                value:
+                  price: "200000"
+              Missing All Fields:
+                value: {}
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Product Stored Successfully
+        "400":
+          description: Input Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              examples:
+                Missing Price Field:
+                  value:
+                    success: false
+                    errorCode: VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                    - field: productPrice
+                      message: Product price required
+                Missing Name Field:
+                  value:
+                    success: false
+                    errorCode: VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                    - field: productName
+                      message: Product name required
+                Missing All Fields:
+                  value:
+                    success: false
+                    errorCode: VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                    - field: productName
+                      message: Product name required
+                    - field: productPrice
+                      message: Product price required
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: ProductManagement
+  /api/v1/products/update:
+    put:
+      tags:
+      - Product Management
+      summary: Update Product details by ID
+      operationId: updateProductById
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/products_update_body'
+            example:
+              id: 92cb1d94-85ee-4704-a4bf-43340807d717
+              name: TBS Brondolans
+              price: "200000"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Product Updated Successfully
+        "400":
+          description: Input Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              examples:
+                Product ID Not Found:
+                  value:
+                    success: false
+                    errorCode: VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                    - field: productId
+                      message: Product ID not found
+                Missing All Fields:
+                  value:
+                    success: false
+                    errorCode: VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                    - field: name
+                      message: Product name required
+                    - field: price
+                      message: Product price required
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: ProductManagement
+  /api/v1/products/delete/{productId}:
+    delete:
+      tags:
+      - Product Management
+      summary: Delete products
+      operationId: dropProduct
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Product Deleted Successfully
+        "400":
+          description: Input Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              example:
+                success: false
+                errorCode: VALIDATION_ERROR
+                message: Input Validation error
+                errors:
+                - field: id
+                  message: Product ID Not Found
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: ProductManagement
+  /api/v1/suppliers:
+    get:
+      tags:
+      - Supplier Management
+      summary: Get a list of suppliers
+      operationId: getSupplierList
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+              examples:
+                Default:
+                  value:
+                    success: true
+                    message: Supplier List Fetched Successfully
+                    data:
+                    - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                      name: Kebun X
+                    - id: 93cb1d94-85ee-4704-a4bf-43340807d717
+                      name: Kebun Y
+                    - id: 94cb1d94-85ee-4704-a4bf-43340807d717
+                      name: Kebun Z
+                Empty:
+                  value:
+                    success: true
+                    message: Empty Supplier List
+                    data: []
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SupplierManagement
+  /api/v1/suppliers/{supplierId}:
+    get:
+      tags:
+      - Supplier Management
+      summary: Get supplier details by ID
+      operationId: getSupplierById
+      parameters:
+      - name: supplierId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_3'
+              example:
+                success: true
+                message: Supplier List Fetched Successfully
+                data:
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  name: Supplier Dummy
+                  address: Jl. Testing No. 99
+                  phoneNumber: "628137157218"
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SupplierManagement
+  /api/v1/suppliers/store:
+    post:
+      tags:
+      - Supplier Management
+      summary: Store Supplier
+      operationId: storeSupplier
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/suppliers_store_body'
+            examples:
+              Default:
+                value:
+                  name: Supplier Dummy ax
+                  address: Jl. Dummy No. 123
+                  phoneNumber: "62811600654"
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Supplier Stored Successfully
+        "400":
+          description: Input Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              example:
+                success: false
+                errorCode: VALIDATION_ERROR
+                message: Input Validation error
+                errors:
+                - field: name
+                  message: Supplier name required
+                - field: address
+                  message: Supplier price required
+                - field: phoneNumber
+                  message: Supplier phone number required
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SupplierManagement
+  /api/v1/suppliers/update:
+    put:
+      tags:
+      - Supplier Management
+      summary: Update supplier details by ID
+      operationId: updateSupplierById
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/suppliers_update_body'
+            examples:
+              Change Name:
+                value:
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  name: Supplier Flashbacker
+              Change Address:
+                value:
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  address: Jl. Coba lagi
+              Change Phone Number:
+                value:
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  phoneNumber: "62811600654"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Product Updated Successfully
+        "400":
+          description: Input Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              examples:
+                Product ID Not Found:
+                  value:
+                    success: false
+                    errorCode: VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                    - field: id
+                      message: Supplier ID not found
+                Missing All Fields:
+                  value:
+                    success: false
+                    errorCode: VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                    - field: name
+                      message: Nama supplier tidak boleh kosong
+                    - field: address
+                      message: Alamat supplier tidak boleh kosong
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SupplierManagement
+  /api/v1/suppliers/delete/{supplierId}:
+    delete:
+      tags:
+      - Supplier Management
+      summary: Delete Supplier
+      operationId: dropSupplier
+      parameters:
+      - name: supplierId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Product Deleted Successfully
+        "400":
+          description: Input Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              example:
+                success: false
+                errorCode: VALIDATION_ERROR
+                message: Input Validation error
+                errors:
+                - field: id
+                  message: Product ID Not Found
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: SupplierManagement
+  /api/v1/employees:
+    get:
+      tags:
+      - Employee Management
+      description: Show Employees List
+      operationId: getEmployees
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_4'
+              example:
+                success: true
+                message: Employee List Fetced Successfully
+                data:
+                - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  name: Airani
+                  username: airani
+                  phoneNumber: "6281375157218"
+                - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  name: Ayunda
+                  username: ayunda
+                  phoneNumber: "6285276320565"
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: EmployeeManagement
+  /api/v1/employees/store:
+    post:
+      tags:
+      - Employee Management
+      description: " Store employee data and create account for access system. <br>\
+        \ There are 2 role names: 'employee' and 'admin' "
+      operationId: storeEmployee
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/employees_store_body'
+      responses:
+        "201":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+        "400":
+          description: Input Valdation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              example:
+                success: false
+                errorCode: VALIDATION_ERROR
+                message: Input Validation error
+                errors:
+                - field: name
+                  message: Nama Karyawan wajib ada!
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: EmployeeManagement
+  /api/v1/employees/update:
+    put:
+      tags:
+      - Employee Management
+      operationId: updateEmployee
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/employees_update_body'
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+        "400":
+          description: Input Valdation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              example:
+                success: false
+                errorCode: VALIDATION_ERROR
+                message: Input Validation error
+                errors:
+                - field: name
+                  message: Nama Karyawan wajib ada!
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: EmployeeManagement
+  /api/v1/employee/delete/{employeeId}:
+    delete:
+      tags:
+      - Employee Management
+      summary: Delete Employee
+      operationId: dropEmployee
+      parameters:
+      - name: employeeId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Employee Deleted Successfully
+        "400":
+          description: Input Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+              example:
+                success: false
+                errorCode: VALIDATION_ERROR
+                message: Input Validation error
+                errors:
+                - field: id
+                  message: Employee ID Not Found
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: EmployeeManagement
+components:
+  schemas:
+    APISuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      example:
+        success: true
+        message: message
+    APIErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        errorCode:
+          type: string
+        message:
+          type: string
+    APIValidationError:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/APIValidationError_errors'
+    ProductFormRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: string
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+    SupplierFormRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+        phoneNumber:
+          type: string
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        phoneNumber:
+          type: string
+    EmployeeListResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        username:
+          type: string
+        phoneNumber:
+          type: string
+    EmployeeFormRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        phoneNumber:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+    inline_response_200:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/Product'
+    inline_response_200_1:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/Product'
+    products_store_body:
+      allOf:
+      - $ref: '#/components/schemas/ProductFormRequest'
+      - required:
+        - name
+        - price
+    inline_response_400:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APIErrorResponse'
+      - $ref: '#/components/schemas/APIValidationError'
+    products_update_body:
+      required:
+      - id
+      type: object
+      allOf:
+      - type: object
+        properties:
+          id:
+            type: string
+      - $ref: '#/components/schemas/ProductFormRequest'
+    inline_response_200_2:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/Supplier'
+    inline_response_200_3:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/Supplier'
+    suppliers_store_body:
+      allOf:
+      - $ref: '#/components/schemas/SupplierFormRequest'
+      - required:
+        - address
+        - name
+        - phoneNumber
+    suppliers_update_body:
+      allOf:
+      - type: object
+        properties:
+          id:
+            type: string
+      - $ref: '#/components/schemas/SupplierFormRequest'
+      - required:
+        - id
+    inline_response_200_4:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/EmployeeListResponse'
+    employees_store_body:
+      allOf:
+      - $ref: '#/components/schemas/EmployeeFormRequest'
+      - required:
+        - name
+        - password
+        - role
+        - username
+    employees_update_body:
+      allOf:
+      - type: object
+        properties:
+          id:
+            type: string
+      - $ref: '#/components/schemas/EmployeeFormRequest'
+      - required:
+        - id
+    APIValidationError_errors:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

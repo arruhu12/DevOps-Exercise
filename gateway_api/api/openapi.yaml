@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
-  title: Buku Sawit Authentication API
+  title: Buku Sawit Authentication Service API
   description: |-
-    API ini dipakai untuk melakukan authentikasi sistem buku sawit, baik untuk front office maupun back office.
+    API ini dipakai untuk melakukan authentikasi dan manajemen akun untuk sistem buku sawit, baik untuk Front office maupun Back office.
 
     # Keterangan Penggunaan API
     Silahkan atur alamat API sesuai dengan ketentuan dan mode berikut ini.
@@ -202,9 +202,103 @@ paths:
                 success: false
                 errorCode: INTERNAL_SERVER_ERROR
                 message: Internal Server Error
+      x-swagger-router-controller: Authentication
+  /api/v1/profile/session:
+    get:
+      tags:
+      - Profile Account Information
+      summary: Get account information for navbar
+      operationId: getAccountInfo
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+              example:
+                success: true
+                message: Account Info Fetched Successfully
+                data:
+                  firstName: Supardi
+                  lastName: Minamoto
+                  companyName: PT. Jalan Jalan
       security:
       - bearerAuth: []
-      x-swagger-router-controller: Authentication
+      x-swagger-router-controller: ProfileAccountInformation
+  /api/v1/profile:
+    get:
+      tags:
+      - Profile Account Information
+      summary: Get account details
+      operationId: getAccountDetails
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileAccountResponse'
+              example:
+                success: true
+                message: Account Information Fetched Successfully
+                data:
+                  firstName: Tsukiko
+                  lastName: Sorano
+                  companyName: PT. Kira Kira Sukses
+                  companyAddress: "Jl. Pasar Senen No. 10, Jakarta Pusat, DKI Jakarta"
+                  email: airani@example.com
+                  phoneNumber: "6281375157218"
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: ProfileAccountInformation
+    put:
+      tags:
+      - Profile Account Information
+      summary: Update account details
+      operationId: updateAccountDetails
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdateRequest'
+            example:
+              email: airaniii@example.com
+              phoneNumber: "62811600654"
+              currentPassword: Sayalupa123
+              newPassword: SoundofSnow
+      responses:
+        "200":
+          description: Account details updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APISuccessResponse'
+              example:
+                success: true
+                message: Account details updated successfully
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_1'
+              example:
+                success: false
+                errorCode: PROFILE_UPDATE_VALIDATION_ERROR
+                message: Input Validation Error
+                errors:
+                - field: email
+                  message: Format email tidak valid.
+                - field: phoneNumber
+                  message: Format nomor handphone tidak valid
+                - field: currentPassword
+                  message: Password sekarang salah
+                - field: newPassword
+                  message: Panjang password harus minimal 8 karakter
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: ProfileAccountInformation
 components:
   schemas:
     APISuccessResponse:
@@ -343,6 +437,62 @@ components:
         isSubscriptionAction: true
         accessToken: accessToken
         isActive: true
+    ProfileAccountResponse:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/ProfileAccountResponse_data'
+    ProfileUpdateRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        currentPassword:
+          type: string
+        newPassword:
+          type: string
+    inline_response_200:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/inline_response_200_data'
+    inline_response_400_1:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APIErrorResponse'
+      - $ref: '#/components/schemas/APIValidationError'
+    ProfileAccountResponse_data:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        companyName:
+          type: string
+        companyAddress:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+    inline_response_200_data:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        companyName:
+          type: string
   securitySchemes:
     bearerAuth:
       type: http

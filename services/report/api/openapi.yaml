@@ -1,0 +1,317 @@
+openapi: 3.0.0
+info:
+  title: Buku Sawit Report Service
+  description: Service ini dipakai untuk mengakses laporan transaksi untuk sistem
+    buku sawit.
+  contact:
+    email: it@ninosoftwarehouse.id
+  version: 0.1.0
+servers:
+- url: /
+paths:
+  /api/v1/reports/dashboard:
+    get:
+      tags:
+      - Purchase and Sales Reports
+      summary: Get Daily Reports for Dashboard
+      operationId: getDashboardReport
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+              example:
+                success: true
+                message: Dashboard Report Fetched Successfully
+                data:
+                  totalPurchases: 1500
+                  totalSales: 1200
+                  purchasesProducts:
+                  - name: TBS Brondolan
+                    total: 1200
+                  - name: TBS Perkarangan
+                    total: 1200
+                  - name: TBS Plasma
+                    total: 1200
+                  salesProducts:
+                  - name: TBS Brondolan
+                    total: 1200
+                  - name: TBS Perkarangan
+                    total: 1200
+                  - name: TBS Plasma
+                    total: 1200
+                  purchasesPaymentMethods:
+                  - name: Cash
+                    total: 1300
+                  - name: Transfer
+                    total: 1300
+                  salesPaymentMethods:
+                  - name: Cash
+                    total: 1300
+                  - name: Transfer
+                    total: 1300
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: PurchaseAndSalesReports
+  /api/v1/reports:
+    get:
+      tags:
+      - Purchase and Sales Reports
+      summary: Get Report of Purchases and Sales
+      operationId: getReports
+      parameters:
+      - name: filters
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/ReportFilter'
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+              example:
+                success: true
+                message: Report Fetched Successfully
+                data:
+                - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  transactionDate: 2023-07-24 15:00:25.120
+                  transactionType: Purchased
+                  supplierName: UD Supplier 1
+                  productName: TBS Plasma
+                  totalWeight: 1500
+                  receivedWeight: 750
+                  total: 260000
+                  paymentMethod: Cash
+                  paymentStatus: Paid
+                  deliveryStatus: Partial Deliveed
+                  createdBy: Supardi
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: PurchaseAndSalesReports
+  /api/v1/report/{transactionId}:
+    get:
+      tags:
+      - Purchase and Sales Reports
+      summary: Get Transaction Detail from Id
+      operationId: getTransactionById
+      parameters:
+      - name: transactionId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+              example:
+                success: true
+                message: Transaction Detail Fetched Successfully
+                data:
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  transactionDate: 2023-07-24 15:00:25.120
+                  transactionType: Purchased
+                  supplierName: UD Supplier 1
+                  productName: TBS Plasma
+                  createdBy: Supardi
+                  grossWeight: 2500
+                  tareWeight: 1000
+                  nettoWeight: 1500
+                  dedicationPersentage: 4
+                  totalWeight: 1440
+                  receivedWeight: 750
+                  price: 50000
+                  total: 72000000
+                  vehicleRegistrationNumber: BK 123 ABC
+                  paymentMethod: Cash
+                  paymentStatus: Paid
+                  deliveryStatus: Partial Deliveed
+                  sourceOfPurcahse: "-"
+                  proofImages:
+                  - https://link.id/a
+                  - https://link.id/b
+                  - https://link.id/c
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: PurchaseAndSalesReports
+components:
+  schemas:
+    APISuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+    DashboardReportResponse:
+      type: object
+      properties:
+        totalPurchases:
+          type: number
+        totalSales:
+          type: number
+        purchasesProducts:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardFilteredReport'
+        salesProducts:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardFilteredReport'
+        purchasesPaymentMethods:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardFilteredReport'
+        salesPaymentMethods:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardFilteredReport'
+    DashboardFilteredReport:
+      type: object
+      properties:
+        name:
+          type: string
+        total:
+          type: number
+    ReportFilter:
+      type: object
+      properties:
+        startDate:
+          type: string
+        endDate:
+          type: string
+        transactionType:
+          type: string
+        products:
+          type: array
+          items:
+            type: string
+            description: Product ID
+        suppliers:
+          type: array
+          items:
+            type: string
+            description: Supplier ID
+        paymentStatus:
+          type: string
+        paymentMethod:
+          type: string
+        deliveryStatus:
+          type: string
+    ReportsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        transactionDate:
+          type: string
+        transactionType:
+          type: string
+        supplierName:
+          type: string
+        productName:
+          type: string
+        totalWeight:
+          type: number
+        receivedWeight:
+          type: number
+        total:
+          type: number
+        paymentMethod:
+          type: string
+        paymentStatus:
+          type: string
+        deliveryStatus:
+          type: string
+        createdBy:
+          type: string
+    ReportDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        transactionDate:
+          type: string
+        transactionType:
+          type: string
+        supplierName:
+          type: string
+        productName:
+          type: string
+        createdBy:
+          type: string
+        grossWeight:
+          type: number
+        tareWeight:
+          type: number
+        nettoWeight:
+          type: number
+        dedicationPersentage:
+          type: number
+        totalWeight:
+          type: number
+        receivedWeight:
+          type: number
+        price:
+          type: number
+        total:
+          type: number
+        vehicleRegistrationNumber:
+          type: string
+        paymentMethod:
+          type: string
+        paymentStatus:
+          type: string
+        deliveryStatus:
+          type: string
+        sourceOfPurcahse:
+          type: string
+        additionalNotes:
+          type: string
+        proofImages:
+          $ref: '#/components/schemas/productImages'
+    productImages:
+      type: array
+      items:
+        type: string
+    inline_response_200:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/DashboardReportResponse'
+    inline_response_200_1:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/ReportsResponse'
+    inline_response_200_2:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/APISuccessResponse'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/ReportDetailResponse'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
