@@ -83,6 +83,15 @@ services:
       retries: 3
       timeout: 5s
 
+  mailhog:
+    image: 'mailhog/mailhog:latest'
+    ports:
+        - '1025:1025'
+        - '8025:8025'
+    networks:
+      sawit-backend:
+        ipv4_address: 192.168.10.8
+
 networks:
   sawit-backend:
     driver: bridge
