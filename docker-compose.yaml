@@ -8,8 +8,12 @@ services:
         ipv4_address: 192.168.10.2
     volumes:
       - ./gateway_api:/app/gateway_api
+      - ./gateway_api/nodemon.json:/app/gateway_api/nodemon.json
+      - ./gateway_api/tsconfig.json:/app/gateway_api/tsconfig.json
+      - ./gateway_api/.env:/app/gateway_api/.env
     ports:
       - "8000:8000"
+    command: npm run dev
     depends_on:
       - mysql
   
