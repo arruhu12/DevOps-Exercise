@@ -75,9 +75,8 @@ export const generateActivationToken = async (email: string) => {
         const [rows] = await pool.query<RowDataPacket[]>(`SELECT id FROM Users WHERE email = ?`, [email]);
         // Generate token
         const token = crypto.randomBytes(20).toString('hex');
-        RedisService.store('user-activation', rows[0].id, {
+        RedisService.store('user-activation', token, {
             id: rows[0].id,
-            token: token,
         }, 2 * 60 * 60);
         return token;
     } catch (error) {
