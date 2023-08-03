@@ -1,7 +1,7 @@
 import { Request, Response,  } from "express";
 import { validationResult } from "express-validator";
 import { errorResponse, successResponse } from "../utils/writer";
-import { checkEmail, registerAccount } from "../service/CustomerRegistrationService";
+import { checkEmail, generateActivationToken, registerAccount } from "../service/CustomerRegistrationService";
 import { sendMail } from "../service/MailerService";
 import UserRegistrationConfirm from "../mail/UserRegistrationConfirm";
 
@@ -15,6 +15,15 @@ import UserRegistrationConfirm from "../mail/UserRegistrationConfirm";
 //     });
 // };
 
+/**
+ * Customer Registration
+ * 
+ * Register a new customer account.
+ * 
+ * @param req Request
+ * @param res Response
+ * @returns Response
+ */
 export const customerRegistration = async (req: Request, res: Response) => {
   try {
     // Get Validation Result and return error
@@ -31,8 +40,11 @@ export const customerRegistration = async (req: Request, res: Response) => {
     
     // Send body to registration service
     const result = await registerAccount(req.body);
+
+    // Generate activation token and send mail
+    const activationToken = await generateActivationToken(req.body.email);
     if (result) {
-      sendMail(UserRegistrationConfirm(req.body.email));
+      sendMail(UserRegistrationConfirm(req.body.email, activationToken));
       return successResponse(res, 201, "Account Registered Successfully");
     }
   } catch (error) {

@@ -92,6 +92,20 @@ services:
       sawit-backend:
         ipv4_address: 192.168.10.8
 
+  redis:
+    image: 'redis:alpine'
+    ports:
+        - '6379:6379'
+    volumes:
+        - 'sawit-redis:/data'
+    networks:
+        sawit-backend:
+          ipv4_address: 192.168.10.9
+    healthcheck:
+        test: ["CMD", "redis-cli", "ping"]
+        retries: 3
+        timeout: 5s
+
 networks:
   sawit-backend:
     driver: bridge
@@ -105,5 +119,7 @@ networks:
 
 volumes:
   sawit-mysql:
+    driver: local
+  sawit-redis:
     driver: local
 

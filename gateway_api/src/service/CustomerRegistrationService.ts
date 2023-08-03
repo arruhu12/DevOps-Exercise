@@ -23,13 +23,17 @@ import { RowDataPacket } from "mysql2";
 import { User } from "models/User";
 import { v4 as uuid } from "uuid";
 import bcrypt from "bcrypt";
+import * as crypto from "crypto";
 import { Customer } from "models/Customer";
+import RedisService from "./RedisService";
 
 
 /**
  * Register a new account
  *
- * body RegisterAccountRequest 
+ * Register a new account with the given information
+ * 
+ * body any 
  * returns APISuccessResponse
  **/
 export const registerAccount = async (body: any) => {
@@ -65,15 +69,38 @@ export const registerAccount = async (body: any) => {
 /**
  * Check Exists User
  * 
- * Check if email was registered
+ * Check if a user exists with the given email
  * 
- * body CheckEmailRequest 
+ * email String
  * returns Boolean
  **/
 export const checkEmail = async (email: string) => {
     try {
         const [rows] = await pool.query<RowDataPacket[]>(`SELECT * FROM Users WHERE email = ?`, [email]);
         return rows.length > 0;
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
+ * Generate Activation Token
+ * 
+ * Generate activation token for a registered email
+ * 
+ * email String 
+ * returns String
+ */
+export const generateActivationToken = async (email: string) => {
+    try {
+        const [rows] = await pool.query<RowDataPacket[]>(`SELECT id FROM Users WHERE email = ?`, [email]);
+        // Generate token
+        const token = crypto.randomBytes(20).toString('hex');
+        RedisService.store('user-activation', rows[0].id, {
+            id: rows[0].id,
+            token: token,
+        }, 2 * 60 * 60);
+        return token;
     } catch (error) {
         throw error;
     }

@@ -24,6 +24,7 @@
     "mysql2": "^3.5.2",
     "nodemailer": "^6.9.4",
     "oas3-tools": "^2.2.3",
+    "redis": "^4.6.7",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
