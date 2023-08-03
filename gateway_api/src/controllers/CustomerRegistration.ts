@@ -1,7 +1,9 @@
 import { Request, Response,  } from "express";
-import { body, validationResult } from "express-validator";
+import { validationResult } from "express-validator";
 import { errorResponse, successResponse } from "../utils/writer";
 import { checkEmail, registerAccount } from "../service/CustomerRegistrationService";
+import { sendMail } from "../service/MailerService";
+import UserRegistrationConfirm from "../mail/UserRegistrationConfirm";
 
 // module.exports.activateAccount = function activateAccount (req, res, next, activationCode) {
 //   CustomerRegistration.activateAccount(activationCode)
@@ -15,8 +17,6 @@ import { checkEmail, registerAccount } from "../service/CustomerRegistrationServ
 
 export const customerRegistration = async (req: Request, res: Response) => {
   try {
-    // Check email exists
-
     // Get Validation Result and return error
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -32,6 +32,7 @@ export const customerRegistration = async (req: Request, res: Response) => {
     // Send body to registration service
     const result = await registerAccount(req.body);
     if (result) {
+      sendMail(UserRegistrationConfirm(req.body.email));
       return successResponse(res, 201, "Account Registered Successfully");
     }
   } catch (error) {
