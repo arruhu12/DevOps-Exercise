@@ -17,17 +17,21 @@ class RedisService {
     async store (tagName: string, id: string, data:object, expired?: number) {
         await this.client.connect();
         if (expired) {
-            await this.client.setEx(tagName + id, expired, JSON.stringify(data));
+            await this.client.setEx(`${tagName}-${id}`, expired, JSON.stringify(data));
         }
         else {
-            await this.client.set(tagName + id, JSON.stringify(data));
+            await this.client.set(`${tagName}-${id}`, JSON.stringify(data));
         }
     }
 
-    async get (tagName: string, id: string) {
+    async get (tagName: string, id: string): Promise<any> {
         await this.client.connect();
-        const data = await this.client.get(tagName + id);
+        const data = await this.client.get(`${tagName}-${id}`);
+        console.log(data);
         await this.client.disconnect();
+        if (typeof data === 'string') {
+            return JSON.parse(data);
+        }
         return data;
     }
 }

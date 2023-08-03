@@ -1,4 +1,4 @@
-import { customerRegistration } from "../controllers/CustomerRegistration";
+import { customerActivation, customerRegistration } from "../controllers/CustomerRegistration";
 import { Router, Request, Response } from "express";
 import { checkSchema } from "express-validator";
 import { userRegistrationRequest } from "../requests";
@@ -10,3 +10,4 @@ apiRouter.get("/", (req: Request, res: Response) => {
 });
 
 apiRouter.post('/register', checkSchema(userRegistrationRequest), customerRegistration);
+apiRouter.get('/activation/:activationCode', customerActivation);

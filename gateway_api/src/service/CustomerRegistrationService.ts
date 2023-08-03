@@ -1,23 +1,3 @@
-/**
- * Activate a registered account
- *
- * activationCode String 
- * returns AccountActivationSuccessResponse
- **/
-// exports.activateAccount = function(activationCode) {
-//   return new Promise(function(resolve, reject) {
-//     var examples = {};
-//     examples['application/json'] = {
-//   "success" : true,
-//   "message" : "Account Activated Successfully"
-// };
-//     if (Object.keys(examples).length > 0) {
-//       resolve(examples[Object.keys(examples)[0]]);
-//     } else {
-//       resolve();
-//     }
-//   });
-// }
 import { pool } from "./DatabaseService";
 import { RowDataPacket } from "mysql2";
 import { User } from "models/User";
@@ -26,7 +6,6 @@ import bcrypt from "bcrypt";
 import * as crypto from "crypto";
 import { Customer } from "models/Customer";
 import RedisService from "./RedisService";
-
 
 /**
  * Register a new account
@@ -101,6 +80,31 @@ export const generateActivationToken = async (email: string) => {
             token: token,
         }, 2 * 60 * 60);
         return token;
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+/**
+ * Activate an Account
+ * 
+ * Activate an account with the given activation token
+ * 
+ * @param token String 
+ * @returns APISuccessResponse
+ */
+export const activateAccount = async (token: string) => {
+    try {
+        const user = await RedisService.get('user-activation', token);
+        if (user) {
+            const connection = await pool.getConnection();
+            await connection.beginTransaction();
+            await connection.query(`UPDATE Users SET is_active = true WHERE id = ?;`, [user.id]);
+            await connection.commit();
+            return true;
+        }
+        return false;
     } catch (error) {
         throw error;
     }

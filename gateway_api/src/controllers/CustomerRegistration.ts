@@ -1,9 +1,38 @@
 import { Request, Response,  } from "express";
 import { validationResult } from "express-validator";
 import { errorResponse, successResponse } from "../utils/writer";
-import { checkEmail, generateActivationToken, registerAccount } from "../service/CustomerRegistrationService";
+import { activateAccount, checkEmail, generateActivationToken, registerAccount } from "../service/CustomerRegistrationService";
 import { sendMail } from "../service/MailerService";
 import UserRegistrationConfirm from "../mail/UserRegistrationConfirm";
+
+
+/**
+ * Activation Account Controller
+ * 
+ * Activate a customer account.
+ * 
+ * @param req Request
+ * @param res Response
+ * @returns Response
+ */
+
+export const customerActivation = async (req: Request, res: Response) => {
+  try {
+    // Get Validation Result and return error
+    if (req.params.activationCode == null) {
+      return errorResponse(res, 400, "ACTIVATION_CODE_REQUIRED", "Activation Code Required");
+    }
+
+    // Check activation code
+    const result = await activateAccount(req.params.activationCode);
+    if (result) {
+      return successResponse(res, 200, "Account Activated Successfully");
+    }
+    return errorResponse(res, 400, "ACTIVATION_LINK_INVALID", "Activation Link Was Invalid or Expired");
+  } catch (error) {
+    return errorResponse(res, 500, "INTERNAL_SERVER_ERROR", "Internal Server Error", error);
+  }
+}
 
 // module.exports.activateAccount = function activateAccount (req, res, next, activationCode) {
 //   CustomerRegistration.activateAccount(activationCode)
