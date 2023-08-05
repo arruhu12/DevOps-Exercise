@@ -39,12 +39,17 @@ class AuthenticationController {
       // Send body to Authentication Service and get token and customer id
       const [token, userId] = await AuthenticationService.login(req.body.email, req.body.password);
       const customerId = await CustomerService.getCustomerId(userId);
+      const customerSessionData = await CustomerService.getCustomer(customerId, true);
+      console.log(customerSessionData.first_name);
       
       return successResponse(res, 200, "Login Success", {
         "acessToken": token,
-        "customerId": customerId,
         "isNewAccount": false,
-        "isSubscriptionActive": true
+        "isSubscriptionActive": true,
+        "customerId": customerId,
+        "firstName": customerSessionData.first_name,
+        "lastName": customerSessionData.last_name,
+        "companyName": customerSessionData.company_name
       });
     } catch (error) {
       if (error instanceof Error) {

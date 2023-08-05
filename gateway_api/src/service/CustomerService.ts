@@ -14,13 +14,25 @@ class CustomerService {
      * 
      * This function gets a customer.
      * 
-     * @param req Request
-     * @param res Response
+     * @param customerId string
+     * @param isSessionData boolean
      */
-    public static getCustomer(req: any, res: any) {
-        res.status(200).send({
-            message: "Customer retrieved successfully!"
-        });
+    public static async getCustomer(customerId: string, isSessionData = false) {
+        try {
+            let result;
+            if (isSessionData) {
+                [result] = await pool.query<RowDataPacket[]>(`SELECT first_name, last_name, company_name FROM Customers WHERE id = ?`, [customerId]);
+            }
+            else {
+                [result] = await pool.query<RowDataPacket[]>(`
+                SELECT id, user_id, first_name, last_name, company_name, company_address, u.email, u.phone_number 
+                FROM Customers, Users u WHERE Customer.user_id = u.id AND id = ?`, [customerId]);
+            }
+            return result[0];
+        }
+        catch (error) {
+            throw error;
+        }
     }
 
     /**
