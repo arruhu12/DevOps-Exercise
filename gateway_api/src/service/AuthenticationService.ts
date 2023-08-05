@@ -21,7 +21,7 @@ class AuthenticationService {
    * 
    * @param email string
    * @param password string
-   * @returns Response
+   * @returns [string, string]
    */
   public static async login(email: string, password: string) {
     try {
@@ -34,7 +34,7 @@ class AuthenticationService {
             expiresIn: "1d"
           }
         );
-        return token;
+        return [token, user[0].id];
       }
       else if (!user[0].is_active) {
         throw new Error("CREDENTIAL_ACCOUNT_NOT_ACTIVE");

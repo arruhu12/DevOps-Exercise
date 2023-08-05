@@ -9,6 +9,7 @@ import { validationResult } from "express-validator";
 import AuthenticationService from "../service/AuthenticationService";
 import { checkEmail } from "../service/CustomerRegistrationService";
 import { errorResponse, successResponse } from "../utils/writer";
+import CustomerService from "../service/CustomerService";
 
 class AuthenticationController {
 
@@ -35,11 +36,13 @@ class AuthenticationController {
         return errorResponse(res, 400, "EMAIL_NOT_FOUND", "Email Not Found");
       }
 
-      // Send body to Authentication Service
-      const token = await AuthenticationService.login(req.body.email, req.body.password);
+      // Send body to Authentication Service and get token and customer id
+      const [token, userId] = await AuthenticationService.login(req.body.email, req.body.password);
+      const customerId = await CustomerService.getCustomerId(userId);
+      
       return successResponse(res, 200, "Login Success", {
         "acessToken": token,
-        "customerId": "62cb1d94-85ee-4704-a4bf-43340807d717",
+        "customerId": customerId,
         "isNewAccount": false,
         "isSubscriptionActive": true
       });
