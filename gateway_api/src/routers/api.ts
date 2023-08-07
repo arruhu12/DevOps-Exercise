@@ -3,6 +3,8 @@ import { Router, Request, Response } from "express";
 import { checkSchema } from "express-validator";
 import { userLoginRequest, userRegistrationRequest } from "../requests";
 import AuthenticationController from "../controllers/Authentication";
+import CustomerController from "../controllers/Customer";
+import AuthenticationMiddleware from "../middlewares/AuthenticationMiddleware";
 
 export const apiRouter = Router();
 
@@ -16,3 +18,6 @@ apiRouter.get('/activation/:activationCode', customerActivation);
 
 // Authentication Routes
 apiRouter.post('/login', checkSchema(userLoginRequest), AuthenticationController.login);
+
+// Customer Profile
+apiRouter.get('/profile', AuthenticationMiddleware, CustomerController.getProfile);

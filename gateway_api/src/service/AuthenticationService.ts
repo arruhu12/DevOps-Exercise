@@ -8,11 +8,11 @@ import { RowDataPacket } from "mysql2";
 import { pool } from "./DatabaseService";
 import bcrypt from "bcrypt";
 import { config } from "dotenv";
-import { sign } from "jsonwebtoken";
+import { sign, verify } from "jsonwebtoken";
 
 config();
 
-class AuthenticationService {
+export default class AuthenticationService {
 
   /**
    * Login
@@ -46,6 +46,20 @@ class AuthenticationService {
       throw error;
     }
   }
-}
 
-export default AuthenticationService;
+  /**
+   * Token Validation
+   * 
+   * This function validates a token.
+   * 
+   * @param token string
+   * @returns boolean
+   */
+  public static async tokenValidation(token: string) {
+    try {
+      return verify(token, process.env.APP_KEY!);
+    } catch (error) {
+      throw error;
+    }
+  }
+}
