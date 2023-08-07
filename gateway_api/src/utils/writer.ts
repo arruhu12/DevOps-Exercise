@@ -27,8 +27,8 @@ export const errorResponse = async (res: Response, httpCode: number, errorCode: 
         errorCode: errorCode,
         message: message
     };
-
-    if (errors != null) {
+    
+    if (errors) {
         if (errors instanceof Array)
             body.errors = errors.map((error) => {
                 const field = (error.type === 'field') ? error.path : '';
@@ -38,8 +38,11 @@ export const errorResponse = async (res: Response, httpCode: number, errorCode: 
                 }
             });
         else if (process.env.NODE_ENV === "development") {
-            body.errors = errors;
+            body.errors = {
+                message: errors.message,
+                stacktrace: errors.stack
+            };
         }
+        return res.status(httpCode).json(body);
     }
-    return res.status(httpCode).json(body);
 }

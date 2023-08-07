@@ -20,4 +20,4 @@ apiRouter.get('/activation/:activationCode', customerActivation);
 apiRouter.post('/login', checkSchema(userLoginRequest), AuthenticationController.login);
 
 // Customer Profile
-apiRouter.get('/profile', AuthenticationMiddleware, CustomerController.getProfile);
+apiRouter.get('/profile', AuthenticationMiddleware('customer'), CustomerController.getProfile);

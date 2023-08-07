@@ -8,7 +8,7 @@ import { RowDataPacket } from "mysql2";
 import { pool } from "./DatabaseService";
 import bcrypt from "bcrypt";
 import { config } from "dotenv";
-import { sign, verify } from "jsonwebtoken";
+import { JwtPayload, sign, verify } from "jsonwebtoken";
 
 config();
 
@@ -79,11 +79,12 @@ export default class AuthenticationService {
    * This function validates a token.
    * 
    * @param token string
-   * @returns boolean
+   * @returns UserContext
    */
   public static async tokenValidation(token: string) {
     try {
-      return verify(token, process.env.APP_KEY!);
+      const payload = verify(token, process.env.APP_KEY!) as JwtPayload;
+      return payload.context;
     } catch (error) {
       throw error;
     }
