@@ -4,8 +4,12 @@
 
 export default {
     email: {
-        exists: { errorMessage: "Email is required" },
+        optional: true,
         isEmail: { errorMessage: "Email must be a valid email" },
+    },
+    username: {
+        optional: true,
+        isString: { errorMessage: "Username must be a string" },
     },
     password: {
         exists: { errorMessage: "Password is required" },

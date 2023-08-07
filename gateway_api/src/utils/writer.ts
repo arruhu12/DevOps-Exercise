@@ -37,8 +37,9 @@ export const errorResponse = async (res: Response, httpCode: number, errorCode: 
                     field, message
                 }
             });
-        else
+        else if (process.env.NODE_ENV === "development") {
             body.errors = errors;
         }
+    }
     return res.status(httpCode).json(body);
 }

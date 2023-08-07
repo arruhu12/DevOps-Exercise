@@ -12,6 +12,26 @@ import { sign, verify } from "jsonwebtoken";
 
 config();
 
+interface UserContext {
+  user: {
+    id: string;
+    displayName: string;
+    companyName: string;
+  };
+  roles: string[];
+}
+
+function createClaims(sub: string, aud: string, context: UserContext) {
+  return {
+    "iss": "bukusawit",
+    "sub": sub,
+    "iat": Math.floor(Date.now() / 1000),
+    "exp": Math.floor(Date.now() / 1000) + (60 * 60 * 24),
+    "aud": aud,
+    "context": context
+  }
+}
+
 export default class AuthenticationService {
 
   /**
@@ -21,20 +41,26 @@ export default class AuthenticationService {
    * 
    * @param email string
    * @param password string
+   * @param authenticationType string
    * @returns [string, string]
    */
-  public static async login(email: string, password: string) {
+  public static async customerLogin(email: string, password: string) {
     try {
       const [user] = await pool.query<RowDataPacket[]>(`SELECT id, email, password, is_active FROM Users WHERE email = ?`, [email]);
       if (await bcrypt.compare(password, user[0].password) && user[0].is_active) {
+        const [customer] = await pool.query<RowDataPacket[]>(`SELECT id, first_name, last_name, company_name FROM Customers WHERE user_id = ?`, [user[0].id]);
         const token = sign(
-          { id: user[0].id },
-          process.env.APP_KEY!,
-          {
-            expiresIn: "1d"
-          }
+          createClaims(customer[0].first_name, "customer", {
+            "user": {
+              "id": customer[0].id,
+              "displayName": customer[0].first_name + " " + customer[0].last_name,
+              "companyName": customer[0].company_name
+            },
+            "roles": ["customer"]
+          }),
+          process.env.APP_KEY!
         );
-        return [token, user[0].id];
+        return token;
       }
       else if (!user[0].is_active) {
         throw new Error("CREDENTIAL_ACCOUNT_NOT_ACTIVE");
