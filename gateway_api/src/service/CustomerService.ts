@@ -29,6 +29,18 @@ class CustomerService {
         }
     }
 
+    public static async getCustomerSession(userId: string) {
+        try {
+            const [result] = await pool.query<RowDataPacket[]>(`
+            SELECT id, first_name, last_name, company_name FROM Customers WHERE user_id = ?`, [userId]);
+            return result[0];
+        }
+        catch (error) {
+            throw error;
+        }
+    
+    }
+
     /**
      * Get Customer Id
      * 

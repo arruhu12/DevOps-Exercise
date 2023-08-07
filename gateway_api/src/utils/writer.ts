@@ -43,6 +43,6 @@ export const errorResponse = async (res: Response, httpCode: number, errorCode: 
                 stacktrace: errors.stack
             };
         }
-        return res.status(httpCode).json(body);
     }
+    return res.status(httpCode).json(body);
 }

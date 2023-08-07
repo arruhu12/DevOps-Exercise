@@ -49,9 +49,7 @@ class AuthenticationController {
         
         // Return Response
         return successResponse(res, 200, "Login Success", {
-          "acessToken": token,
-          "isNewAccount": false,
-          "isSubscriptionActive": true
+          "acessToken": token
         });
       }
       // TODO: Employee Login
