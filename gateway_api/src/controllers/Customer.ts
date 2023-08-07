@@ -5,7 +5,7 @@
  */
 
 import { Request, Response } from "express";
-import CustomerService from "service/CustomerService";
+import CustomerService from "../service/CustomerService";
 import { errorResponse, successResponse } from "../utils/writer";
 
 export default class CustomerController {
@@ -20,9 +20,8 @@ export default class CustomerController {
      */
     public static async getProfile(req: Request, res: Response) {
         try {
-            // const customer = await CustomerService.getCustomer(customerId, false);
-            // return successResponse(res, 200, "Account Information Fetched Successfully")
-            return successResponse(res, 200, "Account Information Fetched Successfully");
+            const customer = await CustomerService.getCustomer(res.locals.user.user.id);
+            return successResponse(res, 200, "Account Information Fetched Successfully", customer);
         } catch (error) {
             return errorResponse(res, 500, "INTERNAL_SERVER_ERROR", "Internal Server Error", error);
         }

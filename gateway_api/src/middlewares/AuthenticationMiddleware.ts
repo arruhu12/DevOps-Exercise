@@ -21,6 +21,7 @@ export default (role: string = '*') => {
             }
             const user = await AuthenticationService.tokenValidation(token);
             if (user && (user.roles.includes(role) || role === '*')) {
+                res.locals.user = user;
                 next();
             }            
             return errorResponse(res, 401, "UNAUTHORIZED", "Unauthorized");
