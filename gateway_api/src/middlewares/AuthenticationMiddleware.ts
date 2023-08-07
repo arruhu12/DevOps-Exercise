@@ -23,6 +23,7 @@ export default (role: string = '*') => {
             if (user && (user.roles.includes(role) || role === '*')) {
                 res.locals.user = user;
                 next();
+                return true;
             }            
             return errorResponse(res, 401, "UNAUTHORIZED", "Unauthorized");
         } catch (error) {

@@ -46,7 +46,7 @@ export default class AuthenticationService {
           displayName: customer.first_name + " " + customer.last_name,
           companyName: customer.company_name
         },
-        roles: ["admin"],
+        roles: ["customer"],
         isNewAccount: false,
         isSubscriptionActive: false
       }
