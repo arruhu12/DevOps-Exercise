@@ -6,6 +6,8 @@
 
 import { RowDataPacket } from "mysql2";
 import { pool } from "./DatabaseService";
+import { User } from "../models/User";
+import { Customer } from "../models/Customer";
 
 class CustomerService {
 
@@ -78,13 +80,40 @@ class CustomerService {
      * 
      * This function updates a customer.
      * 
-     * @param req Request
-     * @param res Response
+     * @param body: any
+     * @param customerId: string
      */
-    public static updateCustomer(req: any, res: any) {
-        res.status(200).send({
-            message: "Customer updated successfully!"
-        });
+    public static async updateCustomer(body: any, customerId: string) {
+        try {
+            const [[userId]] = await pool.query<RowDataPacket[]>("SELECT user_id FROM Customers WHERE id = ?", [customerId]);
+            if (!userId) {
+                throw new Error("Customer not found");
+            }
+
+            const user:User = {
+                id: userId.user_id,
+                email: body.email,
+                phone_number: body.phoneNumber
+            }
+
+            const customer:Customer = {
+                id: customerId,
+                user_id: userId.user_id,
+                first_name: body.firstName,
+                last_name: body.lastName,
+                company_name: body.companyName,
+                company_address: body.companyAddress
+            }
+
+            const connection = await pool.getConnection();
+            await connection.beginTransaction();
+            await connection.query("UPDATE Users SET ? WHERE id = ?", [user, user.id]);
+            await connection.query("UPDATE Customers SET ? WHERE id = ?", [customer, customer.id]);
+            await connection.commit(); 
+            return true;
+        } catch (error) { 
+            throw error;
+        }
     }
 
 }
