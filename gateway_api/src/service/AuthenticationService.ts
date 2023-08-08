@@ -117,4 +117,37 @@ export default class AuthenticationService {
       throw error;
     }
   }
+
+  /**
+   * Change Password
+   * 
+   * @param id string
+   * @param currentPassword string
+   * @param newPassword string
+   */
+  public static async changePassword(id: string, currentPassword: string, newPassword: string) {
+    try {
+      // Get User id
+      const [customer] = await pool.query<RowDataPacket[]>(`SELECT user_id FROM Customers WHERE id = ?`, [id]);
+      if (!customer[0]) {
+        throw new Error("CREDENTIAL_ACCOUNT_NOT_FOUND");
+      }
+
+      // Get user
+      const [user] = await pool.query<RowDataPacket[]>(`SELECT id, password FROM Users WHERE id = ?`, [customer[0].user_id]);
+
+      // Check current password
+      if (!await bcrypt.compare(currentPassword, user[0].password)) {
+        throw new Error("CREDENTIAL_PASSWORD_MISMATCH");
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update password
+      await pool.query(`UPDATE Users SET password = ? WHERE id = ?`, [hashedPassword, customer[0].user_id]);
+    } catch (error) {
+      throw error;
+    }
+  }
 }

@@ -90,6 +90,34 @@ class AuthenticationController {
   //     utils.writeJson(res, error);
   //   }
   // }
+
+  /**
+   * Change Password
+   * 
+   * @param req Request
+   * @param res Response
+   * @returns Response
+   */
+  public static async changePassword(req: Request, res: Response) {
+    try {
+      // Get Validation Result and return error
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return errorResponse(res, 400, "INPUT_VALIDATION_ERROR", "Input Validation Error", errors.array());
+      }
+
+      // Change Password
+      const response = await AuthenticationService.changePassword(res.locals.user.user.id, req.body.currentPassword, req.body.newPassword);
+      return successResponse(res, 200, "Password Changed Successfully", response);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === "CREDENTIAL_PASSWORD_MISMATCH") {
+          return errorResponse(res, 400, "CREDENTIAL_PASSWORD_MISMATCH", "Credential Password Mismatch");
+        }
+      }
+      return errorResponse(res, 500, "INTERNAL_SERVER_ERROR", "Internal Server Error", error);
+    }
+  }
 }
 
 export default AuthenticationController;
