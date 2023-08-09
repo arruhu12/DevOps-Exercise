@@ -1,7 +1,7 @@
 FROM node:18.17-alpine as base
 
 # Copy Files
-WORKDIR /app/gateway_api
+WORKDIR /app/services/data-management
 COPY package.json  ./
 RUN npm i
 COPY . .
