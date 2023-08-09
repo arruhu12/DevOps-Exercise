@@ -1,0 +1,1347 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Buku Sawit Data Management Service",
+    "description": "Service ini dipakai untuk melakukan manajemen data produk, supplier dan karyawan untuk sistem buku sawit.",
+    "contact": {
+      "email": "it@ninosoftwarehouse.id"
+    },
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000"
+    }
+  ],
+  "paths": {
+    "/api/v1/products": {
+      "get": {
+        "tags": [
+          "Product Management"
+        ],
+        "operationId": "getProductList",
+        "summary": "Get a list of products",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "showNameOnly",
+            "schema": {
+              "type": "boolean"
+            },
+            "allowEmptyValue": true,
+            "description": "If **true**, the endpoint returns only products name."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/APISuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Product"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "examples": {
+                  "Default": {
+                    "value": {
+                      "success": true,
+                      "message": "Product List Fetched Successfully",
+                      "data": [
+                        {
+                          "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
+                          "name": "TBS Brondolan",
+                          "price": 150000
+                        },
+                        {
+                          "id": "93cb1d94-85ee-4704-a4bf-43340807d717",
+                          "name": "TBS Perkarangan",
+                          "price": 200000
+                        },
+                        {
+                          "id": "94cb1d94-85ee-4704-a4bf-43340807d717",
+                          "name": "TBS Plasma",
+                          "price": 300000
+                        }
+                      ]
+                    }
+                  },
+                  "Empty": {
+                    "value": {
+                      "success": true,
+                      "message": "Empty Product List",
+                      "data": []
+                    }
+                  },
+                  "Name Only": {
+                    "value": {
+                      "success": true,
+                      "message": "Product List Fetched Successfully",
+                      "data": [
+                        {
+                          "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
+                          "name": "TBS Brondolan"
+                        },
+                        {
+                          "id": "93cb1d94-85ee-4704-a4bf-43340807d717",
+                          "name": "TBS Perkarangan"
+                        },
+                        {
+                          "id": "94cb1d94-85ee-4704-a4bf-43340807d717",
+                          "name": "TBS Plasma"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{productId}": {
+      "get": {
+        "tags": [
+          "Product Management"
+        ],
+        "operationId": "getProductById",
+        "summary": "Get product details by ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/APISuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Product"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Product List Fetched Successfully",
+                  "data": {
+                    "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
+                    "name": "TBS Brondolan",
+                    "price": 150000
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/store": {
+      "post": {
+        "tags": [
+          "Product Management"
+        ],
+        "operationId": "storeProduct",
+        "summary": "Store Product",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ProductFormRequest"
+                  },
+                  {
+                    "required": [
+                      "name",
+                      "price"
+                    ]
+                  }
+                ]
+              },
+              "examples": {
+                "Default": {
+                  "value": {
+                    "name": "TBS Brondolan",
+                    "price": "200000"
+                  }
+                },
+                "Missing Price Field": {
+                  "value": {
+                    "name": "TBS Brondolan"
+                  }
+                },
+                "Missing Name Field": {
+                  "value": {
+                    "price": "200000"
+                  }
+                },
+                "Missing All Fields": {
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APISuccessResponse"
+                },
+                "example": {
+                  "success": true,
+                  "message": "Product Stored Successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Input Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/APIErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/APIValidationError"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Missing Price Field": {
+                    "value": {
+                      "success": false,
+                      "errorCode": "VALIDATION_ERROR",
+                      "message": "Input Validation error",
+                      "errors": [
+                        {
+                          "field": "productPrice",
+                          "message": "Product price required"
+                        }
+                      ]
+                    }
+                  },
+                  "Missing Name Field": {
+                    "value": {
+                      "success": false,
+                      "errorCode": "VALIDATION_ERROR",
+                      "message": "Input Validation error",
+                      "errors": [
+                        {
+                          "field": "productName",
+                          "message": "Product name required"
+                        }
+                      ]
+                    }
+                  },
+                  "Missing All Fields": {
+                    "value": {
+                      "success": false,
+                      "errorCode": "VALIDATION_ERROR",
+                      "message": "Input Validation error",
+                      "errors": [
+                        {
+                          "field": "productName",
+                          "message": "Product name required"
+                        },
+                        {
+                          "field": "productPrice",
+                          "message": "Product price required"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/update": {
+      "put": {
+        "tags": [
+          "Product Management"
+        ],
+        "operationId": "updateProductById",
+        "summary": "Update Product details by ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "$ref": "#/components/schemas/ProductFormRequest"
+                  }
+                ],
+                "required": [
+                  "id"
+                ]
+              },
+              "example": {
+                "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
+                "name": "TBS Brondolans",
+                "price": "200000"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APISuccessResponse"
+                },
+                "example": {
+                  "success": true,
+                  "message": "Product Updated Successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Input Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/APIErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/APIValidationError"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Product ID Not Found": {
+                    "value": {
+                      "success": false,
+                      "errorCode": "VALIDATION_ERROR",
+                      "message": "Input Validation error",
+                      "errors": [
+                        {
+                          "field": "productId",
+                          "message": "Product ID not found"
+                        }
+                      ]
+                    }
+                  },
+                  "Missing All Fields": {
+                    "value": {
+                      "success": false,
+                      "errorCode": "VALIDATION_ERROR",
+                      "message": "Input Validation error",
+                      "errors": [
+                        {
+                          "field": "name",
+                          "message": "Product name required"
+                        },
+                        {
+                          "field": "price",
+                          "message": "Product price required"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/delete/{productId}": {
+      "delete": {
+        "tags": [
+          "Product Management"
+        ],
+        "operationId": "dropProduct",
+        "summary": "Delete products",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APISuccessResponse"
+                },
+                "example": {
+                  "success": true,
+                  "message": "Product Deleted Successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Input Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/APIErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/APIValidationError"
+                    }
+                  ]
+                },
+                "example": {
+                  "success": false,
+                  "errorCode": "VALIDATION_ERROR",
+                  "message": "Input Validation error",
+                  "errors": [
+                    {
+                      "field": "id",
+                      "message": "Product ID Not Found"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/suppliers": {
+      "get": {
+        "tags": [
+          "Supplier Management"
+        ],
+        "operationId": "getSupplierList",
+        "summary": "Get a list of suppliers",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/APISuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Supplier"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "examples": {
+                  "Default": {
+                    "value": {
+                      "success": true,
+                      "message": "Supplier List Fetched Successfully",
+                      "data": [
+                        {
+                          "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
+                          "name": "Kebun X"
+                        },
+                        {
+                          "id": "93cb1d94-85ee-4704-a4bf-43340807d717",
+                          "name": "Kebun Y"
+                        },
+                        {
+                          "id": "94cb1d94-85ee-4704-a4bf-43340807d717",
+                          "name": "Kebun Z"
+                        }
+                      ]
+                    }
+                  },
+                  "Empty": {
+                    "value": {
+                      "success": true,
+                      "message": "Empty Supplier List",
+                      "data": []
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/suppliers/{supplierId}": {
+      "get": {
+        "tags": [
+          "Supplier Management"
+        ],
+        "operationId": "getSupplierById",
+        "summary": "Get supplier details by ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "supplierId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/APISuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Supplier"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Supplier List Fetched Successfully",
+                  "data": {
+                    "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
+                    "name": "Supplier Dummy",
+                    "address": "Jl. Testing No. 99",
+                    "phoneNumber": "628137157218"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/suppliers/store": {
+      "post": {
+        "tags": [
+          "Supplier Management"
+        ],
+        "operationId": "storeSupplier",
+        "summary": "Store Supplier",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/SupplierFormRequest"
+                  },
+                  {
+                    "required": [
+                      "name",
+                      "address",
+                      "phoneNumber"
+                    ]
+                  }
+                ]
+              },
+              "examples": {
+                "Default": {
+                  "value": {
+                    "name": "Supplier Dummy ax",
+                    "address": "Jl. Dummy No. 123",
+                    "phoneNumber": "62811600654"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APISuccessResponse"
+                },
+                "example": {
+                  "success": true,
+                  "message": "Supplier Stored Successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Input Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/APIErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/APIValidationError"
+                    }
+                  ]
+                },
+                "example": {
+                  "success": false,
+                  "errorCode": "VALIDATION_ERROR",
+                  "message": "Input Validation error",
+                  "errors": [
+                    {
+                      "field": "name",
+                      "message": "Supplier name required"
+                    },
+                    {
+                      "field": "address",
+                      "message": "Supplier price required"
+                    },
+                    {
+                      "field": "phoneNumber",
+                      "message": "Supplier phone number required"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/suppliers/update": {
+      "put": {
+        "tags": [
+          "Supplier Management"
+        ],
+        "operationId": "updateSupplierById",
+        "summary": "Update supplier details by ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "$ref": "#/components/schemas/SupplierFormRequest"
+                  },
+                  {
+                    "required": [
+                      "id"
+                    ]
+                  }
+                ]
+              },
+              "examples": {
+                "Change Name": {
+                  "value": {
+                    "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
+                    "name": "Supplier Flashbacker"
+                  }
+                },
+                "Change Address": {
+                  "value": {
+                    "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
+                    "address": "Jl. Coba lagi"
+                  }
+                },
+                "Change Phone Number": {
+                  "value": {
+                    "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
+                    "phoneNumber": "62811600654"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APISuccessResponse"
+                },
+                "example": {
+                  "success": true,
+                  "message": "Product Updated Successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Input Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/APIErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/APIValidationError"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Product ID Not Found": {
+                    "value": {
+                      "success": false,
+                      "errorCode": "VALIDATION_ERROR",
+                      "message": "Input Validation error",
+                      "errors": [
+                        {
+                          "field": "id",
+                          "message": "Supplier ID not found"
+                        }
+                      ]
+                    }
+                  },
+                  "Missing All Fields": {
+                    "value": {
+                      "success": false,
+                      "errorCode": "VALIDATION_ERROR",
+                      "message": "Input Validation error",
+                      "errors": [
+                        {
+                          "field": "name",
+                          "message": "Nama supplier tidak boleh kosong"
+                        },
+                        {
+                          "field": "address",
+                          "message": "Alamat supplier tidak boleh kosong"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/suppliers/delete/{supplierId}": {
+      "delete": {
+        "tags": [
+          "Supplier Management"
+        ],
+        "operationId": "dropSupplier",
+        "summary": "Delete Supplier",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "supplierId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APISuccessResponse"
+                },
+                "example": {
+                  "success": true,
+                  "message": "Product Deleted Successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Input Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/APIErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/APIValidationError"
+                    }
+                  ]
+                },
+                "example": {
+                  "success": false,
+                  "errorCode": "VALIDATION_ERROR",
+                  "message": "Input Validation error",
+                  "errors": [
+                    {
+                      "field": "id",
+                      "message": "Product ID Not Found"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/employees": {
+      "get": {
+        "tags": [
+          "Employee Management"
+        ],
+        "operationId": "getEmployees",
+        "description": "Show Employees List",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/APISuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/EmployeeListResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Employee List Fetced Successfully",
+                  "data": [
+                    {
+                      "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
+                      "name": "Airani",
+                      "username": "airani",
+                      "phoneNumber": "6281375157218"
+                    },
+                    {
+                      "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
+                      "name": "Ayunda",
+                      "username": "ayunda",
+                      "phoneNumber": "6285276320565"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/employees/store": {
+      "post": {
+        "tags": [
+          "Employee Management"
+        ],
+        "operationId": "storeEmployee",
+        "description": " Store employee data and create account for access system. <br> There are 2 role names: 'employee' and 'admin' ",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/EmployeeFormRequest"
+                  },
+                  {
+                    "required": [
+                      "name",
+                      "username",
+                      "password",
+                      "role"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APISuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Input Valdation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/APIErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/APIValidationError"
+                    }
+                  ]
+                },
+                "example": {
+                  "success": false,
+                  "errorCode": "VALIDATION_ERROR",
+                  "message": "Input Validation error",
+                  "errors": [
+                    {
+                      "field": "name",
+                      "message": "Nama Karyawan wajib ada!"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/employees/update": {
+      "put": {
+        "tags": [
+          "Employee Management"
+        ],
+        "operationId": "updateEmployee",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "$ref": "#/components/schemas/EmployeeFormRequest"
+                  },
+                  {
+                    "required": [
+                      "id"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APISuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Input Valdation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/APIErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/APIValidationError"
+                    }
+                  ]
+                },
+                "example": {
+                  "success": false,
+                  "errorCode": "VALIDATION_ERROR",
+                  "message": "Input Validation error",
+                  "errors": [
+                    {
+                      "field": "name",
+                      "message": "Nama Karyawan wajib ada!"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/employee/delete/{employeeId}": {
+      "delete": {
+        "tags": [
+          "Employee Management"
+        ],
+        "operationId": "dropEmployee",
+        "summary": "Delete Employee",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "employeeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APISuccessResponse"
+                },
+                "example": {
+                  "success": true,
+                  "message": "Employee Deleted Successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Input Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/APIErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/APIValidationError"
+                    }
+                  ]
+                },
+                "example": {
+                  "success": false,
+                  "errorCode": "VALIDATION_ERROR",
+                  "message": "Input Validation error",
+                  "errors": [
+                    {
+                      "field": "id",
+                      "message": "Employee ID Not Found"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "APISuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "APIErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errorCode": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "APIValidationError": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ProductFormRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string"
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          }
+        }
+      },
+      "SupplierFormRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "Supplier": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "EmployeeListResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "EmployeeFormRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

@@ -32,6 +32,6 @@ apiRouter.put('/profile', AuthenticationMiddleware('customer'), checkSchema(user
 apiRouter.put('/profile/password', AuthenticationMiddleware('customer'), checkSchema(userChangePasswordRequest), AuthenticationController.changePassword);
 
 apiRouter.use('/products', createProxyMiddleware({
-    target: 'http://192.168.10.3:8000',
+    target: process.env.DATA_MANAGEMENT_SERVICE,
     changeOrigin: true
 }));
