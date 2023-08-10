@@ -1,7 +1,7 @@
 import { Request, Response,  } from "express";
 import { validationResult } from "express-validator";
 import { errorResponse, successResponse } from "../utils/writer";
-import { activateAccount, checkEmail, generateActivationToken, registerAccount } from "../service/CustomerRegistrationService";
+import { activateAccount, checkEmail, checkUserActive, generateActivationToken, registerAccount } from "../service/CustomerRegistrationService";
 import { sendMail } from "../service/MailerService";
 import UserRegistrationConfirm from "../mail/UserRegistrationConfirm";
 
@@ -63,19 +63,20 @@ export const customerRegistration = async (req: Request, res: Response) => {
 
     // Check email exists
     const isExists = await checkEmail(req.body.email);
-    if (isExists) {
+    const isActive = await checkUserActive(req.body.email);
+    if (isExists && isActive) {
       return errorResponse(res, 400, "EMAIL_ALREADY_EXISTS", "Email Already Exists");
     }
+    else if (!isActive) {
+      // Send body to registration service
+      await registerAccount(req.body);
+    }
     
-    // Send body to registration service
-    const result = await registerAccount(req.body);
-
     // Generate activation token and send mail
     const activationToken = await generateActivationToken(req.body.email);
-    if (result) {
-      sendMail(UserRegistrationConfirm(req.body.email, activationToken));
-      return successResponse(res, 201, "Account Registered Successfully");
-    }
+    sendMail(UserRegistrationConfirm(req.body.email, activationToken));
+    
+    return successResponse(res, 201, "Account Registered Successfully");
   } catch (error) {
     return errorResponse(res, 500, "INTERNAL_SERVER_ERROR", "Internal Server Error", error);
   }

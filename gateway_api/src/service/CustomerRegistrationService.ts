@@ -38,7 +38,6 @@ export const registerAccount = async (body: any) => {
         await connection.query(`INSERT INTO Users SET ?;`, [user]);
         await connection.query(`INSERT INTO Customers SET ?;`, [customer]);
         await connection.commit(); 
-        return true;
     } catch (error) {
         throw error;
     }
@@ -55,7 +54,22 @@ export const registerAccount = async (body: any) => {
  **/
 export const checkEmail = async (email: string) => {
     try {
-        const [rows] = await pool.query<RowDataPacket[]>(`SELECT * FROM Users WHERE email = ?`, [email]);
+        const [rows] = await pool.query<RowDataPacket[]>(`SELECT id FROM Users WHERE email = ?`, [email]);
+        return rows.length > 0;
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
+ * Check User is active
+ * 
+ * @param email String
+ * @returns Boolean
+ */
+export const checkUserActive = async (email: string) => {
+    try {
+        const [rows] = await pool.query<RowDataPacket[]>(`SELECT id FROM Users WHERE email = ? AND is_active=1`, [email]);
         return rows.length > 0;
     } catch (error) {
         throw error;
