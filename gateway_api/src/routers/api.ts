@@ -35,8 +35,8 @@ apiRouter.use([
     '/products',
     '/suppliers',
     '/employees',
-    ], createProxyMiddleware({
+    ], [createProxyMiddleware({
     target: process.env.DATA_MANAGEMENT_SERVICE,
     changeOrigin: true,
     onProxyReq: fixRequestBody,
-}));
+}), AuthenticationMiddleware('customer')]);
