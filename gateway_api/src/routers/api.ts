@@ -6,7 +6,7 @@ import AuthenticationController from "../controllers/Authentication";
 import CustomerController from "../controllers/Customer";
 import AuthenticationMiddleware from "../middlewares/AuthenticationMiddleware";
 import { config } from "dotenv";
-import { createProxyMiddleware } from "http-proxy-middleware";
+import { createProxyMiddleware, fixRequestBody } from "http-proxy-middleware";
 
 export const apiRouter = Router();
 config();
@@ -31,7 +31,12 @@ apiRouter.get('/profile', AuthenticationMiddleware('customer'), CustomerControll
 apiRouter.put('/profile', AuthenticationMiddleware('customer'), checkSchema(userUpdateRequest), CustomerController.updateProfile);
 apiRouter.put('/profile/password', AuthenticationMiddleware('customer'), checkSchema(userChangePasswordRequest), AuthenticationController.changePassword);
 
-apiRouter.use('/products', createProxyMiddleware({
+apiRouter.use([
+    '/products',
+    '/suppliers',
+    '/employees',
+    ], createProxyMiddleware({
     target: process.env.DATA_MANAGEMENT_SERVICE,
-    changeOrigin: true
+    changeOrigin: true,
+    onProxyReq: fixRequestBody,
 }));
