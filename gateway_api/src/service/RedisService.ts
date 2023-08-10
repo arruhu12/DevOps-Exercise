@@ -22,12 +22,12 @@ class RedisService {
         else {
             await this.client.set(`${tagName}-${id}`, JSON.stringify(data));
         }
+        await this.client.disconnect();
     }
 
     async get (tagName: string, id: string): Promise<any> {
         await this.client.connect();
         const data = await this.client.get(`${tagName}-${id}`);
-        console.log(data);
         await this.client.disconnect();
         if (typeof data === 'string') {
             return JSON.parse(data);
