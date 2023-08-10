@@ -145,6 +145,7 @@ CREATE TABLE IF NOT EXISTS Product_Transaction_Images (
 );
 CREATE TABLE IF NOT EXISTS Products (
   id varchar(36) PRIMARY KEY,
+  customer_id varchar(36) NOT NULL,
   name varchar(50),
   price int,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
@@ -152,6 +153,7 @@ CREATE TABLE IF NOT EXISTS Products (
 );
 CREATE TABLE IF NOT EXISTS Suppliers (
   id varchar(36) PRIMARY KEY,
+  customer_id varchar(36) NOT NULL,
   name varchar(50),
   address varchar(150),
   phone_number varchar(15),
@@ -184,6 +186,8 @@ ALTER TABLE Product_Transactions ADD FOREIGN KEY (created_by) REFERENCES Employe
 ALTER TABLE Product_Transactions ADD FOREIGN KEY (updated_by) REFERENCES Employees (id);
 ALTER TABLE Product_Transactions ADD FOREIGN KEY (product_id) REFERENCES Products (id);
 ALTER TABLE Product_Transactions ADD FOREIGN KEY (supplier_id) REFERENCES Suppliers (id);
+ALTER TABLE Products ADD FOREIGN KEY (customer_id) REFERENCES Customers (id);
+ALTER TABLE Suppliers ADD FOREIGN KEY (customer_id) REFERENCES Customers (id);
 ALTER TABLE Product_Transaction_Images ADD FOREIGN KEY (transaction_id) REFERENCES Product_Transactions (id);
 ALTER TABLE Transaction_Modification_Requests ADD FOREIGN KEY (employee_id) REFERENCES Employees (id);
 ALTER TABLE Transaction_Modification_Requests ADD FOREIGN KEY (transaction_id) REFERENCES Product_Transactions (id);
