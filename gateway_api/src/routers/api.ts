@@ -40,5 +40,8 @@ apiRouter.use([
     createProxyMiddleware({
     target: process.env.DATA_MANAGEMENT_SERVICE,
     changeOrigin: true,
-    onProxyReq: fixRequestBody,
+    onProxyReq: (proxyReq, req, res) => {
+        proxyReq.setHeader('Authorization', `Bearer ${req.headers.authorization}`);
+        fixRequestBody(proxyReq, req);
+    }
 })]);

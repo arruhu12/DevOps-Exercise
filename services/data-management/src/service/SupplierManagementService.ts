@@ -11,11 +11,13 @@ export default class SupplierManagementService {
   /**
    * Get a list of suppliers
    *
+   * @param customerId string
    * @return object
    **/
-  public static async getSuppliers() {
+  public static async getSuppliers(customerId: string) {
     try {
-      const [[suppliers]] = await db.query<RowDataPacket[]>("SELECT id, name FROM Suppliers");
+      const [[suppliers]] = await db.query<RowDataPacket[]>(
+        "SELECT id, name FROM Suppliers WHERE customer_id = ?", [customerId]);
       return suppliers;
     } catch (error) {
       throw error;
@@ -26,13 +28,14 @@ export default class SupplierManagementService {
    * Get supplier details by ID
    *
    * @param supplierId string
+   * @param customerId string
    * @returns object
    **/
-  public static async getSupplierById(supplierId: string) {
+  public static async getSupplierById(supplierId: string, customerId: string) {
     try {
       const [[supplier]] = await db.query<RowDataPacket[]>(
-        "SELECT id, name, address, phone_number FROM Suppliers WHERE id = ?",
-        [supplierId]
+        "SELECT id, name, address, phone_number FROM Suppliers WHERE id = ? AND customer_id = ?",
+        [supplierId, customerId]
       );
       return supplier;
     } catch (error) {
@@ -43,13 +46,15 @@ export default class SupplierManagementService {
   /**
    * Store Supplier
    *
+   * @param customerId string
    * @param body any 
    * @returns object
    **/
-  public static async storeSupplier(body: any) {
+  public static async storeSupplier(customerId: string, body: any) {
     try {      
       const supplier:Supplier = {
         id: uuid(),
+        customer_id: customerId,
         name: body.name,
         address: body.address,
         phone_number: body.phoneNumber
@@ -65,13 +70,15 @@ export default class SupplierManagementService {
    * Update supplier details by ID
    *
    * @param id string
+   * @param customerId string
    * @param body any
    * @returns object
    **/
-  public static async updateSupplier(id: string, body: any) {
+  public static async updateSupplier(id: string, customerId: string, body: any) {
     try {
       const supplier:Supplier = {
         id: id,
+        customer_id: customerId,
         name: body.name,
         address: body.address,
         phone_number: body.phoneNumber

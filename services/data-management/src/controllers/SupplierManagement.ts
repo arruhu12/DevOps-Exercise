@@ -7,6 +7,7 @@ import SupplierManagementService from "../service/SupplierManagementService";
 import { errorResponse, successResponse } from "../utils/writer";
 import { camelCaseKeys, snakeCaseKeys } from "../utils/keyConverter";
 import { validationResult } from "express-validator";
+import UserContextService from "../service/UserContextService";
 
 
 
@@ -21,7 +22,16 @@ export default class SupplierManagementController {
    */
   public static async all(req: Request, res: Response) {
     try {
-      const suppliers = await SupplierManagementService.getSuppliers();
+      // Return Unauthorized if user is not logged in
+      if (!req.headers.authorization) {
+        return errorResponse(res, 401, 'UNAUTHORIZED', 'Unauthorized');
+      }
+      
+      // Get customer id from token
+      const customerId = UserContextService.getCustomerId(req.headers.authorization);
+
+      // Get Suppliers
+      const suppliers = await SupplierManagementService.getSuppliers(customerId);
       if (!suppliers) {
         return successResponse(res, 200, 'Supplier List Empty', []);
       }
@@ -44,8 +54,11 @@ export default class SupplierManagementController {
         return errorResponse(res, 400, 'VALIDATION_ERROR', 'Bad Request');
       }
       
+      // Get Customer ID
+      const customerId = UserContextService.getCustomerId(req.headers.authorization!);
+
       // Check if supplier exists or not
-      const supplier = await SupplierManagementService.getSupplierById(req.params.id);
+      const supplier = await SupplierManagementService.getSupplierById(req.params.id, customerId);
       if (!supplier) {
         return errorResponse(res, 404, 'NOT_FOUND', 'Supplier Not Found');
       }
@@ -70,8 +83,11 @@ export default class SupplierManagementController {
         return errorResponse(res, 400, "INPUT_VALIDATION_ERROR", "Input Validation Error", errors.array());
       }
 
+      // Get Customer ID
+      const customerId = UserContextService.getCustomerId(req.headers.authorization!);
+
       // Store Supplier
-      await SupplierManagementService.storeSupplier(req.body);
+      await SupplierManagementService.storeSupplier(customerId, req.body);
       return successResponse(res, 201, 'Supplier Created Successfully');
     } catch (error) {
       errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
@@ -93,14 +109,17 @@ export default class SupplierManagementController {
         return errorResponse(res, 400, "INPUT_VALIDATION_ERROR", "Input Validation Error", errors.array());
       }
 
+      // Get Customer ID
+      const customerId = UserContextService.getCustomerId(req.headers.authorization!);
+
       // Check if supplier exists or not
-      const supplier = await SupplierManagementService.getSupplierById(req.body.id);
+      const supplier = await SupplierManagementService.getSupplierById(req.body.id, customerId);
       if (!supplier) {
         return errorResponse(res, 404, 'NOT_FOUND', 'Supplier Not Found');
       }
 
       // Update Supplier
-      await SupplierManagementService.updateSupplier(req.body.id, req.body);
+      await SupplierManagementService.updateSupplier(req.body.id, customerId, req.body);
       return successResponse(res, 200, 'Supplier Updated Successfully');
     } catch (error) {
       errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
@@ -116,10 +135,11 @@ export default class SupplierManagementController {
    */
   public static async delete(req: Request, res: Response) {
     try {
-      // Check supplier id validation
+      // Get Customer ID
+      const customerId = UserContextService.getCustomerId(req.headers.authorization!);
       
       // Check if supplier exists or not
-      const supplier = await SupplierManagementService.getSupplierById(req.params.id);
+      const supplier = await SupplierManagementService.getSupplierById(req.params.id, customerId);
       if (!supplier) {
         return errorResponse(res, 404, 'NOT_FOUND', 'Supplier Not Found');
       }
