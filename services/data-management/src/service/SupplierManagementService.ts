@@ -16,7 +16,7 @@ export default class SupplierManagementService {
    **/
   public static async getSuppliers(customerId: string) {
     try {
-      const [[suppliers]] = await db.query<RowDataPacket[]>(
+      const [suppliers] = await db.query<RowDataPacket[]>(
         "SELECT id, name FROM Suppliers WHERE customer_id = ?", [customerId]);
       return suppliers;
     } catch (error) {
@@ -51,8 +51,8 @@ export default class SupplierManagementService {
    * @returns object
    **/
   public static async storeSupplier(customerId: string, body: any) {
-    try {      
-      const supplier:Supplier = {
+    try {
+      const supplier: Supplier = {
         id: uuid(),
         customer_id: customerId,
         name: body.name,
@@ -76,7 +76,7 @@ export default class SupplierManagementService {
    **/
   public static async updateSupplier(id: string, customerId: string, body: any) {
     try {
-      const supplier:Supplier = {
+      const supplier: Supplier = {
         id: id,
         customer_id: customerId,
         name: body.name,
