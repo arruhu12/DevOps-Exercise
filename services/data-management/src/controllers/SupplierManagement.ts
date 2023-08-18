@@ -5,7 +5,7 @@
 import { Request, Response } from "express";
 import SupplierManagementService from "../service/SupplierManagementService";
 import { errorResponse, successResponse } from "../utils/writer";
-import { camelCaseKeys, snakeCaseKeys } from "../utils/keyConverter";
+import { camelCaseKeys } from "../utils/keyConverter";
 import { validationResult } from "express-validator";
 import UserContextService from "../service/UserContextService";
 
@@ -58,7 +58,7 @@ export default class SupplierManagementController {
       const customerId = UserContextService.getCustomerId(req.headers.authorization!);
 
       // Check if supplier exists or not
-      const supplier = await SupplierManagementService.getSupplierById(req.params.id, customerId);
+      const supplier = await SupplierManagementService.getSupplierById(customerId, req.params.id);
       if (!supplier) {
         return errorResponse(res, 404, 'NOT_FOUND', 'Supplier Not Found');
       }
@@ -113,13 +113,13 @@ export default class SupplierManagementController {
       const customerId = UserContextService.getCustomerId(req.headers.authorization!);
 
       // Check if supplier exists or not
-      const supplier = await SupplierManagementService.getSupplierById(req.body.id, customerId);
+      const supplier = await SupplierManagementService.getSupplierById(customerId, req.body.id);
       if (!supplier) {
         return errorResponse(res, 404, 'NOT_FOUND', 'Supplier Not Found');
       }
 
       // Update Supplier
-      await SupplierManagementService.updateSupplier(req.body.id, customerId, req.body);
+      await SupplierManagementService.updateSupplier(customerId, req.body.id, req.body);
       return successResponse(res, 200, 'Supplier Updated Successfully');
     } catch (error) {
       errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
@@ -139,13 +139,13 @@ export default class SupplierManagementController {
       const customerId = UserContextService.getCustomerId(req.headers.authorization!);
       
       // Check if supplier exists or not
-      const supplier = await SupplierManagementService.getSupplierById(req.params.id, customerId);
+      const supplier = await SupplierManagementService.getSupplierById(customerId, req.params.id);
       if (!supplier) {
         return errorResponse(res, 404, 'NOT_FOUND', 'Supplier Not Found');
       }
 
       // Delete Supplier
-      await SupplierManagementService.drop(req.params.id);
+      await SupplierManagementService.drop(customerId, req.params.id);
       return successResponse(res, 200, 'Supplier Deleted Successfully');
     } catch (error) {
       errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);

@@ -11,10 +11,10 @@ export default class SupplierManagementService {
   /**
    * Get a list of suppliers
    *
-   * @param customerId string
+   * @param customerId number
    * @return object
    **/
-  public static async getSuppliers(customerId: string) {
+  public static async getSuppliers(customerId: number) {
     try {
       const [suppliers] = await db.query<RowDataPacket[]>(
         "SELECT id, name FROM Suppliers WHERE customer_id = ?", [customerId]);
@@ -27,11 +27,11 @@ export default class SupplierManagementService {
   /**
    * Get supplier details by ID
    *
+   * @param customerId number
    * @param supplierId string
-   * @param customerId string
    * @returns object
    **/
-  public static async getSupplierById(supplierId: string, customerId: string) {
+  public static async getSupplierById(customerId: number, supplierId: string) {
     try {
       const [[supplier]] = await db.query<RowDataPacket[]>(
         "SELECT id, name, address, phone_number FROM Suppliers WHERE id = ? AND customer_id = ?",
@@ -46,11 +46,11 @@ export default class SupplierManagementService {
   /**
    * Store Supplier
    *
-   * @param customerId string
+   * @param customerId number
    * @param body any 
    * @returns object
    **/
-  public static async storeSupplier(customerId: string, body: any) {
+  public static async storeSupplier(customerId: number, body: any) {
     try {
       const supplier: Supplier = {
         id: uuid(),
@@ -69,21 +69,21 @@ export default class SupplierManagementService {
   /**
    * Update supplier details by ID
    *
-   * @param id string
-   * @param customerId string
+   * @param customerId number
+   * @param supplierId string
    * @param body any
    * @returns object
    **/
-  public static async updateSupplier(id: string, customerId: string, body: any) {
+  public static async updateSupplier(customerId: number, supplierId: string, body: any) {
     try {
       const supplier: Supplier = {
-        id: id,
+        id: supplierId,
         customer_id: customerId,
         name: body.name,
         address: body.address,
         phone_number: body.phoneNumber
       }
-      const result = await db.query("UPDATE Suppliers SET ? WHERE id = ?", [supplier, id]);
+      const result = await db.query("UPDATE Suppliers SET ? WHERE id = ?", [supplier, supplierId]);
       return result;
     } catch (error) {
       throw error;
@@ -93,12 +93,13 @@ export default class SupplierManagementService {
   /**
    * Delete Supplier
    *
-   * @param id string 
+   * @param customerId number
+   * @param supplierId string 
    * @returns object
    **/
-  public static async drop(id: string) {
+  public static async drop(customerId: number, supplierId: string) {
     try {
-      const result = await db.query("DELETE FROM Suppliers WHERE id = ?", [id]);
+      const result = await db.query("DELETE FROM Suppliers WHERE id = ? AND customer_id = ?", [supplierId, customerId]);
       return result;
     } catch (error) {
       throw error;

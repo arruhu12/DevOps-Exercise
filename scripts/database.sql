@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS Users (
 	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS Customers (
-  id varchar(36) NOT NULL PRIMARY KEY,
+  id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
   user_id varchar(36) NOT NULL,
   first_name varchar(100),
   last_name varchar(100),
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS Customers (
 );
 CREATE TABLE IF NOT EXISTS Employees (
   id varchar(36) PRIMARY KEY,
-  customer_id varchar(36) NOT NULL,
+  customer_id int NOT NULL,
   name varchar(150) NOT NULL,
   phone_number varchar(15),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS Login_Activities (
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS Subscription_Status (
-  customer_id varchar(36) NOT NULL,
+  customer_id int NOT NULL,
   package_id varchar(36) NOT NULL,
   is_active bool NOT NULL,
   expired_at datetime NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS Subscription_Status (
 );
 CREATE TABLE IF NOT EXISTS Orders (
   id varchar(36) PRIMARY KEY,
-  customer_id varchar(36) NOT NULL,
+  customer_id int NOT NULL,
   customer_ip varchar(15),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -145,7 +145,7 @@ CREATE TABLE IF NOT EXISTS Product_Transaction_Images (
 );
 CREATE TABLE IF NOT EXISTS Products (
   id varchar(36) PRIMARY KEY,
-  customer_id varchar(36) NOT NULL,
+  customer_id int NOT NULL,
   name varchar(50),
   price int,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS Products (
 );
 CREATE TABLE IF NOT EXISTS Suppliers (
   id varchar(36) PRIMARY KEY,
-  customer_id varchar(36) NOT NULL,
+  customer_id int NOT NULL,
   name varchar(50),
   address varchar(150),
   phone_number varchar(15),

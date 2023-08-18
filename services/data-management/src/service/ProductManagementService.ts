@@ -11,11 +11,11 @@ export default class ProductManagementService {
   /**
    * Get a list of products
    *
-   * @param customerId string
+   * @param customerId number
    * @param showNameOnly boolean If **true**, the endpoint returns only products name. (optional)
    * @returns object
    **/
-  public static async getProducts(customerId: string, showNameOnly=false) {
+  public static async getProducts(customerId: number, showNameOnly=false) {
     try {
       let products;
       if (showNameOnly) {
@@ -35,11 +35,11 @@ export default class ProductManagementService {
   /**
    * Get product details by ID
    *
+   * @param customerId number
    * @param productId string
-   * @param customerId string
    * @returns object
    **/
-  public static async getProductById(productId: string, customerId: string) {
+  public static async getProductById(customerId: number, productId: string) {
     try {
       let [[product]] = await db.query<RowDataPacket[]>(
         "SELECT * FROM Products WHERE id = ? AND customer_id = ?", [productId, customerId]);
@@ -52,11 +52,11 @@ export default class ProductManagementService {
   /**
    * Store Product
    *
-   * @param customerId string
+   * @param customerId number
    * @param body any
    * @returns object
    **/
-  public static async storeProduct(customerId: string, body: any) {
+  public static async storeProduct(customerId: number, body: any) {
     try {
       const product:Product = {
         id: uuid(),
@@ -74,11 +74,11 @@ export default class ProductManagementService {
   /**
    * Update Product details by ID
    *
-   * @param customerId string
+   * @param customerId number
    * @param body any
    * @returns object
    **/
-  public static async updateProductById(customerId: string, body: any) {
+  public static async updateProductById(customerId: number, body: any) {
     try {
       const product:Product = {
         id: body.id,
@@ -97,10 +97,10 @@ export default class ProductManagementService {
    * Delete products
    *
    * @param id string
-   * @param customerId string
+   * @param customerId number
    * @returns object
    **/
-  public static async deleteProduct(id: string, customerId: string) {
+  public static async deleteProduct(customerId: number, id: string) {
     try {
       const result = await db.query("DELETE FROM Products WHERE id = ? AND customer_id = ?", [id, customerId]);
       return result;

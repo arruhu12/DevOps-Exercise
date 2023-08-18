@@ -26,12 +26,12 @@ export default class UserContextService {
      * Get Customer ID
      * 
      * @param token: string
-     * @returns string
+     * @returns number
      */
-    public static getCustomerId(token: string): string {
+    public static getCustomerId(token: string): number {
         try {
             const result = this.decodeJwtToken(token).context.user;
-            return result.customerId ?? result.id;
+            return Number(result.customerId!);
         } catch (error) {
             throw error;
         }

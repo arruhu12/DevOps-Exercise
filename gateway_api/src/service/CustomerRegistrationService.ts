@@ -26,7 +26,6 @@ export const registerAccount = async (body: any) => {
         }
 
         const customer: Customer = {
-            id: uuid(),
             user_id: user.id,
             first_name: body.firstName,
             last_name: body.lastName === undefined ? null : body.lastName,

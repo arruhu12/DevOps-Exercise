@@ -15,7 +15,7 @@ config();
 
 interface UserContext {
   user: {
-    id: string;
+    customerId: string;
     displayName: string;
     companyName: string;
   };
@@ -42,7 +42,7 @@ export default class AuthenticationService {
       sub = customer.first_name;
       context = {
         user: {
-          id: customer.id,
+          customerId: customer.id,
           displayName: customer.first_name + " " + customer.last_name,
           companyName: customer.company_name
         },
@@ -65,10 +65,8 @@ export default class AuthenticationService {
   }
 
   /**
-   * Login
-   * 
-   * This function logs in a customer.
-   * 
+   * Customer Login
+   *  
    * @param email string
    * @param password string
    * @param authenticationType string
@@ -150,4 +148,26 @@ export default class AuthenticationService {
       throw error;
     }
   }
+
+  /**
+   * Check Username for Employee Login
+   * 
+   * @param username string
+   * @returns boolean
+   */
+  public static async checkUsernameForEmployeeLogin(username: string) {
+    try {
+      const [[employee]] = await pool.query<RowDataPacket[]>(`SELECT id FROM Accounts WHERE username = ?`, [username]);
+      return employee;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Employee Login
+   * 
+   * @param username string
+   * @param password string
+   */
 }

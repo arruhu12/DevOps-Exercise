@@ -1,6 +1,6 @@
 // Customer Model
 export type Customer = {
-    id: string,
+    id?: Number,
     user_id: string,
     first_name: string,
     last_name?: string,

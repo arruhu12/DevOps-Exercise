@@ -1,6 +1,6 @@
 export type Supplier = {
     id: string,
-    customer_id: string,
+    customer_id: Number,
     name: string,
     address: string,
     phone_number: string,

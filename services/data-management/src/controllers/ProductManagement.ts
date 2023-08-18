@@ -50,7 +50,7 @@ export default class ProductManagementController {
       const customerId = UserContextService.getCustomerId(req.headers.authorization!);
 
       // Get Product
-      const product = await ProductManagementService.getProductById(req.params.id, customerId);
+      const product = await ProductManagementService.getProductById(customerId, req.params.id);
       if (!product) {
         return errorResponse(res, 404, 'NOT_FOUND', 'Product Not Found');
       }
@@ -105,7 +105,7 @@ export default class ProductManagementController {
       const customerId = UserContextService.getCustomerId(req.headers.authorization!);
 
       // Check if product exists or not
-      const product = await ProductManagementService.getProductById(req.body.id, customerId);
+      const product = await ProductManagementService.getProductById(customerId, req.body.id);
       if (!product) {
         return errorResponse(res, 404, 'NOT_FOUND', 'Product Not Found');
       }
@@ -135,7 +135,7 @@ export default class ProductManagementController {
       const customerId = UserContextService.getCustomerId(req.headers.authorization!);
 
       // Delete Product
-      await ProductManagementService.deleteProduct(req.params.id, customerId);
+      await ProductManagementService.deleteProduct(customerId, req.params.id);
       return successResponse(res, 200, 'Product Deleted Successfully');
     } catch (error) {
       return errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);

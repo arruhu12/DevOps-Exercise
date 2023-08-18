@@ -83,7 +83,7 @@ class CustomerService {
      * @param body: any
      * @param customerId: string
      */
-    public static async updateCustomer(body: any, customerId: string) {
+    public static async updateCustomer(body: any, customerId: number) {
         try {
             const [[userId]] = await pool.query<RowDataPacket[]>("SELECT user_id FROM Customers WHERE id = ?", [customerId]);
             if (!userId) {

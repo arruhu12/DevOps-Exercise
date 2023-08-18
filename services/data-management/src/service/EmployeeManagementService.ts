@@ -13,11 +13,11 @@ export default class EmployeeManagementService {
   /**
    * Check username exists in same Customer ID
    * 
+   * @param customerId number
    * @param username string
-   * @param customerId string
    * @returns boolean
    */
-  public static async checkUsernameExists(username: string, customerId: string) {
+  public static async checkUsernameExists(customerId: number, username: string) {
     try {
       const [[account]] = await db.query<RowDataPacket[]>(
         `SELECT e.id, e.customer_id, a.username FROM Employees e, Accounts a 
@@ -31,10 +31,10 @@ export default class EmployeeManagementService {
   /**
    * Show Employees List
    *
-   * @param customerId string
+   * @param customerId number
    * @return object
    **/
-  public static async getEmployees(customerId: string) {
+  public static async getEmployees(customerId: number) {
     try {
       const [employees] = await db.query<RowDataPacket[]>(
         `SELECT e.id, e.name, e.phone_number, a.username, a.role FROM Employees e, Accounts a
@@ -48,12 +48,12 @@ export default class EmployeeManagementService {
   /**
    * Get Employee by Id
    * 
+   * @param customerId number
    * @param employeeId string
-   * @param customerId string
    * @param isForUpdate boolean (default: false)
    * @returns object
    */
-  public static async getEmployeeById(employeeId: string, customerId: string, isForUpdate: boolean = false) {
+  public static async getEmployeeById(customerId: number, employeeId: string, isForUpdate: boolean = false) {
     try {
       let query;
       if (isForUpdate) {
@@ -75,11 +75,11 @@ export default class EmployeeManagementService {
   /**
    * Store Employee
    * 
-   * @param customerId string
+   * @param customerId number
    * @param body Any
    * @returns void
    */
-  public static async storeEmployee(customerId: string, body: any) {
+  public static async storeEmployee(customerId: number, body: any) {
     try {
       const employeeId = uuid();
       const employee: Employee = {
@@ -108,12 +108,12 @@ export default class EmployeeManagementService {
   /**
    * Update Employee
    * 
+   * @param customerId number
    * @param employeeId string
-   * @param customerId string
    * @param currentEmployeeData object
    * @returns object
    */
-  public static async updateEmployee(employeeId: string, customerId: string, currentEmployeeData: any, body: any) {
+  public static async updateEmployee(customerId: number, employeeId: string, currentEmployeeData: any, body: any) {
     try {
       const employee: Employee = {
         id: employeeId,
@@ -142,11 +142,11 @@ export default class EmployeeManagementService {
   /**
    * Drop Employee
    * 
+   * @param customerId number
    * @param employeeId string
-   * @param customerId string
    * @returns void
    */
-  public static async dropEmployee(employeeId: string, customerId: string) {
+  public static async dropEmployee(customerId: number, employeeId: string) {
     try {
       const connection = await db.getConnection();
       await connection.beginTransaction();

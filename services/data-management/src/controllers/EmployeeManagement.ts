@@ -48,7 +48,7 @@ export default class EmployeeManagementController {
             const customerId = UserContextService.getCustomerId(req.headers.authorization!);
 
             // Get employee
-            const employee = await EmployeeManagementService.getEmployeeById(req.params.id, customerId);
+            const employee = await EmployeeManagementService.getEmployeeById(customerId, req.params.id);
 
             if (!employee) {
                 return successResponse(res, 404, 'Employee Not Found');
@@ -113,20 +113,20 @@ export default class EmployeeManagementController {
             const customerId = UserContextService.getCustomerId(req.headers.authorization!);
 
             // Check employee id exists
-            const employee = await EmployeeManagementService.getEmployeeById(req.body.id, customerId, true);
+            const employee = await EmployeeManagementService.getEmployeeById(customerId, req.body.id, true);
             if (!employee) {
                 return errorResponse(res, 404, 'NOT_FOUND', 'Employee Not Found');
             }
 
             // Check username exitst with same customer id
             if (employee.username != req.body.username) {
-                if (await EmployeeManagementService.checkUsernameExists(req.body.username, customerId)) {
+                if (await EmployeeManagementService.checkUsernameExists(customerId, req.body.username)) {
                     return errorResponse(res, 400, 'USERNAME_EXITST', 'Username Exitst');
                 }
             }
 
             // Update Employee
-            await EmployeeManagementService.updateEmployee(req.body.id, customerId, employee, req.body);
+            await EmployeeManagementService.updateEmployee(customerId, req.body.id, employee, req.body);
 
             // Return Employee
             return successResponse(res, 200, 'Employee Updated Successfully');
@@ -148,13 +148,13 @@ export default class EmployeeManagementController {
             const customerId = UserContextService.getCustomerId(req.headers.authorization!);
 
             // Check employee id exists
-            const employee = await EmployeeManagementService.getEmployeeById(req.params.id, customerId, true);
+            const employee = await EmployeeManagementService.getEmployeeById(customerId, req.params.id, true);
             if (!employee) {
                 return errorResponse(res, 404, 'NOT_FOUND', 'Employee Not Found');
             }
 
             // Drop Employee
-            await EmployeeManagementService.dropEmployee(req.params.id, customerId);
+            await EmployeeManagementService.dropEmployee(customerId, req.params.id);
 
             // Return Employee
             return successResponse(res, 200, 'Employee Dropped Successfully');
