@@ -119,7 +119,7 @@ export default class EmployeeManagementController {
             }
 
             // Check username exitst with same customer id
-            if (employee.username != req.body.username) {
+            if (employee.username != `u${customerId}-${req.body.username}`) {
                 if (await EmployeeManagementService.checkUsernameExists(customerId, req.body.username)) {
                     return errorResponse(res, 400, 'USERNAME_EXITST', 'Username Exitst');
                 }

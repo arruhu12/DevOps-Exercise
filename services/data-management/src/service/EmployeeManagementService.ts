@@ -21,7 +21,7 @@ export default class EmployeeManagementService {
     try {
       const [[account]] = await db.query<RowDataPacket[]>(
         `SELECT e.id, e.customer_id, a.username FROM Employees e, Accounts a 
-        WHERE e.id = a.employee_id AND a.username = ? AND e.customer_id = ?`, [username, customerId]);
+        WHERE e.id = a.employee_id AND a.username = ? AND e.customer_id = ?`, [`u${customerId}-${username}`, customerId]);
       return (account != null);
     } catch (err) {
       throw err;
@@ -91,7 +91,7 @@ export default class EmployeeManagementService {
       const account: Account = {
         id: uuid(),
         employee_id: employeeId,
-        username: body.username,
+        username: `u${customerId}-${body.username}`,
         password: await bcrypt.hash(body.password, 10),
         role: body.role
       }
