@@ -25,7 +25,7 @@ services:
     volumes:
       - ./services/data-management:/app/services/data-management
       - ./services/data-management/tsconfig.json:/app/services/data-management/tsconfig.json
-      - ./services/data-management.env:/app/services/data-management.env
+      - ./services/data-management/.env:/app/services/data-management/.env
     command: npm run dev
     depends_on:
       - api-gateway
