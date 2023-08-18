@@ -10,11 +10,13 @@ import bcrypt from "bcrypt";
 import { config } from "dotenv";
 import { JwtPayload, sign, verify } from "jsonwebtoken";
 import CustomerService from "./CustomerService";
+import EmployeeService from "./EmployeeService";
 
 config();
 
 interface UserContext {
   user: {
+    employeeId?: string;
     customerId: string;
     displayName: string;
     companyName: string;
@@ -48,7 +50,21 @@ export default class AuthenticationService {
         },
         roles: ["customer"],
         isNewAccount: false,
-        isSubscriptionActive: false
+        isSubscriptionActive: true
+      }
+    }
+    else if (aud === "employee") {
+      const employee = await EmployeeService.getSessionData(identification);
+      sub = employee.name;
+      context = {
+        user: {
+          employeeId: identification,
+          customerId: employee.customer_id,
+          displayName: employee.name,
+          companyName: employee.company_name
+        },
+        roles: ["employee"],
+        isSubscriptionActive: true
       }
     }
     else {
@@ -169,5 +185,29 @@ export default class AuthenticationService {
    * 
    * @param username string
    * @param password string
+   * @returns string
    */
+  public static async employeeLogin(username: string, password: string) {
+    try {
+      // Get user
+      const [[user]] = await pool.query<RowDataPacket[]>(`SELECT id, employee_id, password FROM Accounts WHERE username = ?`, [username]);
+
+      // Check user is not active or password missmatch
+      if (!await bcrypt.compare(password, user.password)) {
+        throw new Error("CREDENTIAL_PASSWORD_MISMATCH");
+      }
+
+      // Sign the token
+      const payload = await this.createClaims(user.employee_id, "employee");
+      const token = sign(
+        payload,
+        process.env.APP_KEY!
+      );
+
+      // Return token
+      return token;
+    } catch (error) {
+      throw error;
+    }
+  }  
 }

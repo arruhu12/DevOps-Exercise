@@ -46,20 +46,20 @@ class AuthenticationController {
         }
         // Generate Token      
         token = await AuthenticationService.customerLogin(req.body.email, req.body.password);
-        
-        // Return Response
-        return successResponse(res, 200, "Login Success", {
-          "acessToken": token
-        });
       }
-      // TODO: Employee Login
-      // else if (req.body.username) {
-      //   // Check username exists
-      //   const isExists = await CustomerService.checkUsername(req.body.username);
-      //   if (!isExists) {
-      //     return errorResponse(res, 400, "USERNAME_NOT_FOUND", "Username Not Found");
-      //   }
-      // }
+      else if (req.body.username) {
+        // Check username exists
+        const isExists = await AuthenticationService.checkUsernameForEmployeeLogin(req.body.username);
+        if (!isExists) {
+          return errorResponse(res, 400, "USERNAME_NOT_FOUND", "Username Not Found");
+        }
+        token = await AuthenticationService.employeeLogin(req.body.username, req.body.password);
+      }
+      
+      // Return Response
+      return successResponse(res, 200, "Login Success", {
+        "acessToken": token
+      });
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === "CREDENTIAL_PASSWORD_MISMATCH") {
