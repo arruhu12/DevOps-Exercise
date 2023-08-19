@@ -33,9 +33,9 @@ apiRouter.put('/profile/password', AuthenticationMiddleware('customer'), checkSc
 
 // Data Management Routes
 apiRouter.use([
-    '/products',
-    '/suppliers',
-    '/employees',
+    '/products', '/product',
+    '/suppliers', '/supplier',
+    '/employees', '/employee',
     ], [
     AuthenticationMiddleware('customer'), 
     createProxyMiddleware({

@@ -9,21 +9,21 @@ export const apiRouter = Router();
 
 // Supplier Routes
 apiRouter.get('/suppliers', SupplierManagementController.all);
-apiRouter.get('/suppliers/:id', SupplierManagementController.getById);
-apiRouter.post('/suppliers/store', checkSchema(supplierStoreRequest), SupplierManagementController.store);
-apiRouter.put('/suppliers/update', checkSchema(supplierUpdateRequest), SupplierManagementController.update);
-apiRouter.delete('/suppliers/delete/:id', checkSchema(deleteRequest), SupplierManagementController.delete);
+apiRouter.get('/supplier/:id', SupplierManagementController.getById);
+apiRouter.post('/supplier/store', checkSchema(supplierStoreRequest), SupplierManagementController.store);
+apiRouter.put('/supplier/update', checkSchema(supplierUpdateRequest), SupplierManagementController.update);
+apiRouter.delete('/supplier/delete/:id', checkSchema(deleteRequest), SupplierManagementController.delete);
 
 // Product Routes
 apiRouter.get('/products', ProductManagementController.all);
-apiRouter.get('/products/:id', ProductManagementController.getById);
-apiRouter.post('/products/store', checkSchema(productStoreRequest), ProductManagementController.store);
-apiRouter.put('/products/update', checkSchema(productUpdateRequest), ProductManagementController.update);
-apiRouter.delete('/products/delete/:id', checkSchema(deleteRequest), ProductManagementController.drop);
+apiRouter.get('/product/:id', ProductManagementController.getById);
+apiRouter.post('/product/store', checkSchema(productStoreRequest), ProductManagementController.store);
+apiRouter.put('/product/update', checkSchema(productUpdateRequest), ProductManagementController.update);
+apiRouter.delete('/product/delete/:id', checkSchema(deleteRequest), ProductManagementController.drop);
 
 // Employee Routes
 apiRouter.get('/employees', EmployeeManagementController.all);
-apiRouter.get('/employees/:id', EmployeeManagementController.getById);
-apiRouter.post('/employees/store', checkSchema(employeeStoreRequest), EmployeeManagementController.store);
-apiRouter.put('/employees/update', checkSchema(employeeUpdateRequest), EmployeeManagementController.update);
-apiRouter.delete('/employees/delete/:id', checkSchema(deleteRequest), EmployeeManagementController.drop);
+apiRouter.get('/employee/:id', EmployeeManagementController.getById);
+apiRouter.post('/employee/store', checkSchema(employeeStoreRequest), EmployeeManagementController.store);
+apiRouter.put('/employee/update', checkSchema(employeeUpdateRequest), EmployeeManagementController.update);
+apiRouter.delete('/employee/delete/:id', checkSchema(deleteRequest), EmployeeManagementController.drop);
