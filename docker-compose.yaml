@@ -50,7 +50,11 @@ services:
         ipv4_address: 192.168.10.5
     volumes:
       - ./services/transaction:/app/services/transaction
+      - ./services/transaction/tsconfig.json:/app/services/transaction/tsconfig.json
+      - ./services/transaction/.env:/app/services/transaction/.env
+    command: npm run dev
     depends_on:
+      - api-gateway
       - mysql
 
   report-service:

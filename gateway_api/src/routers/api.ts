@@ -31,6 +31,7 @@ apiRouter.get('/profile', AuthenticationMiddleware('customer'), CustomerControll
 apiRouter.put('/profile', AuthenticationMiddleware('customer'), checkSchema(userUpdateRequest), CustomerController.updateProfile);
 apiRouter.put('/profile/password', AuthenticationMiddleware('customer'), checkSchema(userChangePasswordRequest), AuthenticationController.changePassword);
 
+// Data Management Routes
 apiRouter.use([
     '/products',
     '/suppliers',
@@ -45,3 +46,22 @@ apiRouter.use([
         fixRequestBody(proxyReq, req);
     }
 })]);
+
+
+// Transaction Management Routes
+apiRouter.use(['/transaction/purchases', '/transaction/purchase'], AuthenticationMiddleware('employee'));
+apiRouter.use(['/transaction/sales', '/transaction/sale'], AuthenticationMiddleware('customer'));
+
+// Transaction Management Routes - Proxy
+apiRouter.use([
+    '/transactions',
+    '/transaction'
+],
+    createProxyMiddleware({
+    target: process.env.TRANSACTION_SERVICE,
+    changeOrigin: true,
+    onProxyReq: (proxyReq, req, res) => {
+        proxyReq.setHeader('Authorization', `Bearer ${req.headers.authorization}`);
+        fixRequestBody(proxyReq, req);
+    }
+}));
