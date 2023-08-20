@@ -16,10 +16,10 @@ class CustomerService {
      * 
      * This function gets a customer.
      * 
-     * @param customerId string
+     * @param customerId number
      * @param isSessionData boolean
      */
-    public static async getCustomer(customerId: string) {
+    public static async getCustomer(customerId: number) {
         try {
             const [result] = await pool.query<RowDataPacket[]>(`
                 SELECT c.id, c.user_id, c.first_name, c.last_name, c.company_name, c.company_address, u.email, u.phone_number 

@@ -8,6 +8,7 @@ import { Request, Response } from "express";
 import CustomerService from "../service/CustomerService";
 import { errorResponse, successResponse } from "../utils/writer";
 import { validationResult } from "express-validator";
+import UserContextService from "../service/UserContextService";
 
 export default class CustomerController {
     
@@ -21,7 +22,8 @@ export default class CustomerController {
      */
     public static async getProfile(req: Request, res: Response) {
         try {
-            const customer = await CustomerService.getCustomer(res.locals.user.user.id);
+            const customerId = UserContextService.getCustomerId(req.headers.authorization!);
+            const customer = await CustomerService.getCustomer(customerId);
             return successResponse(res, 200, "Account Information Fetched Successfully", customer);
         } catch (error) {
             return errorResponse(res, 500, "INTERNAL_SERVER_ERROR", "Internal Server Error", error);
@@ -43,7 +45,8 @@ export default class CustomerController {
                 return errorResponse(res, 400, "INPUT_VALIDATION_ERROR", "Input Validation Error", errors.array());
             }
             
-            await CustomerService.updateCustomer(req.body, res.locals.user.user.id);
+            const customerId = UserContextService.getCustomerId(req.headers.authorization!);
+            await CustomerService.updateCustomer(req.body, customerId);
             return successResponse(res, 200, "Account Information Updated Successfully");
         } catch (error) {
             return errorResponse(res, 500, "INTERNAL_SERVER_ERROR", "Internal Server Error", error);
@@ -51,32 +54,3 @@ export default class CustomerController {
     }
 }
 
-// module.exports.getAccountDetails = function getAccountDetails (req, res, next) {
-//   ProfileAccountInformation.getAccountDetails()
-//     .then(function (response) {
-//       utils.writeJson(res, response);
-//     })
-//     .catch(function (response) {
-//       utils.writeJson(res, response);
-//     });
-// };
-
-// module.exports.getAccountInfo = function getAccountInfo (req, res, next) {
-//   ProfileAccountInformation.getAccountInfo()
-//     .then(function (response) {
-//       utils.writeJson(res, response);
-//     })
-//     .catch(function (response) {
-//       utils.writeJson(res, response);
-//     });
-// };
-
-// module.exports.updateAccountDetails = function updateAccountDetails (req, res, next, body) {
-//   ProfileAccountInformation.updateAccountDetails(body)
-//     .then(function (response) {
-//       utils.writeJson(res, response);
-//     })
-//     .catch(function (response) {
-//       utils.writeJson(res, response);
-//     });
-// };

@@ -126,7 +126,7 @@ export default class AuthenticationService {
   public static async tokenValidation(token: string) {
     try {
       const payload = verify(token, process.env.APP_KEY!) as JwtPayload;
-      return payload.context;
+      return payload;
     } catch (error) {
       throw error;
     }

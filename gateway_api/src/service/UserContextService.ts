@@ -21,7 +21,7 @@ export default class UserContextService {
             throw error;
         }
     }
-    
+
     /**
      * Get Customer ID
      * 

@@ -4,10 +4,14 @@ import ProductManagementController from "../controllers/ProductManagement";
 import { Router } from "express";
 import { deleteRequest, employeeStoreRequest, employeeUpdateRequest, productStoreRequest, productUpdateRequest, supplierStoreRequest, supplierUpdateRequest } from "../requests";
 import EmployeeManagementController from "../controllers/EmployeeManagement";
+import RoleMiddleware from "../middlewares/RoleMiddleware";
 
 export const apiRouter = Router();
 
 // Supplier Routes
+apiRouter.use('/suppliers', RoleMiddleware(['customer', 'employee']));
+apiRouter.use('/supplier', RoleMiddleware(['customer']));
+
 apiRouter.get('/suppliers', SupplierManagementController.all);
 apiRouter.get('/supplier/:id', SupplierManagementController.getById);
 apiRouter.post('/supplier/store', checkSchema(supplierStoreRequest), SupplierManagementController.store);
@@ -15,6 +19,9 @@ apiRouter.put('/supplier/update', checkSchema(supplierUpdateRequest), SupplierMa
 apiRouter.delete('/supplier/delete/:id', checkSchema(deleteRequest), SupplierManagementController.delete);
 
 // Product Routes
+apiRouter.use(['/products', '/product/:id'], RoleMiddleware(['customer', 'employee']));
+apiRouter.use(['/product/store', '/product/update', '/product/delete'], RoleMiddleware(['customer']));
+
 apiRouter.get('/products', ProductManagementController.all);
 apiRouter.get('/product/:id', ProductManagementController.getById);
 apiRouter.post('/product/store', checkSchema(productStoreRequest), ProductManagementController.store);
@@ -22,6 +29,9 @@ apiRouter.put('/product/update', checkSchema(productUpdateRequest), ProductManag
 apiRouter.delete('/product/delete/:id', checkSchema(deleteRequest), ProductManagementController.drop);
 
 // Employee Routes
+apiRouter.use('/employee/:id', RoleMiddleware(['customer', 'employee']));
+apiRouter.use(['/employees', '/employee/store', '/employee/update', '/employee/delete'], RoleMiddleware(['customer']));
+
 apiRouter.get('/employees', EmployeeManagementController.all);
 apiRouter.get('/employee/:id', EmployeeManagementController.getById);
 apiRouter.post('/employee/store', checkSchema(employeeStoreRequest), EmployeeManagementController.store);
