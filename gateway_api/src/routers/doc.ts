@@ -10,10 +10,20 @@ export const docsRouter = Router();
  */
 
 // Authentication Service Docs
-docsRouter.use('/auth/docs', serve);
-docsRouter.get('/auth/docs', setup(docs));
+docsRouter.use('/docs/auth', serve);
+docsRouter.get('/docs/auth', setup(docs));
 
 // Data Management Service Docs
-docsRouter.use('/data/docs', createProxyMiddleware({
+docsRouter.use('/docs/data', createProxyMiddleware({
     target: process.env.DATA_MANAGEMENT_SERVICE
+}));
+
+// Transaction Service Docs
+docsRouter.use('/docs/transaction', createProxyMiddleware({
+    target: process.env.TRANSACTION_SERVICE
+}));
+
+// Report Service Docs
+docsRouter.use('/docs/report', createProxyMiddleware({
+    target: process.env.REPORT_SERVICE
 }));

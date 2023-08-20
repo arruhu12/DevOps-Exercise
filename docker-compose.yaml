@@ -65,7 +65,9 @@ services:
         ipv4_address: 192.168.10.6
     volumes:
       - ./services/report:/app/services/report
+    command: npm run dev
     depends_on:
+      - api-gateway
       - mysql
 
   mysql:

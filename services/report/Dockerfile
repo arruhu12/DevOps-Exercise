@@ -1,18 +1,12 @@
-FROM node:18.17-alpine
+FROM node:18.17-alpine as base
 
 # Copy Files
 WORKDIR /app/services/report
-RUN chown node:node ./
-USER node
+COPY package.json  ./
+RUN npm i --verbose
+COPY . .
 
-# Defaults to production, docker-compose overrides this to development on build and run.
-ARG NODE_ENV=production
-ENV NODE_ENV $NODE_ENV
+FROM base as production
+ENV NODE_PATH=./build
 
-# Install dependencies first, as they change less often than code.
-COPY package.json package-lock.json* ./
-RUN npm ci && npm cache clean --force
-COPY ./ ./
-
-# Execute Server
-CMD ["node", "./index.js"]
+RUN npm run build

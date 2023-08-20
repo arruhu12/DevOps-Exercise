@@ -5,4 +5,4 @@ import { docsRouter } from "./doc";
 export const routers = Router();
 
 routers.use("/api/v1", apiRouter);
-routers.use("/api/v1/data/docs", docsRouter);
+routers.use("/api/v1/docs/data", docsRouter);
