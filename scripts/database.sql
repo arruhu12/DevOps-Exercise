@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS Subscription_Packages (
 );
 CREATE TABLE IF NOT EXISTS Product_Transactions (
   id varchar(36) PRIMARY KEY,
+  transaction_type ENUM('sale', 'purchase') NOT NULL,
   product_id varchar(36) NOT NULL,
   supplier_id varchar(36) NOT NULL,
   gross_weight int,
