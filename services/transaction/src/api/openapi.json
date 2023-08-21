@@ -9,7 +9,7 @@
     "version": "0.1.0"
   },
   "paths": {
-    "/api/v1/transactions/sales": {
+    "/api/v1/transaction/sales": {
       "get": {
         "tags": [
           "Sales Transaction"
@@ -83,7 +83,7 @@
         }
       }
     },
-    "/api/v1/transactions/sales/{transactionId}": {
+    "/api/v1/transaction/sale/{transactionId}": {
       "get": {
         "tags": [
           "Sales Transaction"
@@ -173,7 +173,7 @@
         }
       }
     },
-    "/api/v1/transactions/sales/store": {
+    "/api/v1/transaction/sale/store": {
       "post": {
         "tags": [
           "Sales Transaction"
@@ -248,7 +248,7 @@
         }
       }
     },
-    "/api/v1/transactions/sales/update": {
+    "/api/v1/transaction/sale/update": {
       "put": {
         "tags": [
           "Sales Transaction"
@@ -336,7 +336,7 @@
         }
       }
     },
-    "/api/v1/transactions/purchase": {
+    "/api/v1/transaction/purchases": {
       "get": {
         "tags": [
           "Purchases Transaction"
@@ -414,7 +414,7 @@
         }
       }
     },
-    "/api/v1/transactions/purchases/{transactionId}": {
+    "/api/v1/transaction/purchase/{transactionId}": {
       "get": {
         "tags": [
           "Purchases Transaction"
@@ -508,7 +508,7 @@
         }
       }
     },
-    "/api/v1/transactions/purchases/store": {
+    "/api/v1/transaction/purchase/store": {
       "post": {
         "tags": [
           "Purchases Transaction"
@@ -584,7 +584,7 @@
         }
       }
     },
-    "/api/v1/transactions/purchases/request": {
+    "/api/v1/transaction/purchase/request": {
       "put": {
         "tags": [
           "Purchases Transaction"

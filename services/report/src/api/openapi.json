@@ -9,7 +9,7 @@
     "version": "0.1.0"
   },
   "paths": {
-    "/api/v1/reports/dashboard": {
+    "/api/v1/report/dashboard": {
       "get": {
         "tags": [
           "Purchase and Sales Reports"

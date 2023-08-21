@@ -1,241 +1,299 @@
 openapi: 3.0.0
 info:
   title: Buku Sawit Data Management Service
-  description: "Service ini dipakai untuk melakukan manajemen data produk, supplier\
-    \ dan karyawan untuk sistem buku sawit."
+  description: |-
+    Service ini dipakai untuk melakukan manajemen data produk, supplier dan karyawan untuk sistem buku sawit.
   contact:
     email: it@ninosoftwarehouse.id
   version: 0.1.0
 servers:
 - url: /
 paths:
+  ## Product Management
   /api/v1/products:
     get:
       tags:
-      - Product Management
-      summary: Get a list of products
+        - Product Management
       operationId: getProductList
+      summary: Get a list of products
+      security:
+        - bearerAuth: []
       parameters:
-      - name: showNameOnly
-        in: query
-        description: "If **true**, the endpoint returns only products name."
-        required: false
-        allowEmptyValue: true
-        style: form
-        explode: true
-        schema:
-          type: boolean
+        - in: query
+          name: 'showNameOnly'
+          schema:
+            type: boolean
+          allowEmptyValue: true
+          description: If **true**, the endpoint returns only products name.
       responses:
-        "200":
+        '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_200'
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/APISuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Product'
               examples:
                 Default:
                   value:
                     success: true
-                    message: Product List Fetched Successfully
-                    data:
-                    - id: 92cb1d94-85ee-4704-a4bf-43340807d717
-                      name: TBS Brondolan
-                      price: 150000
-                    - id: 93cb1d94-85ee-4704-a4bf-43340807d717
-                      name: TBS Perkarangan
-                      price: 200000
-                    - id: 94cb1d94-85ee-4704-a4bf-43340807d717
-                      name: TBS Plasma
-                      price: 300000
+                    message: "Product List Fetched Successfully"
+                    data: [
+                      {
+                        id: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                        name: "TBS Brondolan",
+                        price: 150000
+                      },
+                      {
+                        id: "93cb1d94-85ee-4704-a4bf-43340807d717",
+                        name: "TBS Perkarangan",
+                        price: 200000
+                      },
+                      {
+                        id: "94cb1d94-85ee-4704-a4bf-43340807d717",
+                        name: "TBS Plasma",
+                        price: 300000
+                      },
+                    ]
                 Empty:
                   value:
                     success: true
-                    message: Empty Product List
+                    message: "Empty Product List"
                     data: []
                 Name Only:
                   value:
                     success: true
-                    message: Product List Fetched Successfully
-                    data:
-                    - id: 92cb1d94-85ee-4704-a4bf-43340807d717
-                      name: TBS Brondolan
-                    - id: 93cb1d94-85ee-4704-a4bf-43340807d717
-                      name: TBS Perkarangan
-                    - id: 94cb1d94-85ee-4704-a4bf-43340807d717
-                      name: TBS Plasma
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: ProductManagement
-  /api/v1/products/{productId}:
+                    message: "Product List Fetched Successfully"
+                    data: [
+                      {
+                        id: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                        name: "TBS Brondolan",
+                      },
+                      {
+                        id: "93cb1d94-85ee-4704-a4bf-43340807d717",
+                        name: "TBS Perkarangan",
+                      },
+                      {
+                        id: "94cb1d94-85ee-4704-a4bf-43340807d717",
+                        name: "TBS Plasma",
+                      },
+                    ]
+                    
+  /api/v1/product/{productId}:
     get:
       tags:
-      - Product Management
-      summary: Get product details by ID
+        - Product Management
       operationId: getProductById
+      summary: Get product details by ID
+      security:
+        - bearerAuth: []
       parameters:
-      - name: productId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
-        "200":
+        '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_200_1'
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/APISuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Product'
               example:
                 success: true
-                message: Product List Fetched Successfully
-                data:
-                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
-                  name: TBS Brondolan
+                message: "Product List Fetched Successfully"
+                data: {
+                  id: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                  name: "TBS Brondolan",
                   price: 150000
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: ProductManagement
-  /api/v1/products/store:
+                }
+  /api/v1/product/store:
     post:
-      tags:
-      - Product Management
+      tags: 
+        - Product Management
+      operationId:  storeProduct
       summary: Store Product
-      operationId: storeProduct
+      security:
+        - bearerAuth: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/products_store_body'
+              allOf:
+                - $ref: '#/components/schemas/ProductFormRequest'
+                - required: [name, price]
             examples:
               Default:
                 value:
-                  name: TBS Brondolan
+                  name: "TBS Brondolan"
                   price: "200000"
               Missing Price Field:
                 value:
-                  name: TBS Brondolan
+                  name: "TBS Brondolan"
               Missing Name Field:
                 value:
                   price: "200000"
               Missing All Fields:
-                value: {}
+                value:
+                  {}
       responses:
-        "201":
+        '201':
           description: Successful operation
           content:
             application/json:
-              schema:
+              schema: 
                 $ref: '#/components/schemas/APISuccessResponse'
               example:
                 success: true
-                message: Product Stored Successfully
-        "400":
+                message: "Product Stored Successfully"
+        '400':
           description: Input Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400'
+                type: object
+                allOf: 
+                  - $ref: '#/components/schemas/APIErrorResponse'
+                  - $ref: '#/components/schemas/APIValidationError'
               examples:
                 Missing Price Field:
                   value:
                     success: false
-                    errorCode: VALIDATION_ERROR
-                    message: Input Validation error
-                    errors:
-                    - field: productPrice
-                      message: Product price required
+                    errorCode: "VALIDATION_ERROR"
+                    message: "Input Validation error"
+                    errors: [
+                      {
+                        field: productPrice,
+                        message: "Product price required"
+                      }
+                    ]
                 Missing Name Field:
                   value:
                     success: false
-                    errorCode: VALIDATION_ERROR
-                    message: Input Validation error
-                    errors:
-                    - field: productName
-                      message: Product name required
+                    errorCode: "VALIDATION_ERROR"
+                    message: "Input Validation error"
+                    errors: [
+                      {
+                        field: productName,
+                        message: "Product name required"
+                      }
+                    ]
                 Missing All Fields:
                   value:
                     success: false
-                    errorCode: VALIDATION_ERROR
-                    message: Input Validation error
-                    errors:
-                    - field: productName
-                      message: Product name required
-                    - field: productPrice
-                      message: Product price required
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: ProductManagement
-  /api/v1/products/update:
+                    errorCode: "VALIDATION_ERROR"
+                    message: "Input Validation error"
+                    errors: [
+                      {
+                        field: productName,
+                        message: "Product name required"
+                      },
+                      {
+                        field: productPrice,
+                        message: "Product price required"
+                      }
+                    ]
+  
+  /api/v1/product/update:
     put:
       tags:
-      - Product Management
-      summary: Update Product details by ID
+        - Product Management
       operationId: updateProductById
+      summary: Update Product details by ID
+      security:
+        - bearerAuth: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/products_update_body'
+              type: object
+              allOf:
+                - type: object
+                  properties:
+                    id:
+                      type: string
+                - $ref: '#/components/schemas/ProductFormRequest'
+              required: [id]
             example:
-              id: 92cb1d94-85ee-4704-a4bf-43340807d717
-              name: TBS Brondolans
+              id: "92cb1d94-85ee-4704-a4bf-43340807d717"
+              name: "TBS Brondolans"
               price: "200000"
       responses:
-        "200":
+        '200':
           description: Successful operation
           content:
             application/json:
-              schema:
+              schema: 
                 $ref: '#/components/schemas/APISuccessResponse'
               example:
                 success: true
-                message: Product Updated Successfully
-        "400":
+                message: "Product Updated Successfully"
+        '400':
           description: Input Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400'
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/APIErrorResponse'
+                  - $ref: '#/components/schemas/APIValidationError'
               examples:
                 Product ID Not Found:
                   value:
                     success: false
-                    errorCode: VALIDATION_ERROR
-                    message: Input Validation error
-                    errors:
-                    - field: productId
-                      message: Product ID not found
+                    errorCode: "VALIDATION_ERROR"
+                    message: "Input Validation error"
+                    errors: [
+                      {
+                        field: productId,
+                        message: "Product ID not found"
+                      }
+                    ]
                 Missing All Fields:
                   value:
                     success: false
-                    errorCode: VALIDATION_ERROR
-                    message: Input Validation error
-                    errors:
-                    - field: name
-                      message: Product name required
-                    - field: price
-                      message: Product price required
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: ProductManagement
-  /api/v1/products/delete/{productId}:
+                    errorCode: "VALIDATION_ERROR"
+                    message: "Input Validation error"
+                    errors: [
+                      {
+                        field: name,
+                        message: "Product name required"
+                      },
+                      {
+                        field: price,
+                        message: "Product price required"
+                      }
+                    ]
+  /api/v1/product/delete/{productId}:
     delete:
-      tags:
-      - Product Management
-      summary: Delete products
+      tags: 
+        - Product Management
       operationId: dropProduct
+      summary: Delete products
+      security:
+        - bearerAuth: []
       parameters:
-      - name: productId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
-        "200":
+        '200':
           description: Successful Operation
           content:
             application/json:
@@ -243,213 +301,265 @@ paths:
                 $ref: '#/components/schemas/APISuccessResponse'
               example:
                 success: true
-                message: Product Deleted Successfully
-        "400":
+                message: "Product Deleted Successfully"
+        '400':
           description: Input Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400'
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/APIErrorResponse'
+                  - $ref: '#/components/schemas/APIValidationError'
               example:
                 success: false
-                errorCode: VALIDATION_ERROR
-                message: Input Validation error
-                errors:
-                - field: id
-                  message: Product ID Not Found
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: ProductManagement
+                errorCode: "VALIDATION_ERROR"
+                message: "Input Validation error"
+                errors: [
+                  {
+                    field: id,
+                    message: "Product ID Not Found"
+                  }
+                ]
+                
+  ## Supplier Management
   /api/v1/suppliers:
     get:
       tags:
-      - Supplier Management
-      summary: Get a list of suppliers
+        - Supplier Management
       operationId: getSupplierList
+      summary: Get a list of suppliers
+      security:
+        - bearerAuth: []
       responses:
-        "200":
+        '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_200_2'
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/APISuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Supplier'
               examples:
                 Default:
                   value:
                     success: true
-                    message: Supplier List Fetched Successfully
-                    data:
-                    - id: 92cb1d94-85ee-4704-a4bf-43340807d717
-                      name: Kebun X
-                    - id: 93cb1d94-85ee-4704-a4bf-43340807d717
-                      name: Kebun Y
-                    - id: 94cb1d94-85ee-4704-a4bf-43340807d717
-                      name: Kebun Z
+                    message: "Supplier List Fetched Successfully"
+                    data: [
+                      {
+                        id: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                        name: "Kebun X",
+                      },
+                      {
+                        id: "93cb1d94-85ee-4704-a4bf-43340807d717",
+                        name: "Kebun Y",
+                      },
+                      {
+                        id: "94cb1d94-85ee-4704-a4bf-43340807d717",
+                        name: "Kebun Z"
+                      },
+                    ]
                 Empty:
                   value:
                     success: true
-                    message: Empty Supplier List
+                    message: "Empty Supplier List"
                     data: []
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: SupplierManagement
-  /api/v1/suppliers/{supplierId}:
+                    
+  /api/v1/supplier/{supplierId}:
     get:
       tags:
-      - Supplier Management
-      summary: Get supplier details by ID
+        - Supplier Management
       operationId: getSupplierById
+      summary: Get supplier details by ID
+      security:
+        - bearerAuth: []
       parameters:
-      - name: supplierId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
+        - name: supplierId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
-        "200":
+        '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_200_3'
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/APISuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Supplier'
               example:
                 success: true
-                message: Supplier List Fetched Successfully
-                data:
-                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
-                  name: Supplier Dummy
-                  address: Jl. Testing No. 99
+                message: "Supplier List Fetched Successfully"
+                data: {
+                  id: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                  name: "Supplier Dummy",
+                  address: "Jl. Testing No. 99",
                   phoneNumber: "628137157218"
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: SupplierManagement
-  /api/v1/suppliers/store:
+                }
+  /api/v1/supplier/store:
     post:
-      tags:
-      - Supplier Management
+      tags: 
+        - Supplier Management
+      operationId:  storeSupplier
       summary: Store Supplier
-      operationId: storeSupplier
+      security:
+        - bearerAuth: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/suppliers_store_body'
+              allOf:
+                - $ref: '#/components/schemas/SupplierFormRequest'
+                - required: [name, address, phoneNumber]
             examples:
               Default:
                 value:
-                  name: Supplier Dummy ax
-                  address: Jl. Dummy No. 123
+                  name: "Supplier Dummy ax"
+                  address: "Jl. Dummy No. 123"
                   phoneNumber: "62811600654"
       responses:
-        "201":
+        '201':
           description: Successful operation
           content:
             application/json:
-              schema:
+              schema: 
                 $ref: '#/components/schemas/APISuccessResponse'
               example:
                 success: true
-                message: Supplier Stored Successfully
-        "400":
+                message: "Supplier Stored Successfully"
+        '400':
           description: Input Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400'
+                type: object
+                allOf: 
+                  - $ref: '#/components/schemas/APIErrorResponse'
+                  - $ref: '#/components/schemas/APIValidationError'
               example:
                 success: false
-                errorCode: VALIDATION_ERROR
-                message: Input Validation error
-                errors:
-                - field: name
-                  message: Supplier name required
-                - field: address
-                  message: Supplier price required
-                - field: phoneNumber
-                  message: Supplier phone number required
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: SupplierManagement
-  /api/v1/suppliers/update:
+                errorCode: "VALIDATION_ERROR"
+                message: "Input Validation error"
+                errors: [
+                  {
+                    field: name,
+                    message: "Supplier name required"
+                  },
+                  {
+                    field: address,
+                    message: "Supplier price required"
+                  },
+                  {
+                    field: phoneNumber,
+                    message: "Supplier phone number required"
+                  },
+                ]
+  
+  /api/v1/supplier/update:
     put:
       tags:
-      - Supplier Management
-      summary: Update supplier details by ID
+        - Supplier Management
       operationId: updateSupplierById
+      summary: Update supplier details by ID
+      security:
+        - bearerAuth: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/suppliers_update_body'
+              allOf:
+                - type: object
+                  properties:
+                    id: 
+                      type: string
+                - $ref: '#/components/schemas/SupplierFormRequest'
+                - required: [id]
             examples:
               Change Name:
                 value:
-                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
-                  name: Supplier Flashbacker
+                  id: "92cb1d94-85ee-4704-a4bf-43340807d717"
+                  name: "Supplier Flashbacker"
               Change Address:
                 value:
-                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
-                  address: Jl. Coba lagi
+                  id: "92cb1d94-85ee-4704-a4bf-43340807d717"
+                  address: "Jl. Coba lagi"
               Change Phone Number:
                 value:
-                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  id: "92cb1d94-85ee-4704-a4bf-43340807d717"
                   phoneNumber: "62811600654"
       responses:
-        "200":
+        '200':
           description: Successful operation
           content:
             application/json:
-              schema:
+              schema: 
                 $ref: '#/components/schemas/APISuccessResponse'
               example:
                 success: true
-                message: Product Updated Successfully
-        "400":
+                message: "Product Updated Successfully"
+        '400':
           description: Input Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400'
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/APIErrorResponse'
+                  - $ref: '#/components/schemas/APIValidationError'
               examples:
                 Product ID Not Found:
                   value:
                     success: false
-                    errorCode: VALIDATION_ERROR
-                    message: Input Validation error
-                    errors:
-                    - field: id
-                      message: Supplier ID not found
+                    errorCode: "VALIDATION_ERROR"
+                    message: "Input Validation error"
+                    errors: [
+                      {
+                        field: id,
+                        message: "Supplier ID not found"
+                      }
+                    ]
                 Missing All Fields:
                   value:
                     success: false
-                    errorCode: VALIDATION_ERROR
-                    message: Input Validation error
-                    errors:
-                    - field: name
-                      message: Nama supplier tidak boleh kosong
-                    - field: address
-                      message: Alamat supplier tidak boleh kosong
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: SupplierManagement
-  /api/v1/suppliers/delete/{supplierId}:
+                    errorCode: "VALIDATION_ERROR"
+                    message: "Input Validation error"
+                    errors: [
+                      {
+                        field: name,
+                        message: "Nama supplier tidak boleh kosong"
+                      },
+                      {
+                        field: address,
+                        message: "Alamat supplier tidak boleh kosong"
+                      },
+                    ]
+  /api/v1/supplier/delete/{supplierId}:
     delete:
-      tags:
-      - Supplier Management
-      summary: Delete Supplier
+      tags: 
+        - Supplier Management
       operationId: dropSupplier
+      summary: Delete Supplier
+      security:
+        - bearerAuth: []
       parameters:
-      - name: supplierId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
+        - name: supplierId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
-        "200":
+        '200':
           description: Successful Operation
           content:
             application/json:
@@ -457,135 +567,176 @@ paths:
                 $ref: '#/components/schemas/APISuccessResponse'
               example:
                 success: true
-                message: Product Deleted Successfully
-        "400":
+                message: "Product Deleted Successfully"
+        '400':
           description: Input Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400'
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/APIErrorResponse'
+                  - $ref: '#/components/schemas/APIValidationError'
               example:
                 success: false
-                errorCode: VALIDATION_ERROR
-                message: Input Validation error
-                errors:
-                - field: id
-                  message: Product ID Not Found
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: SupplierManagement
+                errorCode: "VALIDATION_ERROR"
+                message: "Input Validation error"
+                errors: [
+                  {
+                    field: id,
+                    message: "Product ID Not Found"
+                  }
+                ]
+                
   /api/v1/employees:
     get:
       tags:
-      - Employee Management
+        - Employee Management
+      operationId:  getEmployees
       description: Show Employees List
-      operationId: getEmployees
+      security:
+        - bearerAuth: []
       responses:
-        "200":
+        '200':
           description: Successful Operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_200_4'
+                type: object
+                allOf: 
+                  - $ref: '#/components/schemas/APISuccessResponse'
+                  - type: object
+                    properties: 
+                      data:
+                        type: array
+                        items: 
+                          $ref: '#/components/schemas/EmployeeListResponse'
+                          
               example:
                 success: true
-                message: Employee List Fetced Successfully
+                message: "Employee List Fetced Successfully"
                 data:
-                - id: 92cb1d94-85ee-4704-a4bf-43340807d717
-                  name: Airani
-                  username: airani
-                  phoneNumber: "6281375157218"
-                - id: 92cb1d94-85ee-4704-a4bf-43340807d717
-                  name: Ayunda
-                  username: ayunda
-                  phoneNumber: "6285276320565"
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: EmployeeManagement
-  /api/v1/employees/store:
+                  [
+                    {
+                      id: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                      name: "Airani",
+                      username: "airani",
+                      phoneNumber: "6281375157218",
+                    },
+                    {
+                      id: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                      name: "Ayunda",
+                      username: "ayunda",
+                      phoneNumber: "6285276320565",
+                    },
+                  ]
+    
+  /api/v1/employee/store:
     post:
-      tags:
-      - Employee Management
-      description: " Store employee data and create account for access system. <br>\
-        \ There are 2 role names: 'employee' and 'admin' "
+      tags: 
+        - Employee Management
       operationId: storeEmployee
+      description: "
+        Store employee data and create account for access system. <br>
+        There are 2 role names: 'employee' and 'admin'
+      "
+      security:
+        - bearerAuth: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/employees_store_body'
+              allOf:
+                - $ref: '#/components/schemas/EmployeeFormRequest'
+                - required: [
+                    name, username, password, role
+                  ]
       responses:
-        "201":
+        '201':
           description: Successful Operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/APISuccessResponse'
-        "400":
+        '400':
           description: Input Valdation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400'
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/APIErrorResponse'
+                  - $ref: '#/components/schemas/APIValidationError'
               example:
                 success: false
-                errorCode: VALIDATION_ERROR
-                message: Input Validation error
-                errors:
-                - field: name
-                  message: Nama Karyawan wajib ada!
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: EmployeeManagement
-  /api/v1/employees/update:
+                errorCode: "VALIDATION_ERROR"
+                message: "Input Validation error"
+                errors: [
+                  {
+                    field: name,
+                    message: "Nama Karyawan wajib ada!"
+                  }
+                ]
+  /api/v1/employee/update:
     put:
-      tags:
-      - Employee Management
+      tags: 
+        - Employee Management
       operationId: updateEmployee
+      security:
+        - bearerAuth: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/employees_update_body'
+              allOf:
+                - type: object
+                  properties:
+                    id: 
+                      type: string
+                - $ref: '#/components/schemas/EmployeeFormRequest'
+                - required: [id]
       responses:
-        "200":
+        '200':
           description: Successful Operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/APISuccessResponse'
-        "400":
+        '400':
           description: Input Valdation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400'
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/APIErrorResponse'
+                  - $ref: '#/components/schemas/APIValidationError'
               example:
                 success: false
-                errorCode: VALIDATION_ERROR
-                message: Input Validation error
-                errors:
-                - field: name
-                  message: Nama Karyawan wajib ada!
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: EmployeeManagement
+                errorCode: "VALIDATION_ERROR"
+                message: "Input Validation error"
+                errors: [
+                  {
+                    field: name,
+                    message: "Nama Karyawan wajib ada!"
+                  }
+                ]
   /api/v1/employee/delete/{employeeId}:
     delete:
-      tags:
-      - Employee Management
-      summary: Delete Employee
+      tags: 
+        - Employee Management
       operationId: dropEmployee
+      summary: Delete Employee
+      security:
+        - bearerAuth: []
       parameters:
-      - name: employeeId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
-        "200":
+        '200':
           description: Successful Operation
           content:
             application/json:
@@ -593,23 +744,27 @@ paths:
                 $ref: '#/components/schemas/APISuccessResponse'
               example:
                 success: true
-                message: Employee Deleted Successfully
-        "400":
+                message: "Employee Deleted Successfully"
+        '400':
           description: Input Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400'
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/APIErrorResponse'
+                  - $ref: '#/components/schemas/APIValidationError'
               example:
                 success: false
-                errorCode: VALIDATION_ERROR
-                message: Input Validation error
-                errors:
-                - field: id
-                  message: Employee ID Not Found
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: EmployeeManagement
+                errorCode: "VALIDATION_ERROR"
+                message: "Input Validation error"
+                errors: [
+                  {
+                    field: id,
+                    message: "Employee ID Not Found"
+                  }
+                ]
+
 components:
   schemas:
     APISuccessResponse:
@@ -619,9 +774,6 @@ components:
           type: boolean
         message:
           type: string
-      example:
-        success: true
-        message: message
     APIErrorResponse:
       type: object
       properties:
@@ -637,7 +789,13 @@ components:
         errors:
           type: array
           items:
-            $ref: '#/components/schemas/APIValidationError_errors'
+            type: object
+            properties: 
+              field: 
+                type: string
+              message: 
+                type: string
+    ## Product Management
     ProductFormRequest:
       type: object
       properties:
@@ -645,6 +803,7 @@ components:
           type: string
         price:
           type: string
+
     Product:
       type: object
       properties:
@@ -654,6 +813,8 @@ components:
           type: string
         price:
           type: number
+
+    ## Supplier Management
     SupplierFormRequest:
       type: object
       properties:
@@ -663,17 +824,20 @@ components:
           type: string
         phoneNumber:
           type: string
+
     Supplier:
       type: object
       properties:
         id:
           type: string
-        name:
+        name: 
           type: string
         address:
           type: string
         phoneNumber:
           type: string
+
+    ## Employee Management
     EmployeeListResponse:
       type: object
       properties:
@@ -696,115 +860,9 @@ components:
           type: string
         password:
           type: string
-        role:
+        role: 
           type: string
-    inline_response_200:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/APISuccessResponse'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/Product'
-    inline_response_200_1:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/APISuccessResponse'
-      - type: object
-        properties:
-          data:
-            $ref: '#/components/schemas/Product'
-    products_store_body:
-      allOf:
-      - $ref: '#/components/schemas/ProductFormRequest'
-      - required:
-        - name
-        - price
-    inline_response_400:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/APIErrorResponse'
-      - $ref: '#/components/schemas/APIValidationError'
-    products_update_body:
-      required:
-      - id
-      type: object
-      allOf:
-      - type: object
-        properties:
-          id:
-            type: string
-      - $ref: '#/components/schemas/ProductFormRequest'
-    inline_response_200_2:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/APISuccessResponse'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/Supplier'
-    inline_response_200_3:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/APISuccessResponse'
-      - type: object
-        properties:
-          data:
-            $ref: '#/components/schemas/Supplier'
-    suppliers_store_body:
-      allOf:
-      - $ref: '#/components/schemas/SupplierFormRequest'
-      - required:
-        - address
-        - name
-        - phoneNumber
-    suppliers_update_body:
-      allOf:
-      - type: object
-        properties:
-          id:
-            type: string
-      - $ref: '#/components/schemas/SupplierFormRequest'
-      - required:
-        - id
-    inline_response_200_4:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/APISuccessResponse'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/EmployeeListResponse'
-    employees_store_body:
-      allOf:
-      - $ref: '#/components/schemas/EmployeeFormRequest'
-      - required:
-        - name
-        - password
-        - role
-        - username
-    employees_update_body:
-      allOf:
-      - type: object
-        properties:
-          id:
-            type: string
-      - $ref: '#/components/schemas/EmployeeFormRequest'
-      - required:
-        - id
-    APIValidationError_errors:
-      type: object
-      properties:
-        field:
-          type: string
-        message:
-          type: string
+
   securitySchemes:
     bearerAuth:
       type: http

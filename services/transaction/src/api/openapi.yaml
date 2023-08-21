@@ -1,347 +1,447 @@
 openapi: 3.0.0
 info:
   title: Buku Sawit Transaction Service
-  description: Service ini dipakai untuk melakukan pencacatan transaksi untuk sistem
-    buku sawit.
+  description: |-
+    Service ini dipakai untuk melakukan pencacatan transaksi untuk sistem buku sawit.
   contact:
     email: it@ninosoftwarehouse.id
   version: 0.1.0
-servers:
-- url: /
 paths:
-  /api/v1/transactions/sales:
-    get:
-      tags:
-      - Sales Transaction
-      summary: Get Recently Recorded Sales Transaction
-      operationId: getSales
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_200'
-              example:
-                success: true
-                message: Sales Fetched Successfully
-                data:
-                - id: 92cb1d94-85ee-4704-a4bf-43340807d717
-                  productName: TBS Plasma
-                  transactionDate: 2023-07-24 15:00:25.120
-                  totalWeight: 1500
-                  receivedWeight: 750
-                  total: 260000
-                  paymentMethod: Cash
-                  paymentStatus: Paid
-                  deliveryStatus: Partial Deliveed
-                  isPaid: true
-                  isDelivered: false
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: SalesTransaction
-  /api/v1/transactions/sales/{transactionId}:
-    get:
-      tags:
-      - Sales Transaction
-      summary: Get Sales Transaction By Id
-      operationId: getSalesTransactionById
-      parameters:
-      - name: transactionId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_200_1'
-              example:
-                success: true
-                message: Sales Detail Fetched Successfully
-                data:
-                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
-                  productId: 92cb1d94-85ee-4704-a4bf-43340807d717
-                  transactionDate: 2023-07-24 15:00:25.120
-                  grossWeight: 2500
-                  tareWeight: 1000
-                  nettoWeight: 1500
-                  dedicationPersentage: 4
-                  totalWeight: 1440
-                  receivedWeight: 750
-                  price: 50000
-                  total: 72000000
-                  vehicleRegistrationNumber: BK 123 ABC
-                  paymentMethod: Cash
-                  paymentStatus: Paid
-                  deliveryStatus: Partial Deliveed
-                  sourceOfPurcahse: "-"
-                  proofImages:
-                  - https://link.id/a
-                  - https://link.id/b
-                  - https://link.id/c
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: SalesTransaction
-  /api/v1/transactions/sales/store:
-    post:
-      tags:
-      - Sales Transaction
-      summary: Store Sales Transaction
-      operationId: storeSales
-      requestBody:
-        content:
-          application/json:
+    ## Sales
+    /api/v1/transaction/sales:
+      get:
+        tags: 
+          - Sales Transaction
+        operationId: getSales
+        summary: Get Recently Recorded Sales Transaction
+        security:
+          - bearerAuth: []
+        responses:
+          '200':
+            description: Successful operation
+            content:
+              application/json:
+                schema:
+                  type: object
+                  allOf:
+                    - $ref: '#/components/schemas/APISuccessResponse'
+                    - type: object
+                      properties:
+                        data:
+                          type: array
+                          items:
+                            type: object
+                            allOf:
+                              - type: object
+                                properties:
+                                  id:
+                                    type: string
+                              - $ref: '#/components/schemas/TransactionListResponse'
+                example:
+                  success: true
+                  message: "Sales Fetched Successfully"
+                  data: [
+                    {
+                      id: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                      productName: "TBS Plasma",
+                      transactionDate  : "2023-07-24 15:00:25.120",
+                      totalWeight: 1500,
+                      receivedWeight: 750,
+                      total: 260000,
+                      paymentMethod: "Cash",
+                      paymentStatus: "Paid",
+                      deliveryStatus: "Partial Deliveed",
+                      isPaid: true,
+                      isDelivered: false
+                    }
+                  ]
+    /api/v1/transaction/sale/{transactionId}:
+      get:
+        tags: 
+          - Sales Transaction
+        operationId: getSalesTransactionById
+        summary: Get Sales Transaction By Id
+        security:
+          - bearerAuth: []
+        parameters:
+          - name: transactionId
+            in: path
+            required: true
             schema:
-              $ref: '#/components/schemas/TransactionStoreBody'
-            example:
-              productId: 92cb1d94-85ee-4704-a4bf-43340807d717
-              grossWeight: 2500
-              tareWeight: 1000
-              dedicationPersentage: 4
-              receivedWeight: 750
-              price: 50000
-              total: 72000000
-              vehicleRegistrationNumber: BK 123 ABC
-              paymentMethod: Cash
-              paymentStatus: Paid
-              deliveryStatus: Partial Deliveed
-              sourceOfPurcahse: "-"
-              proofImages:
-              - blob string
-      responses:
-        "201":
-          description: Successful operation
+              type: string
+        responses:
+          '200':
+            description: Successful operation
+            content:
+              application/json:
+                schema:
+                  type: object
+                  allOf:
+                    - $ref: '#/components/schemas/APISuccessResponse'
+                    - type: object
+                      properties:
+                        data:
+                          type: object
+                          allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: string
+                            - $ref: '#/components/schemas/TransactionDetailResponse'
+                example:
+                  success: true
+                  message: "Sales Detail Fetched Successfully"
+                  data: {
+                    id: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                    productId: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                    transactionDate: "2023-07-24 15:00:25.120",
+                    grossWeight: 2500,
+                    tareWeight: 1000,
+                    nettoWeight: 1500,
+                    dedicationPersentage: 4,
+                    totalWeight: 1440,
+                    receivedWeight: 750,
+                    price: 50000,
+                    total: 72000000,
+                    vehicleRegistrationNumber: "BK 123 ABC",
+                    paymentMethod: "Cash",
+                    paymentStatus: "Paid",
+                    deliveryStatus: "Partial Deliveed",
+                    sourceOfPurcahse: "-",
+                    additionalNotes: null,
+                    proofImages: [
+                      "https://link.id/a",
+                      "https://link.id/b",
+                      "https://link.id/c",
+                    ]
+                  }
+      
+    /api/v1/transaction/sale/store:
+      post:
+        tags: 
+          - Sales Transaction
+        operationId: storeSales
+        summary: Store Sales Transaction
+        security:
+          - bearerAuth: []
+        requestBody:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/APISuccessResponse'
+                $ref: '#/components/schemas/TransactionStoreBody'
               example:
-                success: true
-                message: Sales Data Stored Successfully
-        "400":
-          description: Sales Store Validation Error
+                {
+                  productId: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                  grossWeight: 2500,
+                  tareWeight: 1000,
+                  dedicationPersentage: 4,
+                  receivedWeight: 750,
+                  price: 50000,
+                  total: 72000000,
+                  vehicleRegistrationNumber: "BK 123 ABC",
+                  paymentMethod: "Cash",
+                  paymentStatus: "Paid",
+                  deliveryStatus: "Partial Deliveed",
+                  sourceOfPurcahse: "-",
+                  additionalNotes: null,
+                  proofImages: [
+                    "blob string"
+                  ]
+                }
+        responses:
+          '201':
+            description: Successful operation
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/APISuccessResponse'
+                example:
+                  success: true
+                  message: "Sales Data Stored Successfully"
+          '400':
+            description: Sales Store Validation Error
+            content: 
+              application/json:
+                schema:
+                  type: object
+                  allOf:
+                    - $ref: '#/components/schemas/APIErrorResponse'
+                    - $ref: '#/components/schemas/APIValidationError'
+              
+    /api/v1/transaction/sale/update:
+      put:
+        tags: 
+          - Sales Transaction
+        operationId: updateSales
+        summary: Update Sales Transaction
+        security:
+          - bearerAuth: []
+        requestBody:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400'
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: SalesTransaction
-  /api/v1/transactions/sales/update:
-    put:
-      tags:
-      - Sales Transaction
-      summary: Update Sales Transaction
-      operationId: updateSales
-      requestBody:
-        content:
-          application/json:
+                allOf:
+                  - type: object
+                    properties:
+                      id: 
+                        type: string
+                  - $ref: '#/components/schemas/TransactionStoreBody'
+              example:
+                {
+                  id: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                  productId: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                  grossWeight: 2500,
+                  tareWeight: 1000,
+                  dedicationPersentage: 4,
+                  receivedWeight: 750,
+                  price: 50000,
+                  total: 72000000,
+                  vehicleRegistrationNumber: "BK 123 ABC",
+                  paymentMethod: "Cash",
+                  paymentStatus: "Paid",
+                  deliveryStatus: "Partial Deliveed",
+                  sourceOfPurcahse: "-",
+                  additionalNotes: null,
+                  proofImages: [
+                    "blob string"
+                  ]
+                }
+        responses:
+          '200':
+            description: Successful operation
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/APISuccessResponse'
+                example:
+                  success: true
+                  message: "Sales Data Stored Successfully"
+          '400':
+            description: Sales Store Validation Error
+            content: 
+              application/json:
+                schema:
+                  type: object
+                  allOf:
+                    - $ref: '#/components/schemas/APIErrorResponse'
+                    - $ref: '#/components/schemas/APIValidationError'
+    ## Purchases
+    /api/v1/transaction/purchases:
+      get:
+        tags: 
+          - Purchases Transaction
+        operationId: getPurchases
+        summary: Get Recently Recorded Purchase Transaction
+        security:
+          - bearerAuth: []
+        responses:
+          '200':
+            description: Successful operation
+            content:
+              application/json:
+                schema:
+                  type: object
+                  allOf:
+                    - $ref: '#/components/schemas/APISuccessResponse'
+                    - type: object
+                      properties:
+                        data:
+                          type: array
+                          items:
+                            type: object
+                            allOf:
+                              - type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  supplierName:
+                                    type: string
+                              - $ref: '#/components/schemas/TransactionListResponse'
+                example:
+                  success: true
+                  message: "Sales Fetched Successfully"
+                  data: [
+                    {
+                      id: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                      supplierName: "CV. TBS",
+                      productName: "TBS Plasma",
+                      transactionDate  : "2023-07-24 15:00:25.120",
+                      totalWeight: 1500,
+                      receivedWeight: 750,
+                      total: 260000,
+                      paymentMethod: "Cash",
+                      paymentStatus: "Paid",
+                      deliveryStatus: "Partial Deliveed",
+                      isPaid: true,
+                      isDelivered: false
+                    }
+                  ]
+    /api/v1/transaction/purchase/{transactionId}:
+      get:
+        tags: 
+          - Purchases Transaction
+        operationId: getPurchasesTransactionById
+        summary: Get Sales Transaction By Id
+        security:
+          - bearerAuth: []
+        parameters:
+          - name: transactionId
+            in: path
+            required: true
             schema:
-              $ref: '#/components/schemas/sales_update_body'
-            example:
-              id: 92cb1d94-85ee-4704-a4bf-43340807d717
-              productId: 92cb1d94-85ee-4704-a4bf-43340807d717
-              grossWeight: 2500
-              tareWeight: 1000
-              dedicationPersentage: 4
-              receivedWeight: 750
-              price: 50000
-              total: 72000000
-              vehicleRegistrationNumber: BK 123 ABC
-              paymentMethod: Cash
-              paymentStatus: Paid
-              deliveryStatus: Partial Deliveed
-              sourceOfPurcahse: "-"
-              proofImages:
-              - blob string
-      responses:
-        "200":
-          description: Successful operation
+              type: string
+        responses:
+          '200':
+            description: Successful operation
+            content:
+              application/json:
+                schema:
+                  type: object
+                  allOf:
+                    - $ref: '#/components/schemas/APISuccessResponse'
+                    - type: object
+                      properties:
+                        data:
+                          type: object
+                          allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: string
+                                supplierId:
+                                  type: string
+                            - $ref: '#/components/schemas/TransactionDetailResponse'
+                example:
+                  success: true
+                  message: "Sales Detail Fetched Successfully"
+                  data: {
+                    id: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                    supplierId: "0ccb1d94-85ee-4704-a4bf-43340807d717",
+                    productId: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                    transactionDate: "2023-07-24 15:00:25.120",
+                    grossWeight: 2500,
+                    tareWeight: 1000,
+                    nettoWeight: 1500,
+                    dedicationPersentage: 4,
+                    totalWeight: 1440,
+                    receivedWeight: 750,
+                    price: 50000,
+                    total: 72000000,
+                    vehicleRegistrationNumber: "BK 123 ABC",
+                    paymentMethod: "Cash",
+                    paymentStatus: "Paid",
+                    deliveryStatus: "Partial Deliveed",
+                    sourceOfPurcahse: "-",
+                    additionalNotes: null,
+                    proofImages: [
+                      "https://link.id/a",
+                      "https://link.id/b",
+                      "https://link.id/c",
+                    ]
+                  }
+      
+    /api/v1/transaction/purchase/store:
+      post:
+        tags: 
+          - Purchases Transaction
+        operationId: storePurchases
+        summary: Store Sales Transaction
+        security:
+          - bearerAuth: []
+        requestBody:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/APISuccessResponse'
+                $ref: '#/components/schemas/TransactionStoreBody'
               example:
-                success: true
-                message: Sales Data Stored Successfully
-        "400":
-          description: Sales Store Validation Error
+                {
+                  supplierId: "0ccb1d94-85ee-4704-a4bf-43340807d717",
+                  productId: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                  grossWeight: 2500,
+                  tareWeight: 1000,
+                  dedicationPersentage: 4,
+                  receivedWeight: 750,
+                  price: 50000,
+                  total: 72000000,
+                  vehicleRegistrationNumber: "BK 123 ABC",
+                  paymentMethod: "Cash",
+                  paymentStatus: "Paid",
+                  deliveryStatus: "Partial Deliveed",
+                  sourceOfPurcahse: "-",
+                  additionalNotes: null,
+                  proofImages: [
+                    "blob string"
+                  ]
+                }
+        responses:
+          '201':
+            description: Successful operation
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/APISuccessResponse'
+                example:
+                  success: true
+                  message: "Purchases Data Stored Successfully"
+          '400':
+            description: Sales Store Validation Error
+            content: 
+              application/json:
+                schema:
+                  type: object
+                  allOf:
+                    - $ref: '#/components/schemas/APIErrorResponse'
+                    - $ref: '#/components/schemas/APIValidationError'
+              
+    /api/v1/transaction/purchase/request:
+      put:
+        tags: 
+          - Purchases Transaction
+        operationId: updatePurchases
+        summary: Send Update Request to Admin
+        security:
+          - bearerAuth: []
+        requestBody:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400'
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: SalesTransaction
-  /api/v1/transactions/purchase:
-    get:
-      tags:
-      - Purchases Transaction
-      summary: Get Recently Recorded Purchase Transaction
-      operationId: getPurchases
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_200_2'
+                allOf:
+                  - type: object
+                    properties:
+                      id: 
+                        type: string
+                      supplierId:
+                        type: string
+                  - $ref: '#/components/schemas/TransactionStoreBody'
               example:
-                success: true
-                message: Sales Fetched Successfully
-                data:
-                - id: 92cb1d94-85ee-4704-a4bf-43340807d717
-                  supplierName: CV. TBS
-                  productName: TBS Plasma
-                  transactionDate: 2023-07-24 15:00:25.120
-                  totalWeight: 1500
-                  receivedWeight: 750
-                  total: 260000
-                  paymentMethod: Cash
-                  paymentStatus: Paid
-                  deliveryStatus: Partial Deliveed
-                  isPaid: true
-                  isDelivered: false
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: PurchasesTransaction
-  /api/v1/transactions/purchases/{transactionId}:
-    get:
-      tags:
-      - Purchases Transaction
-      summary: Get Sales Transaction By Id
-      operationId: getPurchasesTransactionById
-      parameters:
-      - name: transactionId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_200_3'
-              example:
-                success: true
-                message: Sales Detail Fetched Successfully
-                data:
-                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
-                  supplierId: 0ccb1d94-85ee-4704-a4bf-43340807d717
-                  productId: 92cb1d94-85ee-4704-a4bf-43340807d717
-                  transactionDate: 2023-07-24 15:00:25.120
-                  grossWeight: 2500
-                  tareWeight: 1000
-                  nettoWeight: 1500
-                  dedicationPersentage: 4
-                  totalWeight: 1440
-                  receivedWeight: 750
-                  price: 50000
-                  total: 72000000
-                  vehicleRegistrationNumber: BK 123 ABC
-                  paymentMethod: Cash
-                  paymentStatus: Paid
-                  deliveryStatus: Partial Deliveed
-                  sourceOfPurcahse: "-"
-                  proofImages:
-                  - https://link.id/a
-                  - https://link.id/b
-                  - https://link.id/c
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: PurchasesTransaction
-  /api/v1/transactions/purchases/store:
-    post:
-      tags:
-      - Purchases Transaction
-      summary: Store Sales Transaction
-      operationId: storePurchases
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TransactionStoreBody'
-            example:
-              supplierId: 0ccb1d94-85ee-4704-a4bf-43340807d717
-              productId: 92cb1d94-85ee-4704-a4bf-43340807d717
-              grossWeight: 2500
-              tareWeight: 1000
-              dedicationPersentage: 4
-              receivedWeight: 750
-              price: 50000
-              total: 72000000
-              vehicleRegistrationNumber: BK 123 ABC
-              paymentMethod: Cash
-              paymentStatus: Paid
-              deliveryStatus: Partial Deliveed
-              sourceOfPurcahse: "-"
-              proofImages:
-              - blob string
-      responses:
-        "201":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APISuccessResponse'
-              example:
-                success: true
-                message: Purchases Data Stored Successfully
-        "400":
-          description: Sales Store Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_400'
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: PurchasesTransaction
-  /api/v1/transactions/purchases/request:
-    put:
-      tags:
-      - Purchases Transaction
-      summary: Send Update Request to Admin
-      operationId: updatePurchases
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/purchases_request_body'
-            example:
-              transactionId: 92cb1d94-85ee-4704-a4bf-43340807d717
-              requestChanges:
-                grossWeight: 2500
-                tareWeight: 1000
-              reason: dummy
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APISuccessResponse'
-              example:
-                success: true
-                message: Sent Request Successfully
-        "400":
-          description: Sales Store Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_400'
-      security:
-      - bearerAuth: []
-      x-swagger-router-controller: PurchasesTransaction
+                {
+                  transactionId: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                  requestChanges: {
+                    grossWeight: 2500,
+                    tareWeight: 1000,
+                  },
+                  reason: "dummy"
+                }
+        responses:
+          '200':
+            description: Successful operation
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/APISuccessResponse'
+                example:
+                  success: true
+                  message: "Sent Request Successfully"
+          '400':
+            description: Sales Store Validation Error
+            content: 
+              application/json:
+                schema:
+                  type: object
+                  allOf:
+                    - $ref: '#/components/schemas/APIErrorResponse'
+                    - $ref: '#/components/schemas/APIValidationError'
+    
 components:
   schemas:
     APISuccessResponse:
@@ -351,9 +451,6 @@ components:
           type: boolean
         message:
           type: string
-      example:
-        success: true
-        message: message
     APIErrorResponse:
       type: object
       properties:
@@ -369,7 +466,13 @@ components:
         errors:
           type: array
           items:
-            $ref: '#/components/schemas/APIValidationError_errors'
+            type: object
+            properties: 
+              field: 
+                type: string
+              message: 
+                type: string
+    ## Transaction
     TransactionListResponse:
       type: object
       properties:
@@ -393,6 +496,7 @@ components:
           type: boolean
         isDelivered:
           type: boolean
+    
     TransactionDetailResponse:
       type: object
       properties:
@@ -430,6 +534,7 @@ components:
           type: string
         proofImages:
           $ref: '#/components/schemas/productImages'
+      
     TransactionStoreBody:
       type: object
       properties:
@@ -461,102 +566,12 @@ components:
           type: string
         proofImages:
           $ref: '#/components/schemas/productImages'
+    
     productImages:
       type: array
-      items:
+      items: 
         type: string
-    inline_response_200:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/APISuccessResponse'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              type: object
-              allOf:
-              - type: object
-                properties:
-                  id:
-                    type: string
-              - $ref: '#/components/schemas/TransactionListResponse'
-    inline_response_200_1:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/APISuccessResponse'
-      - type: object
-        properties:
-          data:
-            type: object
-            allOf:
-            - type: object
-              properties:
-                id:
-                  type: string
-            - $ref: '#/components/schemas/TransactionDetailResponse'
-    inline_response_400:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/APIErrorResponse'
-      - $ref: '#/components/schemas/APIValidationError'
-    sales_update_body:
-      allOf:
-      - type: object
-        properties:
-          id:
-            type: string
-      - $ref: '#/components/schemas/TransactionStoreBody'
-    inline_response_200_2:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/APISuccessResponse'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              type: object
-              allOf:
-              - type: object
-                properties:
-                  id:
-                    type: string
-                  supplierName:
-                    type: string
-              - $ref: '#/components/schemas/TransactionListResponse'
-    inline_response_200_3:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/APISuccessResponse'
-      - type: object
-        properties:
-          data:
-            type: object
-            allOf:
-            - type: object
-              properties:
-                id:
-                  type: string
-                supplierId:
-                  type: string
-            - $ref: '#/components/schemas/TransactionDetailResponse'
-    purchases_request_body:
-      allOf:
-      - type: object
-        properties:
-          id:
-            type: string
-          supplierId:
-            type: string
-      - $ref: '#/components/schemas/TransactionStoreBody'
-    APIValidationError_errors:
-      type: object
-      properties:
-        field:
-          type: string
-        message:
-          type: string
+          
   securitySchemes:
     bearerAuth:
       type: http
