@@ -8,7 +8,7 @@ info:
   version: 0.1.0
 paths:
     ## Sales
-    /api/v1/transaction/sales:
+    /api/v1/sales:
       get:
         tags: 
           - Sales Transaction
@@ -55,7 +55,7 @@ paths:
                       isDelivered: false
                     }
                   ]
-    /api/v1/transaction/sale/{transactionId}:
+    /api/v1/sale/{transactionId}:
       get:
         tags: 
           - Sales Transaction
@@ -116,7 +116,7 @@ paths:
                     ]
                   }
       
-    /api/v1/transaction/sale/store:
+    /api/v1/sale/store:
       post:
         tags: 
           - Sales Transaction
@@ -168,7 +168,7 @@ paths:
                     - $ref: '#/components/schemas/APIErrorResponse'
                     - $ref: '#/components/schemas/APIValidationError'
               
-    /api/v1/transaction/sale/update:
+    /api/v1/sale/update:
       put:
         tags: 
           - Sales Transaction
@@ -226,7 +226,7 @@ paths:
                     - $ref: '#/components/schemas/APIErrorResponse'
                     - $ref: '#/components/schemas/APIValidationError'
     ## Purchases
-    /api/v1/transaction/purchases:
+    /api/v1/purchases:
       get:
         tags: 
           - Purchases Transaction
@@ -276,7 +276,7 @@ paths:
                       isDelivered: false
                     }
                   ]
-    /api/v1/transaction/purchase/{transactionId}:
+    /api/v1/purchase/{transactionId}:
       get:
         tags: 
           - Purchases Transaction
@@ -340,7 +340,7 @@ paths:
                     ]
                   }
       
-    /api/v1/transaction/purchase/store:
+    /api/v1/purchase/store:
       post:
         tags: 
           - Purchases Transaction
@@ -393,7 +393,7 @@ paths:
                     - $ref: '#/components/schemas/APIErrorResponse'
                     - $ref: '#/components/schemas/APIValidationError'
               
-    /api/v1/transaction/purchase/request:
+    /api/v1/purchase/request:
       put:
         tags: 
           - Purchases Transaction
