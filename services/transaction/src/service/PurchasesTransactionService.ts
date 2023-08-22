@@ -84,7 +84,11 @@ export default class PurchasesTransactionService {
                 additional_notes: body.additionalNotes,
                 created_by: employeeId
             }
-            await db.query(`INSERT INTO Product_Transactions SET ?`, [transaction]);
+            const connection = await db.getConnection();
+            await connection.beginTransaction();
+            await connection.query(`INSERT INTO Product_Transactions SET ?`, [transaction]);
+            await connection.query(`UPDATE Products SET stock = stock + ? WHERE id = ?`, [body.receivedWeight, body.productId]);
+            await connection.commit();
         } catch (error) {
             throw error;
         }
