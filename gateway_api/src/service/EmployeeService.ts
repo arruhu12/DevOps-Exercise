@@ -12,13 +12,13 @@ export default class EmployeeService {
     /**
      * Get Employee Session Data
      * 
-     * @param employeeId string
+     * @param userId string
      * @returns object
      */
-    public static async getSessionData(employeeId: string) {
+    public static async getSessionData(userId: string) {
         try {
             const [[employee]] = await pool.query<RowDataPacket[]>(`SELECT c.company_name, e.name, e.customer_id 
-            FROM Employees e, Customers c WHERE e.id = ? AND c.id = e.customer_id`, [employeeId]);
+            FROM Employees e, Customers c WHERE e.user_id = ? AND c.id = e.customer_id`, [userId]);
             return employee;
         } catch (error) {
             throw error;

@@ -1,5 +1,3 @@
-import { checkEmail } from "../service/CustomerRegistrationService";
-
 export default {
     firstName: {
         exists: { errorMessage: "First name is required" },

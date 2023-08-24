@@ -8,6 +8,7 @@ import { v4 as uuid } from 'uuid';
 import { Employee } from "../models/Employee";
 import { Account } from "models/Account";
 import bcrypt from "bcrypt";
+import { User } from "../models/User";
 
 export default class EmployeeManagementService {
   /**
@@ -20,8 +21,8 @@ export default class EmployeeManagementService {
   public static async checkUsernameExists(customerId: number, username: string) {
     try {
       const [[account]] = await db.query<RowDataPacket[]>(
-        `SELECT e.id, e.customer_id, a.username FROM Employees e, Accounts a 
-        WHERE e.id = a.employee_id AND a.username = ? AND e.customer_id = ?`, [`u${customerId}-${username}`, customerId]);
+        `SELECT u.username FROM Users u 
+        WHERE u.username = ?`, `u${customerId}-${username}`);
       return (account != null);
     } catch (err) {
       throw err;
@@ -37,8 +38,8 @@ export default class EmployeeManagementService {
   public static async getEmployees(customerId: number) {
     try {
       const [employees] = await db.query<RowDataPacket[]>(
-        `SELECT e.id, e.name, e.phone_number, a.username, a.role FROM Employees e, Accounts a
-        WHERE e.id = a.employee_id AND e.customer_id = ?`, [customerId]);
+        `SELECT e.id, e.name, e.phone_number, u.username, u.roles FROM Employees e, Users u
+        WHERE u.id = e.user_id AND e.customer_id = ?`, [customerId]);
       return employees;
     } catch (err) {
       throw err;
@@ -57,12 +58,12 @@ export default class EmployeeManagementService {
     try {
       let query;
       if (isForUpdate) {
-        query = `SELECT e.id, e.name, e.phone_number, a.id AS account_id, a.username, a.password, a.role FROM Employees e, Accounts a
-        WHERE e.id = a.employee_id AND e.id = ? AND e.customer_id = ?`;
+        query = `SELECT e.id, e.user_id, e.name, e.phone_number, u.username, u.password, u.roles FROM Employees e, Users u
+        WHERE u.id = e.user_id AND e.id = ? AND e.customer_id = ?`;
       }
       else {
-        query = `SELECT e.id, e.name, e.phone_number, a.username, a.role FROM Employees e, Accounts a
-        WHERE e.id = a.employee_id AND e.id = ? AND e.customer_id = ?`;
+        query = `SELECT e.id, e.user_id, e.name, e.phone_number, u.username, u.roles FROM Employees e, Users u
+        WHERE u.id = e.user_id AND e.id = ? AND e.customer_id = ?`;
       }
       const [[employee]] = await db.query<RowDataPacket[]>(
         query, [employeeId, customerId]);
@@ -81,24 +82,27 @@ export default class EmployeeManagementService {
    */
   public static async storeEmployee(customerId: number, body: any) {
     try {
-      const employeeId = uuid();
+      const userId = uuid();
+      const user: User = {
+        id: userId,
+        username: `u${customerId}-${body.username}`,
+        email: '-',
+        password: await bcrypt.hash(body.password, 10),
+        phone_number: body.phoneNumber,
+        is_active: true,
+        roles: body.role
+      }
       const employee: Employee = {
-        id: employeeId,
+        id: uuid(),
+        user_id: userId,
         customer_id: customerId,
         name: body.name,
         phone_number: body.phoneNumber
       }
-      const account: Account = {
-        id: uuid(),
-        employee_id: employeeId,
-        username: `u${customerId}-${body.username}`,
-        password: await bcrypt.hash(body.password, 10),
-        role: body.role
-      }
       const connection = await db.getConnection();
       await connection.beginTransaction();
+      await connection.query('INSERT INTO Users SET ?', user);
       await connection.query('INSERT INTO Employees SET ?', employee);
-      await connection.query('INSERT INTO Accounts SET ?', account);
       await connection.commit();
     } catch (err) {
       throw err;
@@ -117,22 +121,22 @@ export default class EmployeeManagementService {
     try {
       const employee: Employee = {
         id: employeeId,
+        user_id: currentEmployeeData.user_id,
         customer_id: customerId,
         name: (body.name === currentEmployeeData.name) ? currentEmployeeData.name : body.name,
         phone_number: (body.phoneNumber === currentEmployeeData.phone_number) ? currentEmployeeData.phone_number : body.phoneNumber
       }
-      const account: Account = {
-        id: currentEmployeeData.account_id,
-        employee_id: employeeId,
+      const user: User = {
+        id: currentEmployeeData.user_id,
         username: (body.username === currentEmployeeData.username) ? currentEmployeeData.username : body.username,
         password: (!body.password) ? currentEmployeeData.password : await bcrypt.hash(body.password, 10),
-        role: (body.role === currentEmployeeData.role) ? currentEmployeeData.role : body.role
+        roles: (body.role === currentEmployeeData.role) ? currentEmployeeData.role : body.role
       }
 
       const connection = await db.getConnection();
       await connection.beginTransaction();
       await connection.query('UPDATE Employees SET ? WHERE id = ?', [employee, employeeId]);
-      await connection.query('UPDATE Accounts SET ? WHERE id = ?', [account, currentEmployeeData.account_id]);
+      await connection.query('UPDATE Users SET ? WHERE id = ?', [user, currentEmployeeData.user_id]);
       await connection.commit();
     } catch (err) {
       throw err;
@@ -158,87 +162,3 @@ export default class EmployeeManagementService {
     }
   }
 }
-
-
-/**
- * Delete Employee
- *
- * employeeId String 
- * returns APISuccessResponse
- **/
-// exports.dropEmployee = function(employeeId) {
-//   return new Promise(function(resolve, reject) {
-//     var examples = {};
-//     examples['application/json'] = {
-//   "success" : true,
-//   "message" : "message"
-// };
-//     if (Object.keys(examples).length > 0) {
-//       resolve(examples[Object.keys(examples)[0]]);
-//     } else {
-//       resolve();
-//     }
-//   });
-// }
-
-
-/**
- * Show Employees List
- *
- * returns inline_response_200_4
- **/
-// exports.getEmployees = function() {
-//   return new Promise(function(resolve, reject) {
-//     var examples = {};
-//     examples['application/json'] = "";
-//     if (Object.keys(examples).length > 0) {
-//       resolve(examples[Object.keys(examples)[0]]);
-//     } else {
-//       resolve();
-//     }
-//   });
-// }
-
-
-/**
- *  Store employee data and create account for access system. <br> There are 2 role names: 'employee' and 'admin' 
- *
- * body Employees_store_body  (optional)
- * returns APISuccessResponse
- **/
-// exports.storeEmployee = function(body) {
-//   return new Promise(function(resolve, reject) {
-//     var examples = {};
-//     examples['application/json'] = {
-//   "success" : true,
-//   "message" : "message"
-// };
-//     if (Object.keys(examples).length > 0) {
-//       resolve(examples[Object.keys(examples)[0]]);
-//     } else {
-//       resolve();
-//     }
-//   });
-// }
-
-
-/**
- *
- * body Employees_update_body  (optional)
- * returns APISuccessResponse
- **/
-// exports.updateEmployee = function(body) {
-//   return new Promise(function(resolve, reject) {
-//     var examples = {};
-//     examples['application/json'] = {
-//   "success" : true,
-//   "message" : "message"
-// };
-//     if (Object.keys(examples).length > 0) {
-//       resolve(examples[Object.keys(examples)[0]]);
-//     } else {
-//       resolve();
-//     }
-//   });
-// }
-

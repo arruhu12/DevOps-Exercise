@@ -1,9 +1,10 @@
 import { Request, Response,  } from "express";
 import { validationResult } from "express-validator";
 import { errorResponse, successResponse } from "../utils/writer";
-import { activateAccount, checkEmail, checkUserActive, generateActivationToken, registerAccount } from "../service/CustomerRegistrationService";
 import { sendMail } from "../service/MailerService";
 import UserRegistrationConfirm from "../mail/UserRegistrationConfirm";
+import AuthenticationService from "../service/AuthenticationService";
+import CustomerRegistrationService from "../service/CustomerRegistrationService";
 
 
 /**
@@ -24,7 +25,7 @@ export const customerActivation = async (req: Request, res: Response) => {
     }
 
     // Check activation code
-    const result = await activateAccount(req.params.activationCode);
+    const result = await CustomerRegistrationService.activateAccount(req.params.activationCode);
     if (result) {
       return successResponse(res, 200, "Account Activated Successfully");
     }
@@ -33,16 +34,6 @@ export const customerActivation = async (req: Request, res: Response) => {
     return errorResponse(res, 500, "INTERNAL_SERVER_ERROR", "Internal Server Error", error);
   }
 }
-
-// module.exports.activateAccount = function activateAccount (req, res, next, activationCode) {
-//   CustomerRegistration.activateAccount(activationCode)
-//     .then(function (response) {
-//       utils.writeJson(res, response);
-//     })
-//     .catch(function (response) {
-//       utils.writeJson(res, response);
-//     });
-// };
 
 /**
  * Customer Registration
@@ -62,18 +53,18 @@ export const customerRegistration = async (req: Request, res: Response) => {
     }
 
     // Check email exists
-    const isExists = await checkEmail(req.body.email);
-    const isActive = await checkUserActive(req.body.email);
+    const isExists = await AuthenticationService.isExists(req.body.email);
+    const isActive = await CustomerRegistrationService.checkUserActive(req.body.email);
     if (isExists && isActive) {
       return errorResponse(res, 400, "EMAIL_ALREADY_EXISTS", "Email Already Exists");
     }
     else if (!isActive) {
       // Send body to registration service
-      await registerAccount(req.body);
+      await CustomerRegistrationService.registerAccount(req.body);
     }
     
     // Generate activation token and send mail
-    const activationToken = await generateActivationToken(req.body.email);
+    const activationToken = await CustomerRegistrationService.generateActivationToken(req.body.email);
     sendMail(UserRegistrationConfirm(req.body.email, activationToken));
     
     return successResponse(res, 201, "Account Registered Successfully");

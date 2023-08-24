@@ -22,10 +22,10 @@ export default class PurchasesTransactionController {
     public static async getPurchases(req: Request, res: Response) {
         try {
             // Get Employee Id
-            const employeeId = UserContextService.getEmployeeId(req.headers.authorization!);
+            const userId = UserContextService.getUserId(req.headers.authorization!);
 
             // Get Purchase Transactions
-            const transactions = await PurchasesTransactionService.getDailyHistory(employeeId);
+            const transactions = await PurchasesTransactionService.getDailyHistory(userId);
 
             if (!transactions) {
                 return successResponse(res, 200, `Today's purchase transaction is empty`, []);
@@ -50,10 +50,10 @@ export default class PurchasesTransactionController {
     public static async getPurchasesById(req: Request, res: Response) {
         try {
             // Get Employee Id
-            const employeeId = UserContextService.getEmployeeId(req.headers.authorization!);
+            const userId = UserContextService.getUserId(req.headers.authorization!);
 
             // Get Purchase Transaction
-            const transaction = await PurchasesTransactionService.getPurchaseById(employeeId, req.params.id);
+            const transaction = await PurchasesTransactionService.getPurchaseById(userId, req.params.id);
 
             if (!transaction) {
                 return errorResponse(res, 404, 'NOT_FOUND', 'Purchase Transaction Not Found');
@@ -82,9 +82,9 @@ export default class PurchasesTransactionController {
             }
 
             // Get Employee Id
-            const employeeId = UserContextService.getEmployeeId(req.headers.authorization!);
+            const userId = UserContextService.getUserId(req.headers.authorization!);
 
-            await PurchasesTransactionService.store(employeeId, req.body);
+            await PurchasesTransactionService.store(userId, req.body);
             return successResponse(res, 201, 'Purchase Transaction Stored Successfully');
         } catch (error) {
             return errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);

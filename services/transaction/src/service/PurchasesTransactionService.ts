@@ -11,10 +11,10 @@ export default class PurchasesTransactionService {
     /** 
      * Get Purchases Daily History
      * 
-     * @param employeeId string
+     * @param userId string
      * @returns Promise<RowDataPacket[]>
     */
-    public static async getDailyHistory(employeeId: string): Promise<RowDataPacket[]> {
+    public static async getDailyHistory(userId: string): Promise<RowDataPacket[]> {
         try {
             const [purchases] = await db.query<RowDataPacket[]>(`
                 SELECT t.id, t.transaction_type, p.name as product_name, p.price,
@@ -26,7 +26,7 @@ export default class PurchasesTransactionService {
                 WHERE t.product_id = p.id AND t.supplier_id = s.id AND 
                 t.created_by = ? AND t.transaction_type = 'purchase'
                 AND DATE(t.created_at) = CURDATE() ORDER BY t.created_at
-            `, [employeeId]);
+            `, [userId]);
             return purchases;
         } catch (error) {
             throw error;
@@ -36,11 +36,11 @@ export default class PurchasesTransactionService {
     /**
      * Get Purchase By Id
      * 
-     * @param employeeId string
+     * @param userId string
      * @param transactionId string
      * @returns Promise<RowDataPacket>
      */
-    public static async getPurchaseById(employeeId: string, transactionId: string): Promise<RowDataPacket> {
+    public static async getPurchaseById(userId: string, transactionId: string): Promise<RowDataPacket> {
         try {
             const [[purchase]] = await db.query<RowDataPacket[]>(`
                 SELECT t.id, t.transaction_type, p.name as product_name, p.price,
@@ -51,7 +51,7 @@ export default class PurchasesTransactionService {
                 FROM Product_Transactions t, Products p, Suppliers s
                 WHERE t.product_id = p.id AND t.supplier_id = s.id AND 
                 t.created_by = ? AND t.transaction_type = 'purchase' AND t.id = ?
-            `, [employeeId, transactionId]);
+            `, [userId, transactionId]);
             return purchase;
         } catch (error) {
             throw error;
@@ -61,11 +61,11 @@ export default class PurchasesTransactionService {
     /**
      * Store Purchases Transaction
      * 
-     * @param employeeId string
+     * @param userId string
      * @param body TransactionStoreBody
      * @returns void
      */
-    public static async store(employeeId: string, body: any): Promise<void> {
+    public static async store(userId: string, body: any): Promise<void> {
         try {
             const transaction: Transaction = {
                 id: uuid(),
@@ -82,7 +82,7 @@ export default class PurchasesTransactionService {
                 payment_method: body.paymentMethod,
                 source_of_purchase: body.sourceOfPurchase,
                 additional_notes: body.additionalNotes,
-                created_by: employeeId
+                created_by: userId
             }
             const connection = await db.getConnection();
             await connection.beginTransaction();

@@ -7,7 +7,6 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import AuthenticationService from "../service/AuthenticationService";
-import { checkEmail } from "../service/CustomerRegistrationService";
 import { errorResponse, successResponse } from "../utils/writer";
 
 class AuthenticationController {
@@ -40,20 +39,20 @@ class AuthenticationController {
       // Customer Login
       if (req.body.email) {
         // Check email exists
-        const isExists = await checkEmail(req.body.email);
+        const isExists = await AuthenticationService.isExists(req.body.email);
         if (!isExists) {
           return errorResponse(res, 400, "EMAIL_NOT_FOUND", "Email Not Found");
         }
         // Generate Token      
-        token = await AuthenticationService.customerLogin(req.body.email, req.body.password);
+        token = await AuthenticationService.login(req.body.email, req.body.password);
       }
       else if (req.body.username) {
         // Check username exists
-        const isExists = await AuthenticationService.checkUsernameForEmployeeLogin(req.body.username);
+        const isExists = await AuthenticationService.isExists(req.body.username);
         if (!isExists) {
           return errorResponse(res, 400, "USERNAME_NOT_FOUND", "Username Not Found");
         }
-        token = await AuthenticationService.employeeLogin(req.body.username, req.body.password);
+        token = await AuthenticationService.login(req.body.username, req.body.password);
       }
       
       // Return Response

@@ -38,15 +38,15 @@ export default class UserContextService {
     }
 
     /**
-     * Get Employee ID
+     * Get User ID
      * 
      * @param token: string
      * @returns string
      */
-    public static getEmployeeId(token: string): string {
+    public static getUserId(token: string): string {
         try {
             const result = this.decodeJwtToken(token).context.user;
-            return result.employeeId!;
+            return result.userId!;
         } catch (error) {
             throw error;
         }

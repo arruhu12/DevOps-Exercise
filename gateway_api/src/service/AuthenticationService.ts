@@ -16,7 +16,7 @@ config();
 
 interface UserContext {
   user: {
-    employeeId?: string;
+    userId: string;
     customerId: string;
     displayName: string;
     companyName: string;
@@ -44,6 +44,7 @@ export default class AuthenticationService {
       sub = customer.first_name;
       context = {
         user: {
+          userId: customer.user_id,
           customerId: customer.id,
           displayName: customer.first_name + " " + customer.last_name,
           companyName: customer.company_name
@@ -58,7 +59,7 @@ export default class AuthenticationService {
       sub = employee.name;
       context = {
         user: {
-          employeeId: identification,
+          userId: identification,
           customerId: employee.customer_id,
           displayName: employee.name,
           companyName: employee.company_name
@@ -81,28 +82,73 @@ export default class AuthenticationService {
   }
 
   /**
+   * Validate email
+   * 
+   * @param email: string
+   * @returns Boolean
+   */
+  private static validateEmail(email: string) {
+    return String(email)
+    .toLowerCase()
+    .match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+  }
+
+  /**
+   * Check Exists User
+   * 
+   * Check if a user exists with the given email or username
+   * 
+   * @param identification string
+   * @returns Boolean
+   **/
+  public static async isExists (identification: string) {
+    try {
+      let query;
+      if (this.validateEmail(identification)) {
+        query = `SELECT id FROM Users WHERE email = ?`;
+      }
+      else {
+        query = `SELECT id FROM Users WHERE username = ?`;
+      }
+      const [rows] = await pool.query<RowDataPacket[]>(query, [identification]);
+      return rows.length > 0;
+    } catch (error) {
+        throw error;
+    }
+  }
+
+  /**
    * Customer Login
    *  
-   * @param email string
+   * @param identification string
    * @param password string
    * @param authenticationType string
    * @returns [string, string]
    */
-  public static async customerLogin(email: string, password: string) {
+  public static async login(identification: string, password: string) {
     try {
       // Get user
-      const [user] = await pool.query<RowDataPacket[]>(`SELECT id, email, password, is_active FROM Users WHERE email = ?`, [email]);
+      let user;
+      
+      if (this.validateEmail(identification)) {
+        [[user]] = await pool.query<RowDataPacket[]>(`SELECT id, email, password, is_active, roles FROM Users WHERE email = ?`, [identification]);
+      }
+      else {
+        [[user]] = await pool.query<RowDataPacket[]>(`SELECT id, username, password, is_active, roles FROM Users WHERE username = ?`, [identification]);
+      }
 
       // Check user is not active or password missmatch
-      if (!await bcrypt.compare(password, user[0].password)) {
+      if (!await bcrypt.compare(password, user.password)) {
         throw new Error("CREDENTIAL_PASSWORD_MISMATCH");
       }
-      if (!user[0].is_active) {
+      if (!user.is_active) {
         throw new Error("CREDENTIAL_ACCOUNT_NOT_ACTIVE");
       }
 
       // Sign the token
-      const payload = await this.createClaims(user[0].id, "customer");
+      const payload = await this.createClaims(user.id, user.roles);
       const token = sign(
         payload,
         process.env.APP_KEY!
@@ -164,50 +210,4 @@ export default class AuthenticationService {
       throw error;
     }
   }
-
-  /**
-   * Check Username for Employee Login
-   * 
-   * @param username string
-   * @returns boolean
-   */
-  public static async checkUsernameForEmployeeLogin(username: string) {
-    try {
-      const [[employee]] = await pool.query<RowDataPacket[]>(`SELECT id FROM Accounts WHERE username = ?`, [username]);
-      return employee;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Employee Login
-   * 
-   * @param username string
-   * @param password string
-   * @returns string
-   */
-  public static async employeeLogin(username: string, password: string) {
-    try {
-      // Get user
-      const [[user]] = await pool.query<RowDataPacket[]>(`SELECT id, employee_id, password FROM Accounts WHERE username = ?`, [username]);
-
-      // Check user is not active or password missmatch
-      if (!await bcrypt.compare(password, user.password)) {
-        throw new Error("CREDENTIAL_PASSWORD_MISMATCH");
-      }
-
-      // Sign the token
-      const payload = await this.createClaims(user.employee_id, "employee");
-      const token = sign(
-        payload,
-        process.env.APP_KEY!
-      );
-
-      // Return token
-      return token;
-    } catch (error) {
-      throw error;
-    }
-  }  
 }

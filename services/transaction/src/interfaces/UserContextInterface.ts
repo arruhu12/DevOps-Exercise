@@ -6,8 +6,8 @@ export default interface UserContextInterface {
     aud: string,
     context: {
         user: {
-            employeeId?: string,
-            customerId?: string,
+            userId: string,
+            customerId: string,
             displayName: string,
             companyName: string,
         },
