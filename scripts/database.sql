@@ -1,10 +1,13 @@
 use buku_sawit;
+
 CREATE TABLE IF NOT EXISTS Users (
 	id varchar(36) NOT NULL PRIMARY KEY,
 	email varchar(50) NOT NULL,
+  username varchar(50) NOT NULL,
 	password varchar(100) NOT NULL,
 	phone_number varchar(15),
 	is_active boolean DEFAULT false,
+  roles varchar(100),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
 	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -20,19 +23,11 @@ CREATE TABLE IF NOT EXISTS Customers (
 );
 CREATE TABLE IF NOT EXISTS Employees (
   id varchar(36) PRIMARY KEY,
+  user_id varchar(36) NOT NULL,
   customer_id int NOT NULL,
   name varchar(150) NOT NULL,
   phone_number varchar(15),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-CREATE TABLE IF NOT EXISTS Accounts (
-	id varchar(36) PRIMARY KEY,
-	employee_id varchar(36) NOT NULL,
-	username varchar(50) NOT NULL,
-	password varchar(100) NOT NULL,
-	role varchar(20) NOT NULL,
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS Login_Activities (
@@ -126,7 +121,7 @@ CREATE TABLE IF NOT EXISTS Product_Transactions (
   received_weight int,
   vehicle_registration_number varchar(13),
   payment_status varchar(15),
-  delivery_status varchar(10),
+  delivery_status varchar(20),
   payment_method varchar(10),
   source_of_purchase varchar(100),
   additional_notes text,
@@ -174,8 +169,8 @@ CREATE TABLE IF NOT EXISTS Transaction_Modification_Requests (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 ALTER TABLE Customers ADD FOREIGN KEY (user_id) REFERENCES Users (id);
+ALTER TABLE Employees ADD FOREIGN KEY (user_id) REFERENCES Users (id);
 ALTER TABLE Employees ADD FOREIGN KEY (customer_id) REFERENCES Customers (id);
-ALTER TABLE Accounts ADD FOREIGN KEY (employee_id) REFERENCES Employees (id);
 ALTER TABLE Subscription_Status ADD FOREIGN KEY (customer_id) REFERENCES Customers (id);
 ALTER TABLE Subscription_Status ADD FOREIGN KEY (package_id) REFERENCES Subscription_Packages (id);
 ALTER TABLE Invoices ADD FOREIGN KEY (order_id) REFERENCES Orders (id);
@@ -184,13 +179,13 @@ ALTER TABLE Invoice_Items ADD FOREIGN KEY (invoice_id) REFERENCES Invoices (id);
 ALTER TABLE Orders ADD FOREIGN KEY (customer_id) REFERENCES Customers (id);
 ALTER TABLE Order_Items ADD FOREIGN KEY (order_id) REFERENCES Orders (id);
 ALTER TABLE Order_Items ADD FOREIGN KEY (package_id) REFERENCES Subscription_Packages (id);
-ALTER TABLE Product_Transactions ADD FOREIGN KEY (created_by) REFERENCES Employees (id);
-ALTER TABLE Product_Transactions ADD FOREIGN KEY (updated_by) REFERENCES Employees (id);
+ALTER TABLE Product_Transactions ADD FOREIGN KEY (created_by) REFERENCES Users (id);
+ALTER TABLE Product_Transactions ADD FOREIGN KEY (updated_by) REFERENCES Users (id);
 ALTER TABLE Product_Transactions ADD FOREIGN KEY (product_id) REFERENCES Products (id);
 ALTER TABLE Product_Transactions ADD FOREIGN KEY (supplier_id) REFERENCES Suppliers (id);
 ALTER TABLE Products ADD FOREIGN KEY (customer_id) REFERENCES Customers (id);
 ALTER TABLE Suppliers ADD FOREIGN KEY (customer_id) REFERENCES Customers (id);
 ALTER TABLE Product_Transaction_Images ADD FOREIGN KEY (transaction_id) REFERENCES Product_Transactions (id);
-ALTER TABLE Transaction_Modification_Requests ADD FOREIGN KEY (employee_id) REFERENCES Employees (id);
+ALTER TABLE Transaction_Modification_Requests ADD FOREIGN KEY (employee_id) REFERENCES Users (id);
 ALTER TABLE Transaction_Modification_Requests ADD FOREIGN KEY (transaction_id) REFERENCES Product_Transactions (id);
-ALTER TABLE Transaction_Modification_Requests ADD FOREIGN KEY (processed_by) REFERENCES Employees (id);
+ALTER TABLE Transaction_Modification_Requests ADD FOREIGN KEY (processed_by) REFERENCES Users (id);
