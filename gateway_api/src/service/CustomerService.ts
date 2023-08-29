@@ -23,7 +23,7 @@ class CustomerService {
         try {
             const [result] = await pool.query<RowDataPacket[]>(`
                 SELECT c.id, c.user_id, c.first_name, c.last_name, c.company_name, c.company_address, u.email, u.phone_number 
-                FROM Customers c, Users u WHERE c.user_id = u.id AND c.id = ?`, [customerId]);
+                FROM customers c, users u WHERE c.user_id = u.id AND c.id = ?`, [customerId]);
             return result[0];
         }
         catch (error) {
@@ -34,7 +34,7 @@ class CustomerService {
     public static async getCustomerSession(userId: string) {
         try {
             const [result] = await pool.query<RowDataPacket[]>(`
-            SELECT id, user_id, first_name, last_name, company_name FROM Customers WHERE user_id = ?`, [userId]);
+            SELECT id, user_id, first_name, last_name, company_name FROM customers WHERE user_id = ?`, [userId]);
             return result[0];
         }
         catch (error) {
@@ -54,7 +54,7 @@ class CustomerService {
 
     public static async getCustomerId(userId: string) {
         try {
-            const [customer] = await pool.query<RowDataPacket[]>(`SELECT id FROM Customers WHERE user_id = ?`, [userId]);
+            const [customer] = await pool.query<RowDataPacket[]>(`SELECT id FROM customers WHERE user_id = ?`, [userId]);
             return customer[0].id;
         } catch (error) {
             throw error;
@@ -85,7 +85,7 @@ class CustomerService {
      */
     public static async updateCustomer(body: any, customerId: number) {
         try {
-            const [[userId]] = await pool.query<RowDataPacket[]>("SELECT user_id FROM Customers WHERE id = ?", [customerId]);
+            const [[userId]] = await pool.query<RowDataPacket[]>("SELECT user_id FROM customers WHERE id = ?", [customerId]);
             if (!userId) {
                 throw new Error("Customer not found");
             }
@@ -108,8 +108,8 @@ class CustomerService {
 
             const connection = await pool.getConnection();
             await connection.beginTransaction();
-            await connection.query("UPDATE Users SET ? WHERE id = ?", [user, user.id]);
-            await connection.query("UPDATE Customers SET ? WHERE id = ?", [customer, customer.id]);
+            await connection.query("UPDATE users SET ? WHERE id = ?", [user, user.id]);
+            await connection.query("UPDATE customers SET ? WHERE id = ?", [customer, customer.id]);
             await connection.commit(); 
             return true;
         } catch (error) { 

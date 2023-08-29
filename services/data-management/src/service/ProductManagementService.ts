@@ -20,11 +20,11 @@ export default class ProductManagementService {
       let products;
       if (showNameOnly) {
         [products] = await db.query<RowDataPacket[]>(
-          "SELECT id, name FROM Products WHERE customer_id = ?", [customerId]);
+          "SELECT id, name FROM products WHERE customer_id = ?", [customerId]);
       }
       else {
         [products] = await db.query<RowDataPacket[]>(
-          "SELECT * FROM Products WHERE customer_id = ?", [customerId]);
+          "SELECT * FROM products WHERE customer_id = ?", [customerId]);
       }
       return products;
     } catch (error) {
@@ -42,7 +42,7 @@ export default class ProductManagementService {
   public static async getProductById(customerId: number, productId: string) {
     try {
       let [[product]] = await db.query<RowDataPacket[]>(
-        "SELECT * FROM Products WHERE id = ? AND customer_id = ?", [productId, customerId]);
+        "SELECT * FROM products WHERE id = ? AND customer_id = ?", [productId, customerId]);
       return product;
     } catch (error) {
       throw error;
@@ -64,7 +64,7 @@ export default class ProductManagementService {
         name: body.name,
         price: body.price
       }
-      const result = await db.query("INSERT INTO Products SET ?", product);
+      const result = await db.query("INSERT INTO products SET ?", product);
       return result;
     } catch (error) {
       throw error;
@@ -86,7 +86,7 @@ export default class ProductManagementService {
         name: body.name,
         price: body.price
       }
-      const result = await db.query("UPDATE Products SET ? WHERE id = ?", [product, body.id]);
+      const result = await db.query("UPDATE products SET ? WHERE id = ?", [product, body.id]);
       return result;
     } catch (error) {
       throw error;
@@ -102,7 +102,7 @@ export default class ProductManagementService {
    **/
   public static async deleteProduct(customerId: number, id: string) {
     try {
-      const result = await db.query("DELETE FROM Products WHERE id = ? AND customer_id = ?", [id, customerId]);
+      const result = await db.query("DELETE FROM products WHERE id = ? AND customer_id = ?", [id, customerId]);
       return result;
     } catch (error) {
       throw error;

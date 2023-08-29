@@ -63,8 +63,8 @@ export default class CustomerRegistrationService {
             };
             const connection = await pool.getConnection();
             await connection.beginTransaction();
-            await connection.query(`INSERT INTO Users SET ?;`, [user]);
-            await connection.query(`INSERT INTO Customers SET ?;`, [customer]);
+            await connection.query(`INSERT INTO users SET ?;`, [user]);
+            await connection.query(`INSERT INTO customers SET ?;`, [customer]);
             await connection.commit(); 
         } catch (error) {
             throw error;
@@ -79,7 +79,7 @@ export default class CustomerRegistrationService {
      */
     public static async checkUserActive (email: string) {
         try {
-            const [rows] = await pool.query<RowDataPacket[]>(`SELECT id FROM Users WHERE email = ? AND is_active=1`, [email]);
+            const [rows] = await pool.query<RowDataPacket[]>(`SELECT id FROM users WHERE email = ? AND is_active=1`, [email]);
             return rows.length > 0;
         } catch (error) {
             throw error;
@@ -96,7 +96,7 @@ export default class CustomerRegistrationService {
      */
     public static async generateActivationToken (email: string) {
         try {
-            const [rows] = await pool.query<RowDataPacket[]>(`SELECT id FROM Users WHERE email = ?`, [email]);
+            const [rows] = await pool.query<RowDataPacket[]>(`SELECT id FROM users WHERE email = ?`, [email]);
             // Generate token
             const token = crypto.randomBytes(20).toString('hex');
             RedisService.store('user-activation', token, {
@@ -124,7 +124,7 @@ export default class CustomerRegistrationService {
             }
             const connection = await pool.getConnection();
             await connection.beginTransaction();
-            await connection.query(`UPDATE Users SET is_active = true WHERE id = ?;`, [user.id]);
+            await connection.query(`UPDATE users SET is_active = true WHERE id = ?;`, [user.id]);
             await connection.commit();
             return true;
         } catch (error) {

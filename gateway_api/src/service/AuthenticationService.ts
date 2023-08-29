@@ -107,10 +107,10 @@ export default class AuthenticationService {
     try {
       let query;
       if (this.validateEmail(identification)) {
-        query = `SELECT id FROM Users WHERE email = ?`;
+        query = `SELECT id FROM users WHERE email = ?`;
       }
       else {
-        query = `SELECT id FROM Users WHERE username = ?`;
+        query = `SELECT id FROM users WHERE username = ?`;
       }
       const [rows] = await pool.query<RowDataPacket[]>(query, [identification]);
       return rows.length > 0;
@@ -133,10 +133,10 @@ export default class AuthenticationService {
       let user;
       
       if (this.validateEmail(identification)) {
-        [[user]] = await pool.query<RowDataPacket[]>(`SELECT id, email, password, is_active, roles FROM Users WHERE email = ?`, [identification]);
+        [[user]] = await pool.query<RowDataPacket[]>(`SELECT id, email, password, is_active, roles FROM users WHERE email = ?`, [identification]);
       }
       else {
-        [[user]] = await pool.query<RowDataPacket[]>(`SELECT id, username, password, is_active, roles FROM Users WHERE username = ?`, [identification]);
+        [[user]] = await pool.query<RowDataPacket[]>(`SELECT id, username, password, is_active, roles FROM users WHERE username = ?`, [identification]);
       }
 
       // Check user is not active or password missmatch
@@ -188,13 +188,13 @@ export default class AuthenticationService {
   public static async changePassword(id: string, currentPassword: string, newPassword: string) {
     try {
       // Get User id
-      const [customer] = await pool.query<RowDataPacket[]>(`SELECT user_id FROM Customers WHERE id = ?`, [id]);
+      const [customer] = await pool.query<RowDataPacket[]>(`SELECT user_id FROM customer WHERE id = ?`, [id]);
       if (!customer[0]) {
         throw new Error("CREDENTIAL_ACCOUNT_NOT_FOUND");
       }
 
       // Get user
-      const [user] = await pool.query<RowDataPacket[]>(`SELECT id, password FROM Users WHERE id = ?`, [customer[0].user_id]);
+      const [user] = await pool.query<RowDataPacket[]>(`SELECT id, password FROM users WHERE id = ?`, [customer[0].user_id]);
 
       // Check current password
       if (!await bcrypt.compare(currentPassword, user[0].password)) {
@@ -205,7 +205,7 @@ export default class AuthenticationService {
       const hashedPassword = await bcrypt.hash(newPassword, 10);
 
       // Update password
-      await pool.query(`UPDATE Users SET password = ? WHERE id = ?`, [hashedPassword, customer[0].user_id]);
+      await pool.query(`UPDATE users SET password = ? WHERE id = ?`, [hashedPassword, customer[0].user_id]);
     } catch (error) {
       throw error;
     }

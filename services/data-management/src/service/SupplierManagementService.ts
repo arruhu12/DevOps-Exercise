@@ -17,7 +17,7 @@ export default class SupplierManagementService {
   public static async getSuppliers(customerId: number) {
     try {
       const [suppliers] = await db.query<RowDataPacket[]>(
-        "SELECT id, name FROM Suppliers WHERE customer_id = ?", [customerId]);
+        "SELECT id, name FROM suppliers WHERE customer_id = ?", [customerId]);
       return suppliers;
     } catch (error) {
       throw error;
@@ -34,7 +34,7 @@ export default class SupplierManagementService {
   public static async getSupplierById(customerId: number, supplierId: string) {
     try {
       const [[supplier]] = await db.query<RowDataPacket[]>(
-        "SELECT id, name, address, phone_number FROM Suppliers WHERE id = ? AND customer_id = ?",
+        "SELECT id, name, address, phone_number FROM suppliers WHERE id = ? AND customer_id = ?",
         [supplierId, customerId]
       );
       return supplier;
@@ -59,7 +59,7 @@ export default class SupplierManagementService {
         address: body.address,
         phone_number: body.phoneNumber
       }
-      const result = await db.query("INSERT INTO Suppliers SET ?", supplier);
+      const result = await db.query("INSERT INTO suppliers SET ?", supplier);
       return result;
     } catch (error) {
       throw error;
@@ -83,7 +83,7 @@ export default class SupplierManagementService {
         address: body.address,
         phone_number: body.phoneNumber
       }
-      const result = await db.query("UPDATE Suppliers SET ? WHERE id = ?", [supplier, supplierId]);
+      const result = await db.query("UPDATE suppliers SET ? WHERE id = ?", [supplier, supplierId]);
       return result;
     } catch (error) {
       throw error;
@@ -99,7 +99,7 @@ export default class SupplierManagementService {
    **/
   public static async drop(customerId: number, supplierId: string) {
     try {
-      const result = await db.query("DELETE FROM Suppliers WHERE id = ? AND customer_id = ?", [supplierId, customerId]);
+      const result = await db.query("DELETE FROM suppliers WHERE id = ? AND customer_id = ?", [supplierId, customerId]);
       return result;
     } catch (error) {
       throw error;

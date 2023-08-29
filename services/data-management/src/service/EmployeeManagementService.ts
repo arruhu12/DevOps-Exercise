@@ -6,7 +6,6 @@ import { RowDataPacket } from "mysql2";
 import { db } from "./DatabaseService";
 import { v4 as uuid } from 'uuid';
 import { Employee } from "../models/Employee";
-import { Account } from "models/Account";
 import bcrypt from "bcrypt";
 import { User } from "../models/User";
 
@@ -21,7 +20,7 @@ export default class EmployeeManagementService {
   public static async checkUsernameExists(customerId: number, username: string) {
     try {
       const [[account]] = await db.query<RowDataPacket[]>(
-        `SELECT u.username FROM Users u 
+        `SELECT u.username FROM users u 
         WHERE u.username = ?`, `u${customerId}-${username}`);
       return (account != null);
     } catch (err) {
@@ -30,7 +29,7 @@ export default class EmployeeManagementService {
   }
   
   /**
-   * Show Employees List
+   * Show employees List
    *
    * @param customerId number
    * @return object
@@ -38,7 +37,7 @@ export default class EmployeeManagementService {
   public static async getEmployees(customerId: number) {
     try {
       const [employees] = await db.query<RowDataPacket[]>(
-        `SELECT e.id, e.name, e.phone_number, u.username, u.roles FROM Employees e, Users u
+        `SELECT e.id, e.name, e.phone_number, u.username, u.roles FROM employees e, users u
         WHERE u.id = e.user_id AND e.customer_id = ?`, [customerId]);
       return employees;
     } catch (err) {
@@ -58,11 +57,11 @@ export default class EmployeeManagementService {
     try {
       let query;
       if (isForUpdate) {
-        query = `SELECT e.id, e.user_id, e.name, e.phone_number, u.username, u.password, u.roles FROM Employees e, Users u
+        query = `SELECT e.id, e.user_id, e.name, e.phone_number, u.username, u.password, u.roles FROM employees e, users u
         WHERE u.id = e.user_id AND e.id = ? AND e.customer_id = ?`;
       }
       else {
-        query = `SELECT e.id, e.user_id, e.name, e.phone_number, u.username, u.roles FROM Employees e, Users u
+        query = `SELECT e.id, e.user_id, e.name, e.phone_number, u.username, u.roles FROM employees e, users u
         WHERE u.id = e.user_id AND e.id = ? AND e.customer_id = ?`;
       }
       const [[employee]] = await db.query<RowDataPacket[]>(
@@ -101,8 +100,8 @@ export default class EmployeeManagementService {
       }
       const connection = await db.getConnection();
       await connection.beginTransaction();
-      await connection.query('INSERT INTO Users SET ?', user);
-      await connection.query('INSERT INTO Employees SET ?', employee);
+      await connection.query('INSERT INTO users SET ?', user);
+      await connection.query('INSERT INTO employees SET ?', employee);
       await connection.commit();
     } catch (err) {
       throw err;
@@ -135,8 +134,8 @@ export default class EmployeeManagementService {
 
       const connection = await db.getConnection();
       await connection.beginTransaction();
-      await connection.query('UPDATE Employees SET ? WHERE id = ?', [employee, employeeId]);
-      await connection.query('UPDATE Users SET ? WHERE id = ?', [user, currentEmployeeData.user_id]);
+      await connection.query('UPDATE employees SET ? WHERE id = ?', [employee, employeeId]);
+      await connection.query('UPDATE users SET ? WHERE id = ?', [user, currentEmployeeData.user_id]);
       await connection.commit();
     } catch (err) {
       throw err;
@@ -155,7 +154,7 @@ export default class EmployeeManagementService {
       const connection = await db.getConnection();
       await connection.beginTransaction();
       await connection.query('DELETE FROM Accounts WHERE employee_id = ?', [employeeId]);
-      await connection.query('DELETE FROM Employees WHERE id = ? AND customer_id = ?', [employeeId, customerId]);
+      await connection.query('DELETE FROM employees WHERE id = ? AND customer_id = ?', [employeeId, customerId]);
       await connection.commit();
     } catch (err) {
       throw err;

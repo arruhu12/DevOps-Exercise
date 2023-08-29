@@ -21,7 +21,7 @@ export default class SalesTransactionService {
           t.created_at as transaction_date, t.gross_weight, t.tare_weight, 
           t.received_weight, t.deduction_percentage, t.vehicle_registration_number, 
           t.payment_status, t.delivery_status, t.payment_method
-          FROM Product_Transactions t, Products p
+          FROM product_transactions t, products p
           WHERE t.product_id = p.id AND t.created_by = ? AND t.transaction_type = 'sale'
           ORDER BY t.created_at DESC
       `, [userId]);
@@ -45,7 +45,7 @@ export default class SalesTransactionService {
           t.created_at as transaction_date, t.gross_weight, t.tare_weight, 
           t.received_weight, t.deduction_percentage, t.vehicle_registration_number,
           t.payment_status, t.delivery_status, t.payment_method
-          FROM Product_Transactions t, Products p, Suppliers s
+          FROM product_transactions t, products p
           WHERE t.product_id = p.id AND t.created_by = ? AND 
           t.transaction_type = 'sale' AND t.id = ?
       `, [userId, transactionId]);
@@ -93,13 +93,13 @@ export default class SalesTransactionService {
       await connection.beginTransaction();
 
       // Lock transaction and check stock
-      const [[product]] = await connection.query<RowDataPacket[]>(`SELECT stock FROM Products WHERE id = ?`, [body.productId]);
+      const [[product]] = await connection.query<RowDataPacket[]>(`SELECT stock FROM products WHERE id = ?`, [body.productId]);
       if (product.stock < nettoWeightWithDeduction) {
         throw new Error('INSUFFICIENT_STOCK');
       }
 
-      await connection.query(`INSERT INTO Product_Transactions SET ?`, [transaction]);
-      await connection.query(`UPDATE Products SET stock = stock - ? WHERE id = ?`, [body.receivedWeight, body.productId]);
+      await connection.query(`INSERT INTO product_transactions SET ?`, [transaction]);
+      await connection.query(`UPDATE products SET stock = stock - ? WHERE id = ?`, [body.receivedWeight, body.productId]);
       await connection.commit();
     } catch (error) {
         throw error;

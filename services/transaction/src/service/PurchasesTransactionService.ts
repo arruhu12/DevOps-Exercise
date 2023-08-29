@@ -22,7 +22,7 @@ export default class PurchasesTransactionService {
                 t.gross_weight, t.tare_weight, t.received_weight, t.deduction_percentage,
                 t.vehicle_registration_number, t.payment_status, t.delivery_status, 
                 t.payment_method
-                FROM Product_Transactions t, Products p, Suppliers s
+                FROM product_transactions t, products p, suppliers s
                 WHERE t.product_id = p.id AND t.supplier_id = s.id AND 
                 t.created_by = ? AND t.transaction_type = 'purchase'
                 AND DATE(t.created_at) = CURDATE() ORDER BY t.created_at
@@ -48,7 +48,7 @@ export default class PurchasesTransactionService {
                 t.gross_weight, t.tare_weight, t.received_weight, t.deduction_percentage,
                 t.vehicle_registration_number, t.payment_status, t.delivery_status, 
                 t.payment_method, t.source_of_purchase, t.additional_notes
-                FROM Product_Transactions t, Products p, Suppliers s
+                FROM product_transactions t, products p, suppliers s
                 WHERE t.product_id = p.id AND t.supplier_id = s.id AND 
                 t.created_by = ? AND t.transaction_type = 'purchase' AND t.id = ?
             `, [userId, transactionId]);
@@ -86,93 +86,11 @@ export default class PurchasesTransactionService {
             }
             const connection = await db.getConnection();
             await connection.beginTransaction();
-            await connection.query(`INSERT INTO Product_Transactions SET ?`, [transaction]);
-            await connection.query(`UPDATE Products SET stock = stock + ? WHERE id = ?`, [body.receivedWeight, body.productId]);
+            await connection.query(`INSERT INTO product_transactions SET ?`, [transaction]);
+            await connection.query(`UPDATE products SET stock = stock + ? WHERE id = ?`, [body.receivedWeight, body.productId]);
             await connection.commit();
         } catch (error) {
             throw error;
         }
     }
 }
-
-
-// /**
-//  * Get Recently Recorded Purchase Transaction
-//  *
-//  * returns inline_response_200_2
-//  **/
-// exports.getPurchases = function() {
-//   return new Promise(function(resolve, reject) {
-//     var examples = {};
-//     examples['application/json'] = "";
-//     if (Object.keys(examples).length > 0) {
-//       resolve(examples[Object.keys(examples)[0]]);
-//     } else {
-//       resolve();
-//     }
-//   });
-// }
-
-
-// /**
-//  * Get Sales Transaction By Id
-//  *
-//  * transactionId String 
-//  * returns inline_response_200_3
-//  **/
-// exports.getPurchasesTransactionById = function(transactionId) {
-//   return new Promise(function(resolve, reject) {
-//     var examples = {};
-//     examples['application/json'] = "";
-//     if (Object.keys(examples).length > 0) {
-//       resolve(examples[Object.keys(examples)[0]]);
-//     } else {
-//       resolve();
-//     }
-//   });
-// }
-
-
-// /**
-//  * Store Sales Transaction
-//  *
-//  * body TransactionStoreBody  (optional)
-//  * returns APISuccessResponse
-//  **/
-// exports.storePurchases = function(body) {
-//   return new Promise(function(resolve, reject) {
-//     var examples = {};
-//     examples['application/json'] = {
-//   "success" : true,
-//   "message" : "message"
-// };
-//     if (Object.keys(examples).length > 0) {
-//       resolve(examples[Object.keys(examples)[0]]);
-//     } else {
-//       resolve();
-//     }
-//   });
-// }
-
-
-// /**
-//  * Send Update Request to Admin
-//  *
-//  * body Purchases_request_body  (optional)
-//  * returns APISuccessResponse
-//  **/
-// exports.updatePurchases = function(body) {
-//   return new Promise(function(resolve, reject) {
-//     var examples = {};
-//     examples['application/json'] = {
-//   "success" : true,
-//   "message" : "message"
-// };
-//     if (Object.keys(examples).length > 0) {
-//       resolve(examples[Object.keys(examples)[0]]);
-//     } else {
-//       resolve();
-//     }
-//   });
-// }
-

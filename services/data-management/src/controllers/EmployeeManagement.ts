@@ -51,7 +51,7 @@ export default class EmployeeManagementController {
             const employee = await EmployeeManagementService.getEmployeeById(customerId, req.params.id);
 
             if (!employee) {
-                return successResponse(res, 404, 'Employee Not Found');
+                return errorResponse(res, 404, 'NOT_FOUND', 'Employee Not Found');
             }
 
             // Return Employee
