@@ -81,6 +81,13 @@ export default class PurchasesTransactionController {
                 return errorResponse(res, 400, "INPUT_VALIDATION_ERROR", "Input Validation Error", errors.array());
             }
 
+            // Check Received Weight is not more than netto weight with deduction
+            const [, nettoWeightWithDeduction] = TransactionService.calculateNettoAndWeight(
+                req.body.grossWeight, req.body.tareWeight, req.body.deductionPercentage);
+            if (req.body.receivedWeight > nettoWeightWithDeduction) {
+                return errorResponse(res, 400, 'RECEIVED_WEIGHT_MISMATCH', 'Received Weight Mismatch');
+            }
+
             // Get Employee Id
             const userId = UserContextService.getUserId(req.headers.authorization!);
 
