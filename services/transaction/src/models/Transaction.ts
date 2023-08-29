@@ -2,7 +2,7 @@ export type Transaction = {
     id: string,
     transaction_type: string,
     product_id: string,
-    supplier_id: string,
+    supplier_id?: string,
     gross_weight: number,
     tare_weight: number,
     deduction_percentage: number,

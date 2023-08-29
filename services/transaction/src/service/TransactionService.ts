@@ -6,6 +6,26 @@ import TransactionOutputInterface from "../interfaces/TransactionInterface";
 
 export default class TransactionService {
     /**
+     * Calculate Netto and Weight
+     * 
+     * @param grossWeight number
+     * @param tareWeight number
+     * @param deductionPercentage number
+     * 
+     * @returns any
+     */
+    public static calculateNettoAndWeight(grossWeight: number, tareWeight: number, deductionPercentage: number) {
+        try {
+            const nettoWeight = grossWeight - tareWeight;
+            const deduction = nettoWeight * deductionPercentage / 100;
+            const nettoWeightWithDeduction = nettoWeight - deduction;
+            return [ nettoWeight, nettoWeightWithDeduction ] as const;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
      * Calculate Netto Weight and total
      * @param grossWeight number
      * @param tareWeight number
@@ -16,9 +36,7 @@ export default class TransactionService {
      */
     private static calculateNettoWeightAndTotal(grossWeight: number, tareWeight: number, deductionPercentage: number, price: number) {
         try {
-            const nettoWeight = grossWeight - tareWeight;
-            const deduction = nettoWeight * deductionPercentage / 100;
-            const nettoWeightWithDeduction = nettoWeight - deduction;
+            const [nettoWeight, nettoWeightWithDeduction] = this.calculateNettoAndWeight(grossWeight, tareWeight, deductionPercentage);
             const total = nettoWeightWithDeduction * price;
             return { nettoWeight, nettoWeightWithDeduction, total };
         } catch (error) {
