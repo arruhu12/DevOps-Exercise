@@ -123,15 +123,16 @@ CREATE TABLE IF NOT EXISTS product_transactions (
   deduction_percentage tinyint unsigned,
   received_weight int unsigned,
   vehicle_registration_number varchar(13),
-  payment_status ENUM ('paid', 'not_paid'),
+  payment_status ENUM ('paid', 'unpaid'),
   delivery_status ENUM ('fully delivered', 'partially delivered', 'not delivered'),
-  payment_method varchar(15),
+  payment_method ENUM ('cash', 'transfer'),
   source_of_purchase varchar(100),
   additional_notes text,
   created_by varchar(36) NOT NULL,
   updated_by varchar(36),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX (vehicle_registration_number, payment_method, payment_status, delivery_status)
 );
 CREATE TABLE IF NOT EXISTS product_transaction_images (
   transaction_image_id varchar(36) PRIMARY KEY,
