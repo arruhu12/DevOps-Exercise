@@ -8,7 +8,7 @@ config();
 const app: Express = express();
 const port = parseInt(process.env.APP_PORT!);
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Routes
