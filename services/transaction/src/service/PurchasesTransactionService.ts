@@ -6,6 +6,8 @@ import { RowDataPacket } from "mysql2";
 import { db } from "./DatabaseService";
 import { Transaction } from "models/Transaction";
 import { v4 as uuid } from 'uuid';
+import FileUpload from "./FileUpload";
+import TransactionImageInterface from "interfaces/TransactionImageInterface";
 
 export default class PurchasesTransactionService {
     /** 
@@ -59,6 +61,42 @@ export default class PurchasesTransactionService {
     }
 
     /**
+     * Store Purcahse proof Image
+     * 
+     * @param transactionId string
+     * @param files string[]
+     * @returns void
+     */
+    public static async storePurchaseProofImage(transactionId: string, files: string[]): Promise<void> {
+        const connection = await db.getConnection();
+        const storage = new FileUpload();
+
+        try {
+            await connection.beginTransaction();
+            for (const file of files) {
+                const [filename, type] = await storage.upload(file);
+
+                if (!filename || !type) {
+                    throw new Error("Error uploading file");
+                }
+
+                const transactionImage: TransactionImageInterface = {
+                    id: uuid(),
+                    transaction_id: transactionId,
+                    image_type: type,
+                    image_path: filename
+                }
+
+                await connection.query(`INSERT INTO product_transaction_images SET ?`, [transactionImage]);
+            }
+            await connection.commit();
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        }
+    }
+
+    /**
      * Store Purchases Transaction
      * 
      * @param userId string
@@ -66,6 +104,8 @@ export default class PurchasesTransactionService {
      * @returns void
      */
     public static async store(userId: string, body: any): Promise<void> {
+        const connection = await db.getConnection();
+
         try {
             const transaction: Transaction = {
                 id: uuid(),
@@ -84,12 +124,13 @@ export default class PurchasesTransactionService {
                 additional_notes: body.additionalNotes,
                 created_by: userId
             }
-            const connection = await db.getConnection();
             await connection.beginTransaction();
             await connection.query(`INSERT INTO product_transactions SET ?`, [transaction]);
             await connection.query(`UPDATE products SET stock = stock + ? WHERE id = ?`, [body.receivedWeight, body.productId]);
             await connection.commit();
+            await PurchasesTransactionService.storePurchaseProofImage(transaction.id, body.proofImages);
         } catch (error) {
+            await connection.rollback();
             throw error;
         }
     }
