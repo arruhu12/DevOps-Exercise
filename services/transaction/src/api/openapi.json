@@ -149,7 +149,7 @@
                     "grossWeight": 2500,
                     "tareWeight": 1000,
                     "nettoWeight": 1500,
-                    "dedicationPersentage": 4,
+                    "deductionPercentage": 4,
                     "totalWeight": 1440,
                     "receivedWeight": 750,
                     "price": 50000,
@@ -195,14 +195,12 @@
                 "productId": "92cb1d94-85ee-4704-a4bf-43340807d717",
                 "grossWeight": 2500,
                 "tareWeight": 1000,
-                "dedicationPersentage": 4,
+                "deductionPercentage": 4,
                 "receivedWeight": 750,
-                "price": 50000,
-                "total": 72000000,
                 "vehicleRegistrationNumber": "BK 123 ABC",
                 "paymentMethod": "Cash",
                 "paymentStatus": "Paid",
-                "deliveryStatus": "Partial Deliveed",
+                "deliveryStatus": "partially delivered",
                 "sourceOfPurcahse": "-",
                 "additionalNotes": null,
                 "proofImages": [
@@ -283,7 +281,7 @@
                 "productId": "92cb1d94-85ee-4704-a4bf-43340807d717",
                 "grossWeight": 2500,
                 "tareWeight": 1000,
-                "dedicationPersentage": 4,
+                "deductionPercentage": 4,
                 "receivedWeight": 750,
                 "price": 50000,
                 "total": 72000000,
@@ -484,7 +482,7 @@
                     "grossWeight": 2500,
                     "tareWeight": 1000,
                     "nettoWeight": 1500,
-                    "dedicationPersentage": 4,
+                    "deductionPercentage": 4,
                     "totalWeight": 1440,
                     "receivedWeight": 750,
                     "price": 50000,
@@ -536,7 +534,7 @@
                 "vehicleRegistrationNumber": "BK 123 ABC",
                 "paymentMethod": "Cash",
                 "paymentStatus": "Paid",
-                "deliveryStatus": "Partial Deliveed",
+                "deliveryStatus": "partially delivered",
                 "sourceOfPurcahse": "-",
                 "additionalNotes": null,
                 "proofImages": [
@@ -762,7 +760,7 @@
           "nettoWeight": {
             "type": "number"
           },
-          "dedicationPersentage": {
+          "deductionPercentage": {
             "type": "number"
           },
           "totalWeight": {
@@ -812,7 +810,7 @@
           "tareWeight": {
             "type": "number"
           },
-          "dedicationPersentage": {
+          "deductionPercentage": {
             "type": "number"
           },
           "receivedWeight": {

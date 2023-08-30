@@ -98,7 +98,7 @@ paths:
                     grossWeight: 2500,
                     tareWeight: 1000,
                     nettoWeight: 1500,
-                    dedicationPersentage: 4,
+                    deductionPercentage: 4,
                     totalWeight: 1440,
                     receivedWeight: 750,
                     price: 50000,
@@ -134,14 +134,12 @@ paths:
                   productId: "92cb1d94-85ee-4704-a4bf-43340807d717",
                   grossWeight: 2500,
                   tareWeight: 1000,
-                  dedicationPersentage: 4,
+                  deductionPercentage: 4,
                   receivedWeight: 750,
-                  price: 50000,
-                  total: 72000000,
                   vehicleRegistrationNumber: "BK 123 ABC",
                   paymentMethod: "Cash",
                   paymentStatus: "Paid",
-                  deliveryStatus: "Partial Deliveed",
+                  deliveryStatus: "partially delivered",
                   sourceOfPurcahse: "-",
                   additionalNotes: null,
                   proofImages: [
@@ -192,7 +190,7 @@ paths:
                   productId: "92cb1d94-85ee-4704-a4bf-43340807d717",
                   grossWeight: 2500,
                   tareWeight: 1000,
-                  dedicationPersentage: 4,
+                  deductionPercentage: 4,
                   receivedWeight: 750,
                   price: 50000,
                   total: 72000000,
@@ -322,7 +320,7 @@ paths:
                     grossWeight: 2500,
                     tareWeight: 1000,
                     nettoWeight: 1500,
-                    dedicationPersentage: 4,
+                    deductionPercentage: 4,
                     totalWeight: 1440,
                     receivedWeight: 750,
                     price: 50000,
@@ -364,7 +362,7 @@ paths:
                   vehicleRegistrationNumber: "BK 123 ABC",
                   paymentMethod: "Cash",
                   paymentStatus: "Paid",
-                  deliveryStatus: "Partial Deliveed",
+                  deliveryStatus: "partially delivered",
                   sourceOfPurcahse: "-",
                   additionalNotes: null,
                   proofImages: [
@@ -508,7 +506,7 @@ components:
           type: number
         nettoWeight:
           type: number
-        dedicationPersentage:
+        deductionPercentage:
           type: number
         totalWeight:
           type: number
@@ -542,7 +540,7 @@ components:
           type: number
         tareWeight:
           type: number
-        dedicationPersentage:
+        deductionPercentage:
           type: number
         receivedWeight:
           type: number
