@@ -135,9 +135,8 @@ CREATE TABLE IF NOT EXISTS product_transactions (
   INDEX (vehicle_registration_number, payment_method, payment_status, delivery_status)
 );
 CREATE TABLE IF NOT EXISTS product_transaction_images (
-  transaction_image_id varchar(36) PRIMARY KEY,
+  id varchar(36) PRIMARY KEY,
   transaction_id varchar(36) NOT NULL,
-  image_owner_id varchar(36) NOT NULL,
   image_type varchar(20) NOT NULL,
   image_path varchar(150) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
