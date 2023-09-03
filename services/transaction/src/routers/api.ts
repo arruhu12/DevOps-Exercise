@@ -4,6 +4,7 @@ import RoleMiddleware from "../middlewares/RoleMiddleware";
 import { checkSchema } from "express-validator";
 import { purchaseTransactionStore, saleTransactionStore } from "../requests";
 import SalesTransactionController from "../controllers/SalesTransaction";
+import ReportController from "../controllers/ReportController";
 
 export const apiRouter = Router();
 
@@ -20,3 +21,8 @@ apiRouter.use(['/sales', '/sale'], RoleMiddleware(['customer']));
 apiRouter.get('/sales', SalesTransactionController.all);
 apiRouter.get('/sale/:id', SalesTransactionController.getById);
 apiRouter.post('/sale/store', checkSchema(saleTransactionStore), SalesTransactionController.storePurchase);
+
+// Report
+apiRouter.use(['/report', '/reports'], RoleMiddleware(['customer']));
+
+apiRouter.get('/report/dashboard', ReportController.getDashboard);
