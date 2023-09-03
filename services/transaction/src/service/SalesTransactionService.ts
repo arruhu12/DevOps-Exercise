@@ -101,6 +101,7 @@ export default class SalesTransactionService {
       await connection.query(`INSERT INTO product_transactions SET ?`, [transaction]);
       await connection.query(`UPDATE products SET stock = stock - ? WHERE id = ?`, [body.receivedWeight, body.productId]);
       await connection.commit();
+      await TransactionService.storePurchaseProofImage(transaction.id, body.proofImages);
     } catch (error) {
         throw error;
     }

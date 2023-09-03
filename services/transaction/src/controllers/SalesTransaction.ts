@@ -51,13 +51,14 @@ export default class SalesTransactionController {
 
             // Get Sales Transaction
             const transaction = await SalesTransactionService.getById(userId, req.params.id);
+            const proofImages = await TransactionService.getPurchaseImagesByTransactionId(transaction.id);
 
             if (!transaction) {
                 return errorResponse(res, 404, 'NOT_FOUND', `Transaction Not Found`);
             }
 
             // Formatting Output
-            const transactionFormatted = TransactionService.generateTransactionOutput(transaction);
+            const transactionFormatted = TransactionService.generateTransactionOutput(transaction, proofImages, true);
             return successResponse(res, 200, 'Sales Transaction Fetched Successfully', transactionFormatted);
         } catch (error) {
             return res.status(500).json(error);

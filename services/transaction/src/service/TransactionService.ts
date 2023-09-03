@@ -2,9 +2,30 @@
  * Transaction Service
  */
 
+import TransactionImageInterface from "interfaces/TransactionImageInterface";
 import TransactionOutputInterface from "../interfaces/TransactionInterface";
+import { v4 as uuid } from 'uuid';
+import FileService from "./FileService";
+import { RowDataPacket } from "mysql2";
+import { db } from "./DatabaseService";
 
 export default class TransactionService {
+
+    /**
+     * Capitalize First Letter of words
+     * @param inputWords string
+     * @returns string
+     */
+    private static capitalizeFirstLetter(inputWords: string): string {
+        try {
+            const words = inputWords.split(' ');
+            const capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1));
+            return capitalizedWords.join(' ');
+        } catch (error) {
+            throw error;
+        }
+    }
+
     /**
      * Calculate Netto and Weight
      * 
@@ -67,7 +88,7 @@ export default class TransactionService {
      * @param isDetail boolean (default: false)
      * @returns TransactionOutputInterface
      */
-    public static generateTransactionOutput(transaction: any, isDetail:boolean = false): TransactionOutputInterface {
+    public static generateTransactionOutput(transaction: any, proofImages: any[]=[], isDetail:boolean = false): TransactionOutputInterface {
         try {
             const { nettoWeight, nettoWeightWithDeduction, total } = this.calculateNettoWeightAndTotal(
                 transaction.gross_weight,
@@ -85,13 +106,14 @@ export default class TransactionService {
                     totalWeight: nettoWeightWithDeduction,
                     receivedWeight: transaction.received_weight,
                     total: total,
-                    paymentMethod: transaction.payment_method,
-                    paymentStatus: transaction.payment_status,
-                    deliveryStatus: transaction.delivery_status,
-                    isPaid: transaction.payment_status === 'Paid',
-                    isDelivered: transaction.delivery_status === 'Delivered',
+                    paymentMethod: this.capitalizeFirstLetter(transaction.payment_method),
+                    paymentStatus: this.capitalizeFirstLetter(transaction.payment_status),
+                    deliveryStatus: this.capitalizeFirstLetter(transaction.delivery_status),
+                    isPaid: transaction.payment_status.to === 'paid',
+                    isDelivered: transaction.delivery_status === 'fully delivered',
                 }
             }
+
             return {
                 id: transaction.id,
                 supplierName: transaction.supplier_name,
@@ -106,12 +128,75 @@ export default class TransactionService {
                 price: transaction.price,
                 total: total,
                 vehicleRegistrationNumber: transaction.vehicle_registration_number,
-                paymentMethod: transaction.payment_method,
-                paymentStatus: transaction.payment_status,
-                deliveryStatus: transaction.delivery_status,
+                paymentMethod: this.capitalizeFirstLetter(transaction.payment_method),
+                paymentStatus: this.capitalizeFirstLetter(transaction.payment_status),
+                deliveryStatus: this.capitalizeFirstLetter(transaction.delivery_status),
                 sourceOfPurchase: transaction.source_of_purchase,
                 additionalNotes: transaction.additional_notes,
+                proofImages: proofImages
             }
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Store Purcahse proof Image
+     * 
+     * @param transactionId string
+     * @param files string[]
+     * @returns void
+     */
+    public static async storePurchaseProofImage(transactionId: string, files: string[]): Promise<void> {
+        const connection = await db.getConnection();
+        const storage = new FileService();
+
+        try {
+            await connection.beginTransaction();
+            for (const file of files) {
+                const [filename, type] = await storage.upload(file, transactionId);
+
+                if (!filename || !type) {
+                    throw new Error("Error uploading file");
+                }
+
+                const transactionImage: TransactionImageInterface = {
+                    id: uuid(),
+                    transaction_id: transactionId,
+                    image_type: type,
+                    image_path: filename
+                }
+
+                await connection.query(`INSERT INTO product_transaction_images SET ?`, [transactionImage]);
+            }
+            await connection.commit();
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        }
+    }
+
+    /**
+     * Get Purchase Images By Transaction Id
+     * 
+     * @param transactionId string
+     * @returns Promise<RowDataPacket[]>
+     */
+    public static async getPurchaseImagesByTransactionId(transactionId: string): Promise<string[]> {
+        try {
+            const storage = new FileService();
+
+            const [images] = await db.query<RowDataPacket[]>(`
+                SELECT id, image_type, image_path
+                FROM product_transaction_images
+                WHERE transaction_id = ?
+            `, [transactionId]);
+
+            const imageUrls = images.map(async (image: RowDataPacket) => {
+                const filename = `${image.image_path}.${image.image_type}`;
+                return await storage.getFileUrl(filename, transactionId);
+            }); 
+            return await Promise.all(imageUrls);
         } catch (error) {
             throw error;
         }

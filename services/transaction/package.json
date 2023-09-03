@@ -15,6 +15,7 @@
   "private": true,
   "dependencies": {
     "@aws-sdk/client-s3": "^3.400.0",
+    "@aws-sdk/s3-request-presigner": "^3.405.0",
     "@supercharge/strings": "^2.0.0",
     "aws-sdk": "^2.1447.0",
     "body-parser": "^1.20.2",

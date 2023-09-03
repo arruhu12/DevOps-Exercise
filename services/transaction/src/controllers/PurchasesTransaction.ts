@@ -54,13 +54,14 @@ export default class PurchasesTransactionController {
 
             // Get Purchase Transaction
             const transaction = await PurchasesTransactionService.getPurchaseById(userId, req.params.id);
+            const proofImages = await TransactionService.getPurchaseImagesByTransactionId(transaction.id);
 
             if (!transaction) {
                 return errorResponse(res, 404, 'NOT_FOUND', 'Purchase Transaction Not Found');
             }
 
             return successResponse(res, 200, 'Purchase Transaction Fetched Successfully', 
-                TransactionService.generateTransactionOutput(transaction, true));
+                TransactionService.generateTransactionOutput(transaction, proofImages, true));
         } catch (error) {
             return errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
         }

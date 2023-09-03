@@ -65,7 +65,7 @@ apiRouter.use(['/purchases', '/purchase'], AuthenticationMiddleware());
 apiRouter.use(['/sales', '/sale'], AuthenticationMiddleware());
 
 // Transaction Management Routes - Proxy
-apiRouter.use(['/purchases', '/purchase', '/sales', '/sale'],
+apiRouter.use(['/purchases', '/purchase', '/sales', '/sale', '/transaction'],
 [
     AuthenticationMiddleware(),
     createProxyMiddleware({
