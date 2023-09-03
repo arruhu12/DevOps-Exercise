@@ -77,7 +77,7 @@ export default class PurchasesTransactionService {
                 supplier_id: body.supplierId,
                 gross_weight: body.grossWeight,
                 tare_weight: body.tareWeight,
-                deduction_percentage: body.dedicationPersentage,
+                deduction_percentage: body.deductionPercentage,
                 received_weight: body.receivedWeight,
                 vehicle_registration_number: body.vehicleRegistrationNumber,
                 payment_status: body.paymentStatus,

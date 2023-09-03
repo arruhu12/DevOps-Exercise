@@ -70,7 +70,7 @@ export default class SalesTransactionService {
         product_id: body.productId,
         gross_weight: body.grossWeight,
         tare_weight: body.tareWeight,
-        deduction_percentage: body.dedicationPersentage,
+        deduction_percentage: body.deductionPercentage,
         received_weight: body.receivedWeight,
         vehicle_registration_number: body.vehicleRegistrationNumber,
         payment_status: body.paymentStatus,
@@ -80,7 +80,7 @@ export default class SalesTransactionService {
       }
 
       const [, nettoWeightWithDeduction] = TransactionService.calculateNettoAndWeight(
-        body.grossWeight, body.tareWeight,  body.dedicationPersentage
+        body.grossWeight, body.tareWeight,  body.deductionPercentage
       );
 
       // Check if the received weight is not more than netto weight with deduction
