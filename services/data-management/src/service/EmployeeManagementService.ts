@@ -98,11 +98,17 @@ export default class EmployeeManagementService {
         name: body.name,
         phone_number: body.phoneNumber
       }
+
       const connection = await db.getConnection();
-      await connection.beginTransaction();
-      await connection.query('INSERT INTO users SET ?', user);
-      await connection.query('INSERT INTO employees SET ?', employee);
-      await connection.commit();
+      try {
+        await connection.beginTransaction();
+        await connection.query('INSERT INTO users SET ?', user);
+        await connection.query('INSERT INTO employees SET ?', employee);
+        await connection.commit();
+      } catch (transactionError) {
+        await connection.rollback();
+        throw transactionError;
+      }
     } catch (err) {
       throw err;
     }
@@ -133,11 +139,17 @@ export default class EmployeeManagementService {
       }
 
       const connection = await db.getConnection();
-      await connection.beginTransaction();
-      await connection.query('UPDATE employees SET ? WHERE id = ?', [employee, employeeId]);
-      await connection.query('UPDATE users SET ? WHERE id = ?', [user, currentEmployeeData.user_id]);
-      await connection.commit();
-    } catch (err) {
+      try {
+        await connection.beginTransaction();
+        await connection.query('UPDATE employees SET ? WHERE id = ?', [employee, employeeId]);
+        await connection.query('UPDATE users SET ? WHERE id = ?', [user, currentEmployeeData.user_id]);
+        await connection.commit();
+      } catch (transactionError) {
+        await connection.rollback();
+        throw transactionError;
+      }
+    }
+    catch (err) {
       throw err;
     }
   }
@@ -150,13 +162,14 @@ export default class EmployeeManagementService {
    * @returns void
    */
   public static async dropEmployee(customerId: number, employeeId: string) {
+    const connection = await db.getConnection();
     try {
-      const connection = await db.getConnection();
       await connection.beginTransaction();
       await connection.query('DELETE FROM Accounts WHERE employee_id = ?', [employeeId]);
       await connection.query('DELETE FROM employees WHERE id = ? AND customer_id = ?', [employeeId, customerId]);
       await connection.commit();
     } catch (err) {
+      await connection.rollback();
       throw err;
     }
   }

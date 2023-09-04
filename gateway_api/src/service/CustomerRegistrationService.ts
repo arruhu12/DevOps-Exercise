@@ -61,11 +61,17 @@ export default class CustomerRegistrationService {
                 company_name: body.companyName,
                 company_address: body.companyAddress
             };
+
             const connection = await pool.getConnection();
-            await connection.beginTransaction();
-            await connection.query(`INSERT INTO users SET ?;`, [user]);
-            await connection.query(`INSERT INTO customers SET ?;`, [customer]);
-            await connection.commit(); 
+            try {
+                await connection.beginTransaction();
+                await connection.query(`INSERT INTO users SET ?;`, [user]);
+                await connection.query(`INSERT INTO customers SET ?;`, [customer]);
+                await connection.commit(); 
+            } catch (transactionError) {
+                await connection.rollback();
+                throw transactionError;
+            }
         } catch (error) {
             throw error;
         }
@@ -122,10 +128,7 @@ export default class CustomerRegistrationService {
             if (!user) {
                 return false;
             }
-            const connection = await pool.getConnection();
-            await connection.beginTransaction();
-            await connection.query(`UPDATE users SET is_active = true WHERE id = ?;`, [user.id]);
-            await connection.commit();
+            await pool.execute(`UPDATE users SET is_active = true WHERE id = ?;`, [user.id]);
             return true;
         } catch (error) {
             throw error;

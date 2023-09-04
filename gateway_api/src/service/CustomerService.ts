@@ -21,10 +21,10 @@ class CustomerService {
      */
     public static async getCustomer(customerId: number) {
         try {
-            const [result] = await pool.query<RowDataPacket[]>(`
+            const [[result]] = await pool.query<RowDataPacket[]>(`
                 SELECT c.id, c.user_id, c.first_name, c.last_name, c.company_name, c.company_address, u.email, u.phone_number 
                 FROM customers c, users u WHERE c.user_id = u.id AND c.id = ?`, [customerId]);
-            return result[0];
+            return result;
         }
         catch (error) {
             throw error;
@@ -33,9 +33,9 @@ class CustomerService {
 
     public static async getCustomerSession(userId: string) {
         try {
-            const [result] = await pool.query<RowDataPacket[]>(`
+            const [[result]] = await pool.query<RowDataPacket[]>(`
             SELECT id, user_id, first_name, last_name, company_name FROM customers WHERE user_id = ?`, [userId]);
-            return result[0];
+            return result;
         }
         catch (error) {
             throw error;
@@ -54,25 +54,11 @@ class CustomerService {
 
     public static async getCustomerId(userId: string) {
         try {
-            const [customer] = await pool.query<RowDataPacket[]>(`SELECT id FROM customers WHERE user_id = ?`, [userId]);
-            return customer[0].id;
+            const [[customer]] = await pool.query<RowDataPacket[]>(`SELECT id FROM customers WHERE user_id = ?`, [userId]);
+            return customer.id;
         } catch (error) {
             throw error;
         }
-    }
-
-    /**
-     * Get Customers
-     * 
-     * This function gets all customers.
-     * 
-     * @param req Request
-     * @param res Response
-     */
-    public static getCustomers(req: any, res: any) {
-        res.status(200).send({
-            message: "Customers retrieved successfully!"
-        });
     }
 
     /**
@@ -107,10 +93,15 @@ class CustomerService {
             }
 
             const connection = await pool.getConnection();
-            await connection.beginTransaction();
-            await connection.query("UPDATE users SET ? WHERE id = ?", [user, user.id]);
-            await connection.query("UPDATE customers SET ? WHERE id = ?", [customer, customer.id]);
-            await connection.commit(); 
+            try {
+                await connection.beginTransaction();
+                await connection.query("UPDATE users SET ? WHERE id = ?", [user, user.id]);
+                await connection.query("UPDATE customers SET ? WHERE id = ?", [customer, customer.id]);
+                await connection.commit(); 
+            } catch (transactionError) {
+                await connection.rollback();
+                throw transactionError;
+            }
             return true;
         } catch (error) { 
             throw error;

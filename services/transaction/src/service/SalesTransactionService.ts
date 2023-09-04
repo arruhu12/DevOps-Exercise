@@ -90,17 +90,22 @@ export default class SalesTransactionService {
 
       // Database Transaction
       const connection = await db.getConnection();
-      await connection.beginTransaction();
-
-      // Lock transaction and check stock
-      const [[product]] = await connection.query<RowDataPacket[]>(`SELECT stock FROM products WHERE id = ?`, [body.productId]);
-      if (product.stock < nettoWeightWithDeduction) {
-        throw new Error('INSUFFICIENT_STOCK');
+      try {
+        await connection.beginTransaction();
+  
+        // Lock transaction and check stock
+        const [[product]] = await connection.query<RowDataPacket[]>(`SELECT stock FROM products WHERE id = ?`, [body.productId]);
+        if (product.stock < nettoWeightWithDeduction) {
+          throw new Error('INSUFFICIENT_STOCK');
+        }
+  
+        await connection.query(`INSERT INTO product_transactions SET ?`, [transaction]);
+        await connection.query(`UPDATE products SET stock = stock - ? WHERE id = ?`, [body.receivedWeight, body.productId]);
+        await connection.commit();
+      } catch (transactionError) {
+          await connection.rollback();
+          throw transactionError;
       }
-
-      await connection.query(`INSERT INTO product_transactions SET ?`, [transaction]);
-      await connection.query(`UPDATE products SET stock = stock - ? WHERE id = ?`, [body.receivedWeight, body.productId]);
-      await connection.commit();
       await TransactionService.storePurchaseProofImage(transaction.id, body.proofImages);
     } catch (error) {
         throw error;

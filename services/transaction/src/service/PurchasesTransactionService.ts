@@ -98,7 +98,7 @@ export default class PurchasesTransactionService {
                     AND (pt.created_at IS NULL OR DATE(pt.created_at) = CURDATE())
                 GROUP BY name`, [customerId]);
             await connection.commit();
-            
+
             return {
                 totalPurchases: purchaseTotal.total,
                 totalSales: saleTotal.total,
@@ -146,8 +146,6 @@ export default class PurchasesTransactionService {
      * @returns void
      */
     public static async store(userId: string, body: any): Promise<void> {
-        const connection = await db.getConnection();
-
         try {
             const transaction: Transaction = {
                 id: uuid(),
@@ -166,13 +164,20 @@ export default class PurchasesTransactionService {
                 additional_notes: body.additionalNotes,
                 created_by: userId
             }
-            await connection.beginTransaction();
-            await connection.query(`INSERT INTO product_transactions SET ?`, [transaction]);
-            await connection.query(`UPDATE products SET stock = stock + ? WHERE id = ?`, [body.receivedWeight, body.productId]);
-            await connection.commit();
+
+            // Database Transaction
+            const connection = await db.getConnection();
+            try {
+                await connection.beginTransaction();
+                await connection.query(`INSERT INTO product_transactions SET ?`, [transaction]);
+                await connection.query(`UPDATE products SET stock = stock + ? WHERE id = ?`, [body.receivedWeight, body.productId]);
+                await connection.commit();
+            } catch(transactionError) {
+                await connection.rollback();
+                throw transactionError;
+            }
             await TransactionService.storePurchaseProofImage(transaction.id, body.proofImages);
         } catch (error) {
-            await connection.rollback();
             throw error;
         }
     }
