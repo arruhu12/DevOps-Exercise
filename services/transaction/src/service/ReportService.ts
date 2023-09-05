@@ -146,11 +146,54 @@ export default class ReportService {
             try {
                 const conditionals: string[] = [];
                 const values: any[] = [];
+
+                // Date Range Filter
+                if (parameters.startDate && parameters.endDate) {
+                    conditionals.push(`DATE(pt.created_at) BETWEEN DATE(?) AND DATE(?)`);
+                    values.push(new Date(parameters.startDate).toISOString());
+                    values.push(new Date(parameters.endDate).toISOString());
+                }
+
+                // Transaction Type Filter
+                if (parameters.transactionType) {
+                    conditionals.push(`transaction_type = ?`);
+                    values.push(parameters.transactionType);
+                }
+
+                // Products Filter
+                if (parameters.products && parameters.products.length > 0) {
+                    conditionals.push(`product_id IN (?)`);
+                    values.push(parameters.products);
+                }
+
+                // Suppliers Filter
+                if (parameters.suppliers && parameters.suppliers.length > 0) {
+                    conditionals.push(`supplier_id IN (?)`);
+                    values.push(parameters.suppliers);
+                }
+
+                // Payment Methods Filter
+                if (parameters.paymentMethod) {
+                    conditionals.push(`payment_method = ?`);
+                    values.push(parameters.paymentMethod);
+                }
+
+                // Payment Status Filter
+                if (parameters.paymentStatus) {
+                    conditionals.push(`payment_status = ?`);
+                    values.push(parameters.paymentStatus);
+                }
+
+                // Delivery Status Filter
+                if (parameters.deliveryStatus) {
+                    conditionals.push(`delivery_status = ?`);
+                    values.push(parameters.deliveryStatus);
+                }
                 
                 const [reports] = await db.query<RowDataPacket[]>(
                     `${this.SELECT_COLUMN_REPORT_QUERY} 
-                    ${conditionals.join(' AND ')}
-                    ORDER BY transaction_date DESC`, [customerId, parameters]
+                    ${(conditionals.length > 0) ? `AND ${conditionals.join(' AND ')}` : ''}
+                    ORDER BY pt.created_at DESC`, [customerId].concat(values)
                 );
                 
                 return reports;

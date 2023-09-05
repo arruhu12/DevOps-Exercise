@@ -43,15 +43,15 @@ export default class ReportController {
     public static async getReports(req: Request, res: Response) {
         try {
             // Extract query parameters with default values if not provided
-            const parameters: ReportParametersInterface = req.query;
+            const parameters: ReportParametersInterface = req.body;
 
             // Get Customer Id
             const customerId = UserContextService.getCustomerId(req.headers.authorization!);
 
             // Get Sales Transactions
             const transactions = await ReportService.getReports(customerId, parameters);
-            if (!transactions) {
-                return successResponse(res, 200, `Today's sales transaction is empty`, []);
+            if (transactions.length === 0) {
+                return successResponse(res, 200, `Empty Reports`, []);
             }
 
             // Formatting Output
@@ -61,7 +61,7 @@ export default class ReportController {
                     result.transactionType = transaction.transaction_type;
                     return result;
                 });
-            return successResponse(res, 200, `Today's sales transaction`, transactionsFormatted);
+            return successResponse(res, 200, `Report Fetched Succesfull`, transactionsFormatted);
         } catch (error) {
             return errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
         }
