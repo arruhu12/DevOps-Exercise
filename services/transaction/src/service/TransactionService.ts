@@ -10,6 +10,11 @@ import { RowDataPacket } from "mysql2";
 import { db } from "./DatabaseService";
 
 export default class TransactionService {
+    private static readonly GET_IMAGE_QUERY = `
+        SELECT id, image_type, image_path
+        FROM product_transaction_images
+        WHERE transaction_id = ?
+    `;
 
     /**
      * Capitalize First Letter of words
@@ -97,8 +102,10 @@ export default class TransactionService {
                 transaction.price
             );
 
+            let result: TransactionOutputInterface;
+
             if (!isDetail) {
-                return {
+                result = {
                     id: transaction.id,
                     supplierName: transaction.supplier_name,
                     productName: transaction.product_name,
@@ -113,28 +120,37 @@ export default class TransactionService {
                     isDelivered: transaction.delivery_status === 'fully delivered',
                 }
             }
-
-            return {
-                id: transaction.id,
-                supplierName: transaction.supplier_name,
-                productName: transaction.product_name,
-                transactionDate: this.formattingTransactionDate(transaction.transaction_date),
-                grossWeight: transaction.gross_weight,
-                tareWeight: transaction.tare_weight,
-                nettoWeight: nettoWeight,
-                deductionPercentage: transaction.deduction_percentage,
-                totalWeight: nettoWeightWithDeduction,
-                receivedWeight: transaction.received_weight,
-                price: transaction.price,
-                total: total,
-                vehicleRegistrationNumber: transaction.vehicle_registration_number,
-                paymentMethod: this.capitalizeFirstLetter(transaction.payment_method),
-                paymentStatus: this.capitalizeFirstLetter(transaction.payment_status),
-                deliveryStatus: this.capitalizeFirstLetter(transaction.delivery_status),
-                sourceOfPurchase: transaction.source_of_purchase,
-                additionalNotes: transaction.additional_notes,
-                proofImages: proofImages
+            else {
+                result = {
+                    id: transaction.id,
+                    supplierName: transaction.supplier_name,
+                    productName: transaction.product_name,
+                    transactionDate: this.formattingTransactionDate(transaction.transaction_date),
+                    grossWeight: transaction.gross_weight,
+                    tareWeight: transaction.tare_weight,
+                    nettoWeight: nettoWeight,
+                    deductionPercentage: transaction.deduction_percentage,
+                    totalWeight: nettoWeightWithDeduction,
+                    receivedWeight: transaction.received_weight,
+                    price: transaction.price,
+                    total: total,
+                    vehicleRegistrationNumber: transaction.vehicle_registration_number,
+                    paymentMethod: this.capitalizeFirstLetter(transaction.payment_method),
+                    paymentStatus: this.capitalizeFirstLetter(transaction.payment_status),
+                    deliveryStatus: this.capitalizeFirstLetter(transaction.delivery_status),
+                    sourceOfPurchase: transaction.source_of_purchase,
+                    additionalNotes: transaction.additional_notes,
+                    proofImages: proofImages
+                }
             }
+
+            if (transaction.transaction_type) {
+                result.transactionType = transaction.transaction_type;
+            }
+            if (transaction.created_by) {
+                result.createdBy = transaction.created_by;
+            }
+            return result;
         } catch (error) {
             throw error;
         }
@@ -186,11 +202,7 @@ export default class TransactionService {
         try {
             const storage = new FileService();
 
-            const [images] = await db.query<RowDataPacket[]>(`
-                SELECT id, image_type, image_path
-                FROM product_transaction_images
-                WHERE transaction_id = ?
-            `, [transactionId]);
+            const [images] = await db.query<RowDataPacket[]>(this.GET_IMAGE_QUERY, [transactionId]);
 
             const imageUrls = images.map(async (image: RowDataPacket) => {
                 const filename = `${image.image_path}.${image.image_type}`;

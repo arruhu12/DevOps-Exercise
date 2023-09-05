@@ -3,6 +3,7 @@ export default interface TransactionOutputInterface {
     supplierName: string,
     productName: string,
     transactionDate: string,
+    transactionType?: string,
     grossWeight?: number,
     tareWeight?: number,
     nettoWeight?: number,
@@ -20,4 +21,5 @@ export default interface TransactionOutputInterface {
     proofImages?: string[],
     isPaid?: boolean,
     isDelivered?: boolean,
+    createdBy?: string,
 }

@@ -26,3 +26,4 @@ apiRouter.post('/sale/store', checkSchema(saleTransactionStore), SalesTransactio
 apiRouter.use(['/report', '/reports'], RoleMiddleware(['customer']));
 
 apiRouter.get('/report/dashboard', ReportController.getDashboard);
+apiRouter.get('/reports', ReportController.getReports);
