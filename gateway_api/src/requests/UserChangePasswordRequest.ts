@@ -1,5 +1,3 @@
-import { Request } from "express";
-
 export default {
     currentPassword: {
         exists: { errorMessage: "Password is required" },

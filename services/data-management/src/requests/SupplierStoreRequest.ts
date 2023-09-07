@@ -3,6 +3,12 @@
  */
 
 export default {
+    id: {
+        optional: true,
+        exists: { errorMessage: "Id is required" },
+        isString: { errorMessage: "Id must be a string" },
+        isUUID: { version: 4, errorMessage: "Id must be a valid UUID"}
+    },
     name: {
         exists: { errorMessage: "Name is required" },
         isString: { errorMessage: "Name must be a string" },
