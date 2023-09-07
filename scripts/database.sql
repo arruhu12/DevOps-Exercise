@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS employees (
   customer_id bigint unsigned NOT NULL,
   name varchar(150) NOT NULL,
   phone_number varchar(15),
+  is_farmer boolean DEFAULT false,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -121,42 +122,51 @@ CREATE TABLE IF NOT EXISTS product_transactions (
   gross_weight int unsigned,
   tare_weight int unsigned,
   deduction_percentage tinyint unsigned,
-  received_weight int unsigned,
-  vehicle_registration_number varchar(13),
-  payment_status ENUM ('paid', 'unpaid'),
-  delivery_status ENUM ('fully delivered', 'partially delivered', 'not delivered'),
-  payment_method ENUM ('cash', 'transfer'),
+  delivered_weight int unsigned,
+  price int unsigned NOT NULL,
+  vehicle_registration_number varchar(13) NOT NULL,
+  payment_status ENUM ('paid', 'unpaid') NOT NULL,
+  delivery_status ENUM ('fully delivered', 'partially delivered', 'undelivered') NOT NULL,
+  payment_method ENUM ('cash', 'transfer') NOT NULL,
+  longitude decimal(9,6) NOT NULL,
+  latitude decimal(8,6) NOT NULL,
   source_of_purchase varchar(100),
   additional_notes text,
   created_by varchar(36) NOT NULL,
   updated_by varchar(36),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX (vehicle_registration_number, payment_method, payment_status, delivery_status)
+  INDEX (
+    transaction_type, vehicle_registration_number, payment_method, 
+    payment_status, delivery_status, created_at, updated_at
+  )
 );
 CREATE TABLE IF NOT EXISTS product_transaction_images (
   id varchar(36) PRIMARY KEY,
+  customer_id bigint unsigned NOT NULL,
   transaction_id varchar(36) NOT NULL,
   image_type varchar(20) NOT NULL,
   image_path varchar(150) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX (created_at, updated_at)
 );
 CREATE TABLE IF NOT EXISTS products (
   id varchar(36) PRIMARY KEY,
   customer_id bigint unsigned NOT NULL,
-  name varchar(50),
-  price int unsigned,
-  stock int unsigned DEFAULT 0,
+  name varchar(50) NOT NULL,
+  buy_price int unsigned NOT NULL DEFAULT 0,
+  sell_price int unsigned NOT NULL DEFAULT 0,
+  stock int unsigned NOT NULL DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS suppliers (
   id varchar(36) PRIMARY KEY,
   customer_id bigint unsigned NOT NULL,
-  name varchar(50),
-  address varchar(150),
-  phone_number varchar(15),
+  name varchar(50) NOT NULL,
+  address varchar(150) NOT NULL,
+  phone_number varchar(15) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -188,6 +198,7 @@ ALTER TABLE product_transactions ADD FOREIGN KEY (product_id) REFERENCES product
 ALTER TABLE product_transactions ADD FOREIGN KEY (supplier_id) REFERENCES suppliers (id);
 ALTER TABLE products ADD FOREIGN KEY (customer_id) REFERENCES customers (id);
 ALTER TABLE suppliers ADD FOREIGN KEY (customer_id) REFERENCES customers (id);
+ALTER TABLE product_transaction_images ADD FOREIGN KEY (customer_id) REFERENCES customers (id);
 ALTER TABLE product_transaction_images ADD FOREIGN KEY (transaction_id) REFERENCES product_transactions (id);
 ALTER TABLE transaction_modification_requests ADD FOREIGN KEY (employee_id) REFERENCES users (id);
 ALTER TABLE transaction_modification_requests ADD FOREIGN KEY (transaction_id) REFERENCES product_transactions (id);
