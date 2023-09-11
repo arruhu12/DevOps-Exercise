@@ -44,13 +44,13 @@ paths:
                     {
                       id: "92cb1d94-85ee-4704-a4bf-43340807d717",
                       productName: "TBS Plasma",
-                      transactionDate  : "2023-07-24 15:00:25.120",
+                      transactionDate  : "2023-07-24 15:00:25",
                       totalWeight: 1500,
-                      receivedWeight: 750,
+                      deliveredWeight: 750,
                       total: 260000,
                       paymentMethod: "Cash",
-                      paymentStatus: "Paid",
-                      deliveryStatus: "Partial Deliveed",
+                      paymentStatus: "paid",
+                      deliveryStatus: "partially delivered",
                       isPaid: true,
                       isDelivered: false
                     }
@@ -93,23 +93,28 @@ paths:
                   message: "Sales Detail Fetched Successfully"
                   data: {
                     id: "92cb1d94-85ee-4704-a4bf-43340807d717",
-                    productId: "92cb1d94-85ee-4704-a4bf-43340807d717",
-                    transactionDate: "2023-07-24 15:00:25.120",
+                    productName: "Calon Minyak Medium",
+                    transactionDate: "2023-07-24 15:00:25",
                     grossWeight: 2500,
                     tareWeight: 1000,
                     nettoWeight: 1500,
                     deductionPercentage: 4,
                     totalWeight: 1440,
-                    receivedWeight: 750,
+                    deliveredWeight: 750,
                     price: 50000,
                     total: 72000000,
                     vehicleRegistrationNumber: "BK 123 ABC",
-                    paymentMethod: "Cash",
-                    paymentStatus: "Paid",
-                    deliveryStatus: "Partial Deliveed",
+                    paymentMethod: "cash",
+                    paymentStatus: "paid",
+                    deliveryStatus: "partially delivered",
                     sourceOfPurcahse: "-",
-                    additionalNotes: null,
+                    additionalNotes: "-",
                     proofImages: [
+                      "https://link.id/a",
+                      "https://link.id/b",
+                      "https://link.id/c",
+                    ],
+                    proofImagesThumbnail: [
                       "https://link.id/a",
                       "https://link.id/b",
                       "https://link.id/c",
@@ -135,13 +140,15 @@ paths:
                   grossWeight: 2500,
                   tareWeight: 1000,
                   deductionPercentage: 4,
-                  receivedWeight: 750,
+                  deliveredWeight: 750,
+                  price: 50000,
+                  total: 72000000,
                   vehicleRegistrationNumber: "BK 123 ABC",
                   paymentMethod: "Cash",
                   paymentStatus: "Paid",
-                  deliveryStatus: "partially delivered",
+                  deliveryStatus: "Partial Deliveed",
                   sourceOfPurcahse: "-",
-                  additionalNotes: null,
+                  additionalNotes: "-",
                   proofImages: [
                     "blob string"
                   ]
@@ -190,7 +197,7 @@ paths:
                   productId: "92cb1d94-85ee-4704-a4bf-43340807d717",
                   grossWeight: 2500,
                   tareWeight: 1000,
-                  deductionPercentage: 4,
+                  dedicationPersentage: 4,
                   receivedWeight: 750,
                   price: 50000,
                   total: 72000000,
@@ -263,13 +270,13 @@ paths:
                       id: "92cb1d94-85ee-4704-a4bf-43340807d717",
                       supplierName: "CV. TBS",
                       productName: "TBS Plasma",
-                      transactionDate  : "2023-07-24 15:00:25.120",
+                      transactionDate  : "2023-07-24 15:00:25",
                       totalWeight: 1500,
-                      receivedWeight: 750,
+                      deliveredWeight: 750,
                       total: 260000,
-                      paymentMethod: "Cash",
-                      paymentStatus: "Paid",
-                      deliveryStatus: "Partial Deliveed",
+                      paymentMethod: "cash",
+                      paymentStatus: "paid",
+                      deliveryStatus: "partially delivered",
                       isPaid: true,
                       isDelivered: false
                     }
@@ -314,24 +321,31 @@ paths:
                   message: "Sales Detail Fetched Successfully"
                   data: {
                     id: "92cb1d94-85ee-4704-a4bf-43340807d717",
-                    supplierId: "0ccb1d94-85ee-4704-a4bf-43340807d717",
-                    productId: "92cb1d94-85ee-4704-a4bf-43340807d717",
-                    transactionDate: "2023-07-24 15:00:25.120",
+                    supplierName: "Supplier Dummy ax",
+                    productName: "Calon Minyak Medium",
+                    transactionDate: "2023-07-24 15:00:25",
                     grossWeight: 2500,
                     tareWeight: 1000,
                     nettoWeight: 1500,
                     deductionPercentage: 4,
                     totalWeight: 1440,
-                    receivedWeight: 750,
+                    deliveredWeight: 750,
                     price: 50000,
                     total: 72000000,
                     vehicleRegistrationNumber: "BK 123 ABC",
-                    paymentMethod: "Cash",
-                    paymentStatus: "Paid",
-                    deliveryStatus: "Partial Deliveed",
+                    paymentMethod: "cash",
+                    paymentStatus: "paid",
+                    deliveryStatus: "partially delivered",
                     sourceOfPurcahse: "-",
-                    additionalNotes: null,
+                    longitude: 98.702615,
+                    latitude: 3.633584,
+                    additionalNotes: "-",
                     proofImages: [
+                      "https://link.id/a",
+                      "https://link.id/b",
+                      "https://link.id/c",
+                    ],
+                    proofImagesThumbnail: [
                       "https://link.id/a",
                       "https://link.id/b",
                       "https://link.id/c",
@@ -355,14 +369,8 @@ paths:
                 {
                   supplierId: "0ccb1d94-85ee-4704-a4bf-43340807d717",
                   productId: "92cb1d94-85ee-4704-a4bf-43340807d717",
-                  grossWeight: 2500,
-                  tareWeight: 1000,
-                  deductionPercentage: 4,
-                  receivedWeight: 750,
                   vehicleRegistrationNumber: "BK 123 ABC",
-                  paymentMethod: "Cash",
-                  paymentStatus: "Paid",
-                  deliveryStatus: "partially delivered",
+                  coordinate: "3.633584, 98.702615",
                   sourceOfPurcahse: "-",
                   additionalNotes: null,
                   proofImages: [
@@ -388,12 +396,77 @@ paths:
                   allOf:
                     - $ref: '#/components/schemas/APIErrorResponse'
                     - $ref: '#/components/schemas/APIValidationError'
+    
+    /api/v1/purchase/update:
+      put:
+        tags:
+          - Purchases Transaction
+        operationId: updatePurchases
+        security:
+          - bearerAuth: []
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction_id:
+                    type: string
+                  grossWeight:
+                    type: number
+                  tareWeight:
+                    type: number
+                  deductionPercentage:
+                    type: number
+                  deliveredWeight:
+                    type: number
+                  paymentMethod:
+                    type: string
+                  paymentStatus:
+                    type: string
+                  deliveryStatus:
+                    type: string
+                  proofImages:
+                    $ref: '#/components/schemas/productImages'
+              example:
+                {
+                  id: "92cb1d94-85ee-4704-a4bf-43340807d717",
+                  grossWeight: 2500,
+                  tareWeight: 1000,
+                  deductionPercentage: 4,
+                  deliveredWeight: 750,
+                  paymentMethod: "cash",
+                  paymentStatus: "paid",
+                  deliveryStatus: "partially delivered",
+                  proofImages: [
+                    "blob string"
+                  ]
+                }
+        responses:
+          '201':
+            description: Successful operation
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/APISuccessResponse'
+                example:
+                  success: true
+                  message: "Purchases Data Update Successfully"
+          '400':
+            description: Sales Update Validation Error
+            content: 
+              application/json:
+                schema:
+                  type: object
+                  allOf:
+                    - $ref: '#/components/schemas/APIErrorResponse'
+                    - $ref: '#/components/schemas/APIValidationError'
               
     /api/v1/purchase/request:
       put:
         tags: 
           - Purchases Transaction
-        operationId: updatePurchases
+        operationId: updateRequestPurchases
         summary: Send Update Request to Admin
         security:
           - bearerAuth: []
@@ -437,6 +510,8 @@ paths:
                   allOf:
                     - $ref: '#/components/schemas/APIErrorResponse'
                     - $ref: '#/components/schemas/APIValidationError'
+                    
+    
     
 components:
   schemas:
@@ -506,7 +581,7 @@ components:
           type: number
         nettoWeight:
           type: number
-        deductionPercentage:
+        dedicationPersentage:
           type: number
         totalWeight:
           type: number
@@ -540,7 +615,7 @@ components:
           type: number
         tareWeight:
           type: number
-        deductionPercentage:
+        dedicationPersentage:
           type: number
         receivedWeight:
           type: number

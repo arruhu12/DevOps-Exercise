@@ -70,17 +70,26 @@
                         {
                           "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
                           "name": "TBS Brondolan",
-                          "price": 150000
+                          "buyPrice": 60000,
+                          "sellPrice": 650000,
+                          "stock": 0,
+                          "updatedAt": "2023-09-09 08:27:22"
                         },
                         {
                           "id": "93cb1d94-85ee-4704-a4bf-43340807d717",
                           "name": "TBS Perkarangan",
-                          "price": 200000
+                          "buyPrice": 70000,
+                          "sellPrice": 750000,
+                          "stock": 0,
+                          "updatedAt": "2023-09-09 08:27:22"
                         },
                         {
                           "id": "94cb1d94-85ee-4704-a4bf-43340807d717",
                           "name": "TBS Plasma",
-                          "price": 300000
+                          "buyPrice": 85000,
+                          "sellPrice": 950000,
+                          "stock": 0,
+                          "updatedAt": "2023-09-09 08:27:22"
                         }
                       ]
                     }
@@ -99,15 +108,21 @@
                       "data": [
                         {
                           "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
-                          "name": "TBS Brondolan"
+                          "name": "TBS Brondolan",
+                          "buyPrice": 60000,
+                          "sellPrice": 650000
                         },
                         {
                           "id": "93cb1d94-85ee-4704-a4bf-43340807d717",
-                          "name": "TBS Perkarangan"
+                          "name": "TBS Perkarangan",
+                          "buyPrice": 70000,
+                          "sellPrice": 750000
                         },
                         {
                           "id": "94cb1d94-85ee-4704-a4bf-43340807d717",
-                          "name": "TBS Plasma"
+                          "name": "TBS Plasma",
+                          "buyPrice": 85000,
+                          "sellPrice": 950000
                         }
                       ]
                     }
@@ -166,9 +181,14 @@
                   "success": true,
                   "message": "Product List Fetched Successfully",
                   "data": {
-                    "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
-                    "name": "TBS Brondolan",
-                    "price": 150000
+                    "id": "06a80faa-e988-4945-8b13-02c4833aa58b",
+                    "customerId": 1,
+                    "name": "Calon Minyak Medium",
+                    "buyPrice": 70000,
+                    "sellPrice": 75000,
+                    "stock": 280,
+                    "createdAt": "2023-09-09 08:27:22",
+                    "updatedAt": "2023-09-11 10:38:35"
                   }
                 }
               }
@@ -209,7 +229,8 @@
                 "Default": {
                   "value": {
                     "name": "TBS Brondolan",
-                    "price": "200000"
+                    "buyPrice": "200000",
+                    "sellPrice": "200000"
                   }
                 },
                 "Missing Price Field": {
@@ -347,7 +368,8 @@
               "example": {
                 "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
                 "name": "TBS Brondolans",
-                "price": "200000"
+                "buyPrice": "200000",
+                "sellPrice": "200000"
               }
             }
           }
@@ -954,13 +976,17 @@
                       "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
                       "name": "Airani",
                       "username": "airani",
-                      "phoneNumber": "6281375157218"
+                      "phoneNumber": "6281375157218",
+                      "role": "employee",
+                      "isFarmer": false
                     },
                     {
                       "id": "92cb1d94-85ee-4704-a4bf-43340807d717",
                       "name": "Ayunda",
                       "username": "ayunda",
-                      "phoneNumber": "6285276320565"
+                      "phoneNumber": "6285276320565",
+                      "role": "employee",
+                      "isFarmer": false
                     }
                   ]
                 }
@@ -995,7 +1021,8 @@
                       "name",
                       "username",
                       "password",
-                      "role"
+                      "role",
+                      "isFarmer"
                     ]
                   }
                 ]
@@ -1332,6 +1359,9 @@
           },
           "role": {
             "type": "string"
+          },
+          "isFarmer": {
+            "type": "boolean"
           }
         }
       }

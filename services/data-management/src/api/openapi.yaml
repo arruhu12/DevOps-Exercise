@@ -1,15 +1,15 @@
 openapi: 3.0.0
 info:
   title: Buku Sawit Data Management Service
-  description: |-
-    Service ini dipakai untuk melakukan manajemen data produk, supplier dan karyawan untuk sistem buku sawit.
+  description: >-
+    Service ini dipakai untuk melakukan manajemen data produk, supplier dan
+    karyawan untuk sistem buku sawit.
   contact:
     email: it@ninosoftwarehouse.id
   version: 0.1.0
 servers:
-- url: /
+  - url: /
 paths:
-  ## Product Management
   /api/v1/products:
     get:
       tags:
@@ -20,7 +20,7 @@ paths:
         - bearerAuth: []
       parameters:
         - in: query
-          name: 'showNameOnly'
+          name: showNameOnly
           schema:
             type: boolean
           allowEmptyValue: true
@@ -44,48 +44,48 @@ paths:
                 Default:
                   value:
                     success: true
-                    message: "Product List Fetched Successfully"
-                    data: [
-                      {
-                        id: "92cb1d94-85ee-4704-a4bf-43340807d717",
-                        name: "TBS Brondolan",
-                        price: 150000
-                      },
-                      {
-                        id: "93cb1d94-85ee-4704-a4bf-43340807d717",
-                        name: "TBS Perkarangan",
-                        price: 200000
-                      },
-                      {
-                        id: "94cb1d94-85ee-4704-a4bf-43340807d717",
-                        name: "TBS Plasma",
-                        price: 300000
-                      },
-                    ]
+                    message: Product List Fetched Successfully
+                    data:
+                      - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                        name: TBS Brondolan
+                        buyPrice: 60000
+                        sellPrice: 650000
+                        stock: 0
+                        updatedAt: "2023-09-09 08:27:22"
+                      - id: 93cb1d94-85ee-4704-a4bf-43340807d717
+                        name: TBS Perkarangan
+                        buyPrice: 70000
+                        sellPrice: 750000
+                        stock: 0
+                        updatedAt: "2023-09-09 08:27:22"
+                      - id: 94cb1d94-85ee-4704-a4bf-43340807d717
+                        name: TBS Plasma
+                        buyPrice: 85000
+                        sellPrice: 950000
+                        stock: 0
+                        updatedAt: "2023-09-09 08:27:22"
                 Empty:
                   value:
                     success: true
-                    message: "Empty Product List"
+                    message: Empty Product List
                     data: []
                 Name Only:
                   value:
                     success: true
-                    message: "Product List Fetched Successfully"
-                    data: [
-                      {
-                        id: "92cb1d94-85ee-4704-a4bf-43340807d717",
-                        name: "TBS Brondolan",
-                      },
-                      {
-                        id: "93cb1d94-85ee-4704-a4bf-43340807d717",
-                        name: "TBS Perkarangan",
-                      },
-                      {
-                        id: "94cb1d94-85ee-4704-a4bf-43340807d717",
-                        name: "TBS Plasma",
-                      },
-                    ]
-                    
+                    message: Product List Fetched Successfully
+                    data:
+                      - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                        name: TBS Brondolan
+                        buyPrice: 60000
+                        sellPrice: 650000
+                      - id: 93cb1d94-85ee-4704-a4bf-43340807d717
+                        name: TBS Perkarangan
+                        buyPrice: 70000
+                        sellPrice: 750000
+                      - id: 94cb1d94-85ee-4704-a4bf-43340807d717
+                        name: TBS Plasma
+                        buyPrice: 85000
+                        sellPrice: 950000
   /api/v1/product/{productId}:
     get:
       tags:
@@ -115,17 +115,21 @@ paths:
                         $ref: '#/components/schemas/Product'
               example:
                 success: true
-                message: "Product List Fetched Successfully"
-                data: {
-                  id: "92cb1d94-85ee-4704-a4bf-43340807d717",
-                  name: "TBS Brondolan",
-                  price: 150000
-                }
+                message: Product List Fetched Successfully
+                data:
+                  id: "06a80faa-e988-4945-8b13-02c4833aa58b"
+                  customerId: 1
+                  name: "Calon Minyak Medium"
+                  buyPrice: 70000
+                  sellPrice: 75000
+                  stock: 280
+                  createdAt: "2023-09-09 08:27:22"
+                  updatedAt: "2023-09-11 10:38:35"
   /api/v1/product/store:
     post:
-      tags: 
+      tags:
         - Product Management
-      operationId:  storeProduct
+      operationId: storeProduct
       summary: Store Product
       security:
         - bearerAuth: []
@@ -135,79 +139,69 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/ProductFormRequest'
-                - required: [name, price]
+                - required:
+                    - name
+                    - price
             examples:
               Default:
                 value:
-                  name: "TBS Brondolan"
-                  price: "200000"
+                  name: TBS Brondolan
+                  buyPrice: '200000'
+                  sellPrice: '200000'
               Missing Price Field:
                 value:
-                  name: "TBS Brondolan"
+                  name: TBS Brondolan
               Missing Name Field:
                 value:
-                  price: "200000"
+                  price: '200000'
               Missing All Fields:
-                value:
-                  {}
+                value: {}
       responses:
         '201':
           description: Successful operation
           content:
             application/json:
-              schema: 
+              schema:
                 $ref: '#/components/schemas/APISuccessResponse'
               example:
                 success: true
-                message: "Product Stored Successfully"
+                message: Product Stored Successfully
         '400':
           description: Input Validation Error
           content:
             application/json:
               schema:
                 type: object
-                allOf: 
+                allOf:
                   - $ref: '#/components/schemas/APIErrorResponse'
                   - $ref: '#/components/schemas/APIValidationError'
               examples:
                 Missing Price Field:
                   value:
                     success: false
-                    errorCode: "VALIDATION_ERROR"
-                    message: "Input Validation error"
-                    errors: [
-                      {
-                        field: productPrice,
-                        message: "Product price required"
-                      }
-                    ]
+                    errorCode: VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                      - field: productPrice
+                        message: Product price required
                 Missing Name Field:
                   value:
                     success: false
-                    errorCode: "VALIDATION_ERROR"
-                    message: "Input Validation error"
-                    errors: [
-                      {
-                        field: productName,
-                        message: "Product name required"
-                      }
-                    ]
+                    errorCode: VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                      - field: productName
+                        message: Product name required
                 Missing All Fields:
                   value:
                     success: false
-                    errorCode: "VALIDATION_ERROR"
-                    message: "Input Validation error"
-                    errors: [
-                      {
-                        field: productName,
-                        message: "Product name required"
-                      },
-                      {
-                        field: productPrice,
-                        message: "Product price required"
-                      }
-                    ]
-  
+                    errorCode: VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                      - field: productName
+                        message: Product name required
+                      - field: productPrice
+                        message: Product price required
   /api/v1/product/update:
     put:
       tags:
@@ -227,21 +221,23 @@ paths:
                     id:
                       type: string
                 - $ref: '#/components/schemas/ProductFormRequest'
-              required: [id]
+              required:
+                - id
             example:
-              id: "92cb1d94-85ee-4704-a4bf-43340807d717"
-              name: "TBS Brondolans"
-              price: "200000"
+              id: 92cb1d94-85ee-4704-a4bf-43340807d717
+              name: TBS Brondolans
+              buyPrice: '200000'
+              sellPrice: '200000'
       responses:
         '200':
           description: Successful operation
           content:
             application/json:
-              schema: 
+              schema:
                 $ref: '#/components/schemas/APISuccessResponse'
               example:
                 success: true
-                message: "Product Updated Successfully"
+                message: Product Updated Successfully
         '400':
           description: Input Validation Error
           content:
@@ -255,32 +251,24 @@ paths:
                 Product ID Not Found:
                   value:
                     success: false
-                    errorCode: "VALIDATION_ERROR"
-                    message: "Input Validation error"
-                    errors: [
-                      {
-                        field: productId,
-                        message: "Product ID not found"
-                      }
-                    ]
+                    errorCode: VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                      - field: productId
+                        message: Product ID not found
                 Missing All Fields:
                   value:
                     success: false
-                    errorCode: "VALIDATION_ERROR"
-                    message: "Input Validation error"
-                    errors: [
-                      {
-                        field: name,
-                        message: "Product name required"
-                      },
-                      {
-                        field: price,
-                        message: "Product price required"
-                      }
-                    ]
+                    errorCode: VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                      - field: name
+                        message: Product name required
+                      - field: price
+                        message: Product price required
   /api/v1/product/delete/{productId}:
     delete:
-      tags: 
+      tags:
         - Product Management
       operationId: dropProduct
       summary: Delete products
@@ -301,7 +289,7 @@ paths:
                 $ref: '#/components/schemas/APISuccessResponse'
               example:
                 success: true
-                message: "Product Deleted Successfully"
+                message: Product Deleted Successfully
         '400':
           description: Input Validation Error
           content:
@@ -313,16 +301,11 @@ paths:
                   - $ref: '#/components/schemas/APIValidationError'
               example:
                 success: false
-                errorCode: "VALIDATION_ERROR"
-                message: "Input Validation error"
-                errors: [
-                  {
-                    field: id,
-                    message: "Product ID Not Found"
-                  }
-                ]
-                
-  ## Supplier Management
+                errorCode: VALIDATION_ERROR
+                message: Input Validation error
+                errors:
+                  - field: id
+                    message: Product ID Not Found
   /api/v1/suppliers:
     get:
       tags:
@@ -350,27 +333,19 @@ paths:
                 Default:
                   value:
                     success: true
-                    message: "Supplier List Fetched Successfully"
-                    data: [
-                      {
-                        id: "92cb1d94-85ee-4704-a4bf-43340807d717",
-                        name: "Kebun X",
-                      },
-                      {
-                        id: "93cb1d94-85ee-4704-a4bf-43340807d717",
-                        name: "Kebun Y",
-                      },
-                      {
-                        id: "94cb1d94-85ee-4704-a4bf-43340807d717",
-                        name: "Kebun Z"
-                      },
-                    ]
+                    message: Supplier List Fetched Successfully
+                    data:
+                      - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                        name: Kebun X
+                      - id: 93cb1d94-85ee-4704-a4bf-43340807d717
+                        name: Kebun Y
+                      - id: 94cb1d94-85ee-4704-a4bf-43340807d717
+                        name: Kebun Z
                 Empty:
                   value:
                     success: true
-                    message: "Empty Supplier List"
+                    message: Empty Supplier List
                     data: []
-                    
   /api/v1/supplier/{supplierId}:
     get:
       tags:
@@ -400,18 +375,17 @@ paths:
                         $ref: '#/components/schemas/Supplier'
               example:
                 success: true
-                message: "Supplier List Fetched Successfully"
-                data: {
-                  id: "92cb1d94-85ee-4704-a4bf-43340807d717",
-                  name: "Supplier Dummy",
-                  address: "Jl. Testing No. 99",
-                  phoneNumber: "628137157218"
-                }
+                message: Supplier List Fetched Successfully
+                data:
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  name: Supplier Dummy
+                  address: Jl. Testing No. 99
+                  phoneNumber: '628137157218'
   /api/v1/supplier/store:
     post:
-      tags: 
+      tags:
         - Supplier Management
-      operationId:  storeSupplier
+      operationId: storeSupplier
       summary: Store Supplier
       security:
         - bearerAuth: []
@@ -421,51 +395,46 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/SupplierFormRequest'
-                - required: [name, address, phoneNumber]
+                - required:
+                    - name
+                    - address
+                    - phoneNumber
             examples:
               Default:
                 value:
-                  name: "Supplier Dummy ax"
-                  address: "Jl. Dummy No. 123"
-                  phoneNumber: "62811600654"
+                  name: Supplier Dummy ax
+                  address: Jl. Dummy No. 123
+                  phoneNumber: '62811600654'
       responses:
         '201':
           description: Successful operation
           content:
             application/json:
-              schema: 
+              schema:
                 $ref: '#/components/schemas/APISuccessResponse'
               example:
                 success: true
-                message: "Supplier Stored Successfully"
+                message: Supplier Stored Successfully
         '400':
           description: Input Validation Error
           content:
             application/json:
               schema:
                 type: object
-                allOf: 
+                allOf:
                   - $ref: '#/components/schemas/APIErrorResponse'
                   - $ref: '#/components/schemas/APIValidationError'
               example:
                 success: false
-                errorCode: "VALIDATION_ERROR"
-                message: "Input Validation error"
-                errors: [
-                  {
-                    field: name,
-                    message: "Supplier name required"
-                  },
-                  {
-                    field: address,
-                    message: "Supplier price required"
-                  },
-                  {
-                    field: phoneNumber,
-                    message: "Supplier phone number required"
-                  },
-                ]
-  
+                errorCode: VALIDATION_ERROR
+                message: Input Validation error
+                errors:
+                  - field: name
+                    message: Supplier name required
+                  - field: address
+                    message: Supplier price required
+                  - field: phoneNumber
+                    message: Supplier phone number required
   /api/v1/supplier/update:
     put:
       tags:
@@ -481,33 +450,34 @@ paths:
               allOf:
                 - type: object
                   properties:
-                    id: 
+                    id:
                       type: string
                 - $ref: '#/components/schemas/SupplierFormRequest'
-                - required: [id]
+                - required:
+                    - id
             examples:
               Change Name:
                 value:
-                  id: "92cb1d94-85ee-4704-a4bf-43340807d717"
-                  name: "Supplier Flashbacker"
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  name: Supplier Flashbacker
               Change Address:
                 value:
-                  id: "92cb1d94-85ee-4704-a4bf-43340807d717"
-                  address: "Jl. Coba lagi"
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  address: Jl. Coba lagi
               Change Phone Number:
                 value:
-                  id: "92cb1d94-85ee-4704-a4bf-43340807d717"
-                  phoneNumber: "62811600654"
+                  id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                  phoneNumber: '62811600654'
       responses:
         '200':
           description: Successful operation
           content:
             application/json:
-              schema: 
+              schema:
                 $ref: '#/components/schemas/APISuccessResponse'
               example:
                 success: true
-                message: "Product Updated Successfully"
+                message: Product Updated Successfully
         '400':
           description: Input Validation Error
           content:
@@ -521,32 +491,24 @@ paths:
                 Product ID Not Found:
                   value:
                     success: false
-                    errorCode: "VALIDATION_ERROR"
-                    message: "Input Validation error"
-                    errors: [
-                      {
-                        field: id,
-                        message: "Supplier ID not found"
-                      }
-                    ]
+                    errorCode: VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                      - field: id
+                        message: Supplier ID not found
                 Missing All Fields:
                   value:
                     success: false
-                    errorCode: "VALIDATION_ERROR"
-                    message: "Input Validation error"
-                    errors: [
-                      {
-                        field: name,
-                        message: "Nama supplier tidak boleh kosong"
-                      },
-                      {
-                        field: address,
-                        message: "Alamat supplier tidak boleh kosong"
-                      },
-                    ]
+                    errorCode: VALIDATION_ERROR
+                    message: Input Validation error
+                    errors:
+                      - field: name
+                        message: Nama supplier tidak boleh kosong
+                      - field: address
+                        message: Alamat supplier tidak boleh kosong
   /api/v1/supplier/delete/{supplierId}:
     delete:
-      tags: 
+      tags:
         - Supplier Management
       operationId: dropSupplier
       summary: Delete Supplier
@@ -567,7 +529,7 @@ paths:
                 $ref: '#/components/schemas/APISuccessResponse'
               example:
                 success: true
-                message: "Product Deleted Successfully"
+                message: Product Deleted Successfully
         '400':
           description: Input Validation Error
           content:
@@ -579,20 +541,16 @@ paths:
                   - $ref: '#/components/schemas/APIValidationError'
               example:
                 success: false
-                errorCode: "VALIDATION_ERROR"
-                message: "Input Validation error"
-                errors: [
-                  {
-                    field: id,
-                    message: "Product ID Not Found"
-                  }
-                ]
-                
+                errorCode: VALIDATION_ERROR
+                message: Input Validation error
+                errors:
+                  - field: id
+                    message: Product ID Not Found
   /api/v1/employees:
     get:
       tags:
         - Employee Management
-      operationId:  getEmployees
+      operationId: getEmployees
       description: Show Employees List
       security:
         - bearerAuth: []
@@ -603,43 +561,36 @@ paths:
             application/json:
               schema:
                 type: object
-                allOf: 
+                allOf:
                   - $ref: '#/components/schemas/APISuccessResponse'
                   - type: object
-                    properties: 
+                    properties:
                       data:
                         type: array
-                        items: 
+                        items:
                           $ref: '#/components/schemas/EmployeeListResponse'
-                          
               example:
                 success: true
-                message: "Employee List Fetced Successfully"
+                message: Employee List Fetced Successfully
                 data:
-                  [
-                    {
-                      id: "92cb1d94-85ee-4704-a4bf-43340807d717",
-                      name: "Airani",
-                      username: "airani",
-                      phoneNumber: "6281375157218",
-                    },
-                    {
-                      id: "92cb1d94-85ee-4704-a4bf-43340807d717",
-                      name: "Ayunda",
-                      username: "ayunda",
-                      phoneNumber: "6285276320565",
-                    },
-                  ]
-    
+                  - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                    name: Airani
+                    username: airani
+                    phoneNumber: '6281375157218'
+                    role: 'employee'
+                    isFarmer: false
+                  - id: 92cb1d94-85ee-4704-a4bf-43340807d717
+                    name: Ayunda
+                    username: ayunda
+                    phoneNumber: '6285276320565'
+                    role: 'employee'
+                    isFarmer: false
   /api/v1/employee/store:
     post:
-      tags: 
+      tags:
         - Employee Management
       operationId: storeEmployee
-      description: "
-        Store employee data and create account for access system. <br>
-        There are 2 role names: 'employee' and 'admin'
-      "
+      description: ' Store employee data and create account for access system. <br> There are 2 role names: ''employee'' and ''admin'' '
       security:
         - bearerAuth: []
       requestBody:
@@ -648,9 +599,12 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/EmployeeFormRequest'
-                - required: [
-                    name, username, password, role
-                  ]
+                - required:
+                    - name
+                    - username
+                    - password
+                    - role
+                    - isFarmer
       responses:
         '201':
           description: Successful Operation
@@ -669,17 +623,14 @@ paths:
                   - $ref: '#/components/schemas/APIValidationError'
               example:
                 success: false
-                errorCode: "VALIDATION_ERROR"
-                message: "Input Validation error"
-                errors: [
-                  {
-                    field: name,
-                    message: "Nama Karyawan wajib ada!"
-                  }
-                ]
+                errorCode: VALIDATION_ERROR
+                message: Input Validation error
+                errors:
+                  - field: name
+                    message: Nama Karyawan wajib ada!
   /api/v1/employee/update:
     put:
-      tags: 
+      tags:
         - Employee Management
       operationId: updateEmployee
       security:
@@ -691,10 +642,11 @@ paths:
               allOf:
                 - type: object
                   properties:
-                    id: 
+                    id:
                       type: string
                 - $ref: '#/components/schemas/EmployeeFormRequest'
-                - required: [id]
+                - required:
+                    - id
       responses:
         '200':
           description: Successful Operation
@@ -713,17 +665,14 @@ paths:
                   - $ref: '#/components/schemas/APIValidationError'
               example:
                 success: false
-                errorCode: "VALIDATION_ERROR"
-                message: "Input Validation error"
-                errors: [
-                  {
-                    field: name,
-                    message: "Nama Karyawan wajib ada!"
-                  }
-                ]
+                errorCode: VALIDATION_ERROR
+                message: Input Validation error
+                errors:
+                  - field: name
+                    message: Nama Karyawan wajib ada!
   /api/v1/employee/delete/{employeeId}:
     delete:
-      tags: 
+      tags:
         - Employee Management
       operationId: dropEmployee
       summary: Delete Employee
@@ -744,7 +693,7 @@ paths:
                 $ref: '#/components/schemas/APISuccessResponse'
               example:
                 success: true
-                message: "Employee Deleted Successfully"
+                message: Employee Deleted Successfully
         '400':
           description: Input Validation Error
           content:
@@ -756,15 +705,11 @@ paths:
                   - $ref: '#/components/schemas/APIValidationError'
               example:
                 success: false
-                errorCode: "VALIDATION_ERROR"
-                message: "Input Validation error"
-                errors: [
-                  {
-                    field: id,
-                    message: "Employee ID Not Found"
-                  }
-                ]
-
+                errorCode: VALIDATION_ERROR
+                message: Input Validation error
+                errors:
+                  - field: id
+                    message: Employee ID Not Found
 components:
   schemas:
     APISuccessResponse:
@@ -790,12 +735,11 @@ components:
           type: array
           items:
             type: object
-            properties: 
-              field: 
+            properties:
+              field:
                 type: string
-              message: 
+              message:
                 type: string
-    ## Product Management
     ProductFormRequest:
       type: object
       properties:
@@ -803,7 +747,6 @@ components:
           type: string
         price:
           type: string
-
     Product:
       type: object
       properties:
@@ -813,8 +756,6 @@ components:
           type: string
         price:
           type: number
-
-    ## Supplier Management
     SupplierFormRequest:
       type: object
       properties:
@@ -824,20 +765,17 @@ components:
           type: string
         phoneNumber:
           type: string
-
     Supplier:
       type: object
       properties:
         id:
           type: string
-        name: 
+        name:
           type: string
         address:
           type: string
         phoneNumber:
           type: string
-
-    ## Employee Management
     EmployeeListResponse:
       type: object
       properties:
@@ -860,9 +798,10 @@ components:
           type: string
         password:
           type: string
-        role: 
+        role:
           type: string
-
+        isFarmer:
+          type: boolean
   securitySchemes:
     bearerAuth:
       type: http
