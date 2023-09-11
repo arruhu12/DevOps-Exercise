@@ -75,12 +75,12 @@ export default {
     deductionPercentage: {
         exists: { errorMessage: "Deduction Percentage is required" },
         isNumeric: { errorMessage: "Deduction Percentage must be a number" },
-        isInt: {options: {min: 0, max: 100}, errorMessage: "Deduction Percentage must be between 0 and 100"},
+        isInt: {options: {min: 3, max: 100}, errorMessage: "Deduction Percentage must be between 0 and 100"},
     },
     deliveredWeight: {
         exists: { errorMessage: "Delivered Weight is required" },
         isNumeric: { errorMessage: "Delivered Weight must be a number" },
-        isInt: {options: {gt: 0}, errorMessage: "Delivered Weight must be greater than 0"},
+        isInt: {options: {min: 0}, errorMessage: "Delivered Weight minimum is 0"},
     },
     vehicleRegistrationNumber: {
         exists: { errorMessage: "Vehicle Registration Number is required" },
