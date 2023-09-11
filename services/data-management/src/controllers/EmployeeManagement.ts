@@ -7,6 +7,7 @@ import UserContextService from "../service/UserContextService";
 import { errorResponse, successResponse } from "../utils/writer";
 import EmployeeManagementService from "../service/EmployeeManagementService";
 import { validationResult } from "express-validator";
+import { camelCaseKeys } from "../utils/keyConverter";
 
 export default class EmployeeManagementController {
     /**
@@ -28,8 +29,13 @@ export default class EmployeeManagementController {
                 return successResponse(res, 200, 'Employee List Empty', []);
             }
 
+            const formattedEmployees = employees.map(employee => {
+                employee.is_farmer = employee.is_farmer === 1;
+                return camelCaseKeys(employee);
+            });
+
             // Return Employee
-            return successResponse(res, 200, 'Employee Fetched Successfully', employees);
+            return successResponse(res, 200, 'Employee Fetched Successfully', formattedEmployees);
         } catch (error) {
             return errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
         }
@@ -54,8 +60,11 @@ export default class EmployeeManagementController {
                 return errorResponse(res, 404, 'NOT_FOUND', 'Employee Not Found');
             }
 
+            // Convert isFarmer to boolean
+            employee.is_farmer = employee.is_farmer === 1;
+
             // Return Employee
-            return successResponse(res, 200, 'Employee Fetched Successfully', employee);
+            return successResponse(res, 200, 'Employee Fetched Successfully', camelCaseKeys(employee));
         } catch (error) {
             return errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
         }
