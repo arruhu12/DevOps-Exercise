@@ -84,6 +84,7 @@ services:
     volumes:
       - 'sawit-mysql:/var/lib/mysql'
       - './scripts/database.sql:/docker-entrypoint-initdb.d/1.sql'
+      - './scripts/trigger.sql:/docker-entrypoint-initdb.d/2.sql'
     networks:
       sawit-backend:
         ipv4_address: 192.168.10.7
