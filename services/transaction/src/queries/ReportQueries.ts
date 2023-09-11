@@ -70,16 +70,28 @@ export const TRANSACTION_DETAIL_QUERY = `
 export const REPORT_QUERY = `
     SELECT 
         t.id, t.created_at AS transaction_date,
-        t.transaction_type, 
-        IF(t.supplier_id IS NULL, '-', s.name) AS supplier_name, 
-        p.name AS product_name, p.price, t.gross_weight,
-        t.tare_weight, t.deduction_percentage, t.received_weight,
-        t.payment_method, t.payment_status, t.delivery_status,
+        t.transaction_type,
+        IF(purchase_detail.supplier_name IS NULL, '-', purchase_detail.supplier_name) AS supplier_name, 
+        p.name AS product_name,
+        (t.gross_weight - t.tare_weight) - ((t.gross_weight - t.tare_weight) * t.deduction_percentage DIV 100) AS total_weight,
+        t.delivered_weight,
+        ((t.gross_weight - t.tare_weight) - ((t.gross_weight - t.tare_weight) * t.deduction_percentage DIV 100)) * t.price AS total,
+        t.payment_method,
+        t.payment_status,
+        t.delivery_status,
         details.name AS created_by
     FROM 
         transactions t
         JOIN products p ON t.product_id = p.id
-        JOIN suppliers s ON (t.supplier_id IS NULL OR t.supplier_id = s.id)
+        LEFT JOIN (
+            SELECT 
+                transaction_id, 
+                s.name AS supplier_name, 
+                longitude, 
+                latitude
+            FROM transaction_purchase_details
+            JOIN suppliers s ON s.id = supplier_id
+        ) purchase_detail ON t.id = purchase_detail.transaction_id
         JOIN (
             SELECT 
                 id AS customer_id, user_id, CONCAT(first_name, ' ',last_name) as name 
@@ -93,9 +105,15 @@ export const REPORT_QUERY = `
         details.customer_id = ?`;
 
 export const DAILY_WEIGHT_TOTAL = `
-    SELECT IFNULL(SUM(received_weight), 0) AS total
-    FROM 
-        transactions t
+    SELECT category.name, IFNULL(SUM(delivered_weight), 0) AS total
+    FROM (
+        SELECT 'purchase' AS name
+        UNION
+        SELECT 'sale' AS name
+    ) AS category
+    LEFT JOIN (
+        SELECT transaction_type, delivered_weight
+        FROM transactions t
         JOIN (
             SELECT 
                 id AS customer_id, user_id
@@ -105,16 +123,20 @@ export const DAILY_WEIGHT_TOTAL = `
                 customer_id, user_id
             FROM employees e 
         ) AS user ON user.user_id = t.created_by
-    WHERE 
-        t.transaction_type = ? 
-        AND DATE(t.created_at) = CURDATE()
-        AND user.customer_id = ?`;
+        WHERE 
+            DATE(t.created_at) = CURDATE()
+            AND user.customer_id = ?
+    ) as t ON category.name = t.transaction_type
+    GROUP BY category.name`;
 
 export const DAILY_WEIGHT_TOTAL_BY_PRODUCT_QUERY = `
-    SELECT p.name, IFNULL(SUM(t.received_weight), 0) AS weight
+    SELECT 
+        type.name AS transaction_type, 
+        p.name, 
+        IFNULL(SUM(t.delivered_weight), 0) AS total
     FROM products p 
     LEFT JOIN (
-        SELECT product_id, received_weight, created_by
+        SELECT product_id, delivered_weight, created_by, transaction_type
         FROM transactions t 
         JOIN (
             SELECT 
@@ -126,21 +148,28 @@ export const DAILY_WEIGHT_TOTAL_BY_PRODUCT_QUERY = `
             FROM employees e 
         ) AS user ON user.user_id = t.created_by
         WHERE 
-            t.transaction_type = ?
-            AND DATE(t.created_at) = CURDATE()
+            DATE(t.created_at) = CURDATE()
             AND user.customer_id = ?
     ) t ON p.id = t.product_id
-    GROUP BY p.name`;
+    RIGHT JOIN (
+        SELECT 'purchase' AS name
+        UNION
+        SELECT 'sale' AS name
+    ) AS type ON (t.transaction_type IS NULL OR t.transaction_type  = type.name)
+    GROUP BY type.name, p.name`;
 
 export const DAILY_WEIGHT_TOTAL_BY_PAYMENT_METHOD_QUERY = `
-    SELECT pm.name, IFNULL(SUM(t.received_weight), 0) AS weight
+    SELECT 
+        type.name AS transaction_type, 
+        pm.name, 
+        IFNULL(SUM(t.delivered_weight), 0) AS total
     FROM (
         SELECT 'cash' AS name
         UNION
         SELECT 'transfer' AS name
     ) AS pm 
     LEFT JOIN (
-        SELECT payment_method, received_weight, created_by
+        SELECT payment_method, delivered_weight, created_by, transaction_type
         FROM transactions t 
         JOIN (
             SELECT 
@@ -152,10 +181,14 @@ export const DAILY_WEIGHT_TOTAL_BY_PAYMENT_METHOD_QUERY = `
             FROM employees e 
         ) AS user ON user.user_id = t.created_by
         WHERE 
-            t.transaction_type = ?
-            AND DATE(t.created_at) = CURDATE()
+            DATE(t.created_at) = CURDATE()
             AND user.customer_id = ?
     ) t ON pm.name = t.payment_method
-    GROUP BY pm.name`;
+    RIGHT JOIN (
+        SELECT 'purchase' AS name
+        UNION
+        SELECT 'sale' AS name
+    ) AS type ON (t.transaction_type IS NULL OR t.transaction_type  = type.name)
+    GROUP BY type.name, pm.name`;
 
 export const ORDER_BY_DATE_QUERY = `ORDER BY t.created_at DESC`;

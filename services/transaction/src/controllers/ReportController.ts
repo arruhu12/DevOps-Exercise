@@ -3,7 +3,7 @@ import UserContextService from "../service/UserContextService";
 import { errorResponse, successResponse } from "../utils/writer";
 import ReportParametersInterface from "../interfaces/ReportParameterInterface";
 import ReportService from "../service/ReportService";
-import TransactionService from "../service/TransactionImageService";
+import { camelCaseKeys } from "../utils/keyConverter";
 
 
 
@@ -56,11 +56,7 @@ export default class ReportController {
 
             // Formatting Output
             const transactionsFormatted = transactions.map((transaction) => 
-                {
-                    // const result = TransactionService.generateTransactionOutput(transaction);
-                    // result.transactionType = transaction.transaction_type;
-                    // return result;
-                });
+                camelCaseKeys(transaction));
             return successResponse(res, 200, `Report Fetched Succesfull`, transactionsFormatted);
         } catch (error) {
             return errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
