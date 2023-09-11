@@ -2,6 +2,10 @@
  * Store Purcahse Transaction Schema
  */
 
+import { config } from "dotenv";
+
+config();
+
 const IMAGE_MIME_TYPES = [
     'image/jpeg',
     'image/png',
@@ -45,11 +49,37 @@ export default {
         exists: { errorMessage: "Supplier ID is required" },
         isString: { errorMessage: "Supplier ID must be a string" },
         isUUID: {version: '4', errorMessage: "Supplier ID must be a valid UUIDv4"},
+        custom: {
+            options: async (value: string, { req }: {req: any}) => {
+                const response = await fetch(`${process.env.DATA_MANAGEMENT_SERVICE}/api/v1/supplier/${value}`, {
+                    headers: {
+                        'Authorization': req.headers.authorization
+                    }
+                });
+                if (response.status === 200) {
+                    return Promise.resolve();
+                }
+                return await Promise.reject();
+            }, errorMessage: "Supplier ID does not exist"
+        }
     },
     productId: {
         exists: { errorMessage: "Product ID is required" },
         isString: { errorMessage: "Product ID must be a string" },
         isUUID: {version: '4', errorMessage: "Product ID must be a valid UUIDv4"},
+        custom: {
+            options: async (value: string, { req }: {req: any}) => {
+                const response = await fetch(`${process.env.DATA_MANAGEMENT_SERVICE}/api/v1/product/${value}`, {
+                    headers: {
+                        'Authorization': req.headers.authorization
+                    }
+                });
+                if (response.status === 200) {
+                    return Promise.resolve();
+                }
+                return await Promise.reject();
+            }, errorMessage: "Product ID does not exist"
+        }
     },
     vehicleRegistrationNumber: {
         exists: { errorMessage: "Vehicle Registration Number is required" },
@@ -59,6 +89,10 @@ export default {
                 return VEHICLE_LICENSE_REGEX.test(value);
             }, errorMessage: "Vehicle Registration Number must be valid"
         }
+    },
+    coordinate: {
+        exists: { errorMessage: "Coordinate is required" },
+        isLatLong: { errorMessage: "Coordinate must be a valid Latitude and Longitude" },
     },
     sourceOfPurchase: {
         optional: true,

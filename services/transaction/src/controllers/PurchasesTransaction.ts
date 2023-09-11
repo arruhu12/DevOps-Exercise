@@ -6,8 +6,9 @@ import { Request, Response } from "express";
 import PurchasesTransactionService from "../service/PurchasesTransactionService";
 import UserContextService from "../service/UserContextService";
 import { errorResponse, successResponse } from "../utils/writer";
-import TransactionService from "../service/TransactionService";
 import { validationResult } from "express-validator";
+import TransactionImageService from "../service/TransactionImageService";
+import { camelCaseKeys } from "../utils/keyConverter";
 
 export default class PurchasesTransactionController {
     /**
@@ -27,13 +28,13 @@ export default class PurchasesTransactionController {
             // Get Purchase Transactions
             const transactions = await PurchasesTransactionService.getDailyHistory(userId);
 
-            if (!transactions) {
+            if (transactions.length === 0) {
                 return successResponse(res, 200, `Today's purchase transaction is empty`, []);
             }
 
             // Formatting Output
             const transactionsFormatted = transactions.map((transaction) => 
-                TransactionService.generateTransactionOutput(transaction));
+                camelCaseKeys(transaction));
             return successResponse(res, 200, 'Purchases Transaction Fetched Successfully', transactionsFormatted);
         } catch (error) {
             return errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
@@ -54,14 +55,15 @@ export default class PurchasesTransactionController {
 
             // Get Purchase Transaction
             const transaction = await PurchasesTransactionService.getPurchaseById(userId, req.params.id);
-            const proofImages = await TransactionService.getPurchaseImagesByTransactionId(transaction.id);
 
             if (!transaction) {
                 return errorResponse(res, 404, 'NOT_FOUND', 'Purchase Transaction Not Found');
             }
 
-            return successResponse(res, 200, 'Purchase Transaction Fetched Successfully', 
-                TransactionService.generateTransactionOutput(transaction, proofImages, true));
+            // Get Proof Images
+            transaction.proof_images = await TransactionImageService.getImages(transaction.id);
+
+            return successResponse(res, 200, 'Purchase Transaction Fetched Successfully', camelCaseKeys(transaction));
         } catch (error) {
             return errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
         }
@@ -82,19 +84,16 @@ export default class PurchasesTransactionController {
                 return errorResponse(res, 400, "INPUT_VALIDATION_ERROR", "Input Validation Error", errors.array());
             }
 
-            // Check Received Weight is not more than netto weight with deduction
-            const [, nettoWeightWithDeduction] = TransactionService.calculateNettoAndWeight(
-                req.body.grossWeight, req.body.tareWeight, req.body.deductionPercentage);
-            if (req.body.receivedWeight > nettoWeightWithDeduction) {
-                return errorResponse(res, 400, 'RECEIVED_WEIGHT_MISMATCH', 'Received Weight Mismatch');
-            }
-
             // Get Employee Id
             const userId = UserContextService.getUserId(req.headers.authorization!);
+            const customerId = UserContextService.getCustomerId(req.headers.authorization!);
 
-            await PurchasesTransactionService.store(userId, req.body);
+            await PurchasesTransactionService.store(userId, customerId, req.body);
             return successResponse(res, 201, 'Purchase Transaction Stored Successfully');
         } catch (error) {
+            if (error instanceof Error && error.message === 'DELIVERED_WEIGHT_MISMATCH') {
+                return errorResponse(res, 400, error.message, 'Delivered Weight Mismatch');
+            }
             return errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
         }
     }

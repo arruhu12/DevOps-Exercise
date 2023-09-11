@@ -3,7 +3,7 @@ import UserContextService from "../service/UserContextService";
 import { errorResponse, successResponse } from "../utils/writer";
 import ReportParametersInterface from "../interfaces/ReportParameterInterface";
 import ReportService from "../service/ReportService";
-import TransactionService from "../service/TransactionService";
+import TransactionService from "../service/TransactionImageService";
 
 
 
@@ -57,9 +57,9 @@ export default class ReportController {
             // Formatting Output
             const transactionsFormatted = transactions.map((transaction) => 
                 {
-                    const result = TransactionService.generateTransactionOutput(transaction);
-                    result.transactionType = transaction.transaction_type;
-                    return result;
+                    // const result = TransactionService.generateTransactionOutput(transaction);
+                    // result.transactionType = transaction.transaction_type;
+                    // return result;
                 });
             return successResponse(res, 200, `Report Fetched Succesfull`, transactionsFormatted);
         } catch (error) {

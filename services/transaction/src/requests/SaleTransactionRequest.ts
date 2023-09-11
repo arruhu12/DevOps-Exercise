@@ -48,6 +48,19 @@ export default {
         exists: { errorMessage: "Product ID is required" },
         isString: { errorMessage: "Product ID must be a string" },
         isUUID: {version: '4', errorMessage: "Product ID must be a valid UUIDv4"},
+        custom: {
+            options: async (value: string, { req }: {req: any}) => {
+                const response = await fetch(`${process.env.DATA_MANAGEMENT_SERVICE}/api/v1/product/${value}`, {
+                    headers: {
+                        'Authorization': req.headers.authorization
+                    }
+                });
+                if (response.status === 200) {
+                    return Promise.resolve();
+                }
+                return await Promise.reject();
+            }, errorMessage: "Product ID does not exist"
+        }
     },
     grossWeight: {
         exists: { errorMessage: "Gross Weight is required" },
@@ -64,10 +77,10 @@ export default {
         isNumeric: { errorMessage: "Deduction Percentage must be a number" },
         isInt: {options: {min: 0, max: 100}, errorMessage: "Deduction Percentage must be between 0 and 100"},
     },
-    receivedWeight: {
-        exists: { errorMessage: "Received Weight is required" },
-        isNumeric: { errorMessage: "Received Weight must be a number" },
-        isInt: {options: {gt: 0}, errorMessage: "Received Weight must be greater than 0"},
+    deliveredWeight: {
+        exists: { errorMessage: "Delivered Weight is required" },
+        isNumeric: { errorMessage: "Delivered Weight must be a number" },
+        isInt: {options: {gt: 0}, errorMessage: "Delivered Weight must be greater than 0"},
     },
     vehicleRegistrationNumber: {
         exists: { errorMessage: "Vehicle Registration Number is required" },
