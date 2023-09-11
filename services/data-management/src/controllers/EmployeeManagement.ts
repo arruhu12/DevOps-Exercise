@@ -24,7 +24,7 @@ export default class EmployeeManagementController {
             // Get employee
             const employees = await EmployeeManagementService.getEmployees(customerId);
 
-            if (!employees) {
+            if (employees.length === 0) {
                 return successResponse(res, 200, 'Employee List Empty', []);
             }
 

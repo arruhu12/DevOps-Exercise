@@ -37,7 +37,7 @@ export default class EmployeeManagementService {
   public static async getEmployees(customerId: number) {
     try {
       const [employees] = await db.query<RowDataPacket[]>(
-        `SELECT e.id, e.name, e.phone_number, u.username, u.roles FROM employees e, users u
+        `SELECT e.id, e.name, e.phone_number, u.username, u.roles, e.is_farmer FROM employees e, users u
         WHERE u.id = e.user_id AND e.customer_id = ?`, [customerId]);
       return employees;
     } catch (err) {
@@ -57,11 +57,11 @@ export default class EmployeeManagementService {
     try {
       let query;
       if (isForUpdate) {
-        query = `SELECT e.id, e.user_id, e.name, e.phone_number, u.username, u.password, u.roles FROM employees e, users u
+        query = `SELECT e.id, e.user_id, e.name, e.phone_number, u.username, u.password, u.roles, e.is_farmer FROM employees e, users u
         WHERE u.id = e.user_id AND e.id = ? AND e.customer_id = ?`;
       }
       else {
-        query = `SELECT e.id, e.user_id, e.name, e.phone_number, u.username, u.roles FROM employees e, users u
+        query = `SELECT e.id, e.user_id, e.name, e.phone_number, u.username, u.roles, e.is_farmer FROM employees e, users u
         WHERE u.id = e.user_id AND e.id = ? AND e.customer_id = ?`;
       }
       const [[employee]] = await db.query<RowDataPacket[]>(
@@ -96,7 +96,8 @@ export default class EmployeeManagementService {
         user_id: userId,
         customer_id: customerId,
         name: body.name,
-        phone_number: body.phoneNumber
+        phone_number: body.phoneNumber,
+        is_farmer: body.isFarmer
       }
 
       const connection = await db.getConnection();
@@ -129,7 +130,8 @@ export default class EmployeeManagementService {
         user_id: currentEmployeeData.user_id,
         customer_id: customerId,
         name: (body.name === currentEmployeeData.name) ? currentEmployeeData.name : body.name,
-        phone_number: (body.phoneNumber === currentEmployeeData.phone_number) ? currentEmployeeData.phone_number : body.phoneNumber
+        phone_number: (body.phoneNumber === currentEmployeeData.phone_number) ? currentEmployeeData.phone_number : body.phoneNumber,
+        is_farmer: (body.isFarmer === currentEmployeeData.is_farmer) ? currentEmployeeData.is_farmer : body.isFarmer
       }
       const user: User = {
         id: currentEmployeeData.user_id,

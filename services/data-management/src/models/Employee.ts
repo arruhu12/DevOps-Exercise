@@ -3,5 +3,6 @@ export type Employee = {
     user_id: string,
     customer_id: Number,
     name: string,
-    phone_number: string
+    phone_number: string,
+    is_farmer: string
 }

@@ -24,7 +24,7 @@ export default class ProductManagementController {
 
       // Get Products
       const products = await ProductManagementService.getProducts(customerId, Boolean(req.query.showNameOnly));
-      if (!products) {
+      if (products.length === 0) {
         return successResponse(res, 200, 'Product List Empty', []);
       }
       return successResponse(res, 200, 'Products Fetched Successfully', camelCaseKeys(products));
@@ -99,6 +99,14 @@ export default class ProductManagementController {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return errorResponse(res, 400, "INPUT_VALIDATION_ERROR", "Input Validation Error", errors.array());
+      }
+
+      // Check if ID is present
+      if (!req.body.id) {
+        return errorResponse(res, 400, 'VALIDATION_ERROR', 'Input Validation Error', [{
+          field: 'id',
+          message: 'ID is required'
+        }]);
       }
 
       // Get Customer ID

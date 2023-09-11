@@ -32,7 +32,7 @@ export default class SupplierManagementController {
 
       // Get Suppliers
       const suppliers = await SupplierManagementService.getSuppliers(customerId);
-      if (!suppliers) {
+      if (suppliers.length === 0) {
         return successResponse(res, 200, 'Supplier List Empty', []);
       }
       return successResponse(res, 200, 'Supplier List Fetched Successfully', suppliers);

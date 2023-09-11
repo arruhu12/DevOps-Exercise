@@ -20,11 +20,11 @@ export default class ProductManagementService {
       let products;
       if (showNameOnly) {
         [products] = await db.query<RowDataPacket[]>(
-          "SELECT id, name FROM products WHERE customer_id = ?", [customerId]);
+          "SELECT id, name, buy_price, sell_price FROM products WHERE customer_id = ?", [customerId]);
       }
       else {
         [products] = await db.query<RowDataPacket[]>(
-          "SELECT * FROM products WHERE customer_id = ?", [customerId]);
+          "SELECT id, name, buy_price, sell_price, stock, created_at, updated_at FROM products WHERE customer_id = ?", [customerId]);
       }
       return products;
     } catch (error) {
@@ -54,18 +54,18 @@ export default class ProductManagementService {
    *
    * @param customerId number
    * @param body any
-   * @returns object
+   * @returns Promise<void>
    **/
-  public static async storeProduct(customerId: number, body: any) {
+  public static async storeProduct(customerId: number, body: any): Promise<void> {
     try {
       const product:Product = {
         id: uuid(),
         customer_id: customerId,
         name: body.name,
-        price: body.price
+        buy_price: body.buyPrice,
+        sell_price: body.sellPrice,
       }
-      const result = await db.query("INSERT INTO products SET ?", product);
-      return result;
+      await db.query("INSERT INTO products SET ?", product);
     } catch (error) {
       throw error;
     }
@@ -76,18 +76,18 @@ export default class ProductManagementService {
    *
    * @param customerId number
    * @param body any
-   * @returns object
+   * @returns Promise<void>
    **/
-  public static async updateProductById(customerId: number, body: any) {
+  public static async updateProductById(customerId: number, body: any): Promise<void> {
     try {
       const product:Product = {
         id: body.id,
         customer_id: customerId,
         name: body.name,
-        price: body.price
+        buy_price: body.buyPrice,
+        sell_price: body.sellPrice,
       }
-      const result = await db.query("UPDATE products SET ? WHERE id = ?", [product, body.id]);
-      return result;
+      await db.query("UPDATE products SET ? WHERE id = ?", [product, body.id]);
     } catch (error) {
       throw error;
     }

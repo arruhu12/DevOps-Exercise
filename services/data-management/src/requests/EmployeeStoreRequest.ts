@@ -21,12 +21,7 @@ export default {
     },
     username: {
         exists: { errorMessage: "Username is required" },
-        isString: { errorMessage: "Username must be a string" },
-        custom: {
-            options: (value: string) => {
-                return USERNAME_REGEX.test(value);
-            }, errorMessage: "Username must be in the format 'u<number>-<word>'"
-        }
+        isString: { errorMessage: "Username must be a string" }
     },
     password: {
         exists: { errorMessage: "Password is required" },
