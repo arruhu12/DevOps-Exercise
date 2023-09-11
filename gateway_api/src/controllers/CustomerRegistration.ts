@@ -58,7 +58,7 @@ export const customerRegistration = async (req: Request, res: Response) => {
     if (isExists && isActive) {
       return errorResponse(res, 400, "EMAIL_ALREADY_EXISTS", "Email Already Exists");
     }
-    else if (!isActive) {
+    else if (!isExists) {
       // Send body to registration service
       await CustomerRegistrationService.registerAccount(req.body);
     }
