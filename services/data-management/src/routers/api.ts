@@ -9,8 +9,8 @@ import RoleMiddleware from "../middlewares/RoleMiddleware";
 export const apiRouter = Router();
 
 // Supplier Routes
-apiRouter.use('/suppliers', RoleMiddleware(['customer', 'employee']));
-apiRouter.use('/supplier', RoleMiddleware(['customer']));
+apiRouter.use(['/suppliers', '/supplier/:id'], RoleMiddleware(['customer', 'employee']));
+apiRouter.use(['/supplier/store', '/supplier/update', '/supplier/delete'], RoleMiddleware(['customer']));
 
 apiRouter.get('/suppliers', SupplierManagementController.all);
 apiRouter.get('/supplier/:id', SupplierManagementController.getById);
