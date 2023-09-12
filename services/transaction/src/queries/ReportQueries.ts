@@ -130,14 +130,16 @@ export const DAILY_WEIGHT_TOTAL = `
     GROUP BY category.name`;
 
 export const DAILY_WEIGHT_TOTAL_BY_PRODUCT_QUERY = `
-    SELECT 
-        type.name AS transaction_type, 
-        p.name, 
-        IFNULL(SUM(t.delivered_weight), 0) AS total
-    FROM products p 
+    SELECT type.name AS transaction_type, p.name, IFNULL(SUM(t.delivered_weight), 0) AS total
+    FROM (
+        SELECT 'purchase' AS name
+        UNION
+        SELECT 'sale' AS name
+    ) AS type
+    CROSS JOIN products p 
     LEFT JOIN (
         SELECT product_id, delivered_weight, created_by, transaction_type
-        FROM transactions t 
+        FROM transactions t
         JOIN (
             SELECT 
                 id AS customer_id, user_id
@@ -149,13 +151,11 @@ export const DAILY_WEIGHT_TOTAL_BY_PRODUCT_QUERY = `
         ) AS user ON user.user_id = t.created_by
         WHERE 
             DATE(t.created_at) = CURDATE()
-            AND user.customer_id = ?
-    ) t ON p.id = t.product_id
-    RIGHT JOIN (
-        SELECT 'purchase' AS name
-        UNION
-        SELECT 'sale' AS name
-    ) AS type ON (t.transaction_type IS NULL OR t.transaction_type  = type.name)
+            AND user.customer_id = '1'
+    ) AS t
+    ON type.name = t.transaction_type AND p.name = (
+        SELECT name FROM products WHERE id = t.product_id
+    )
     GROUP BY type.name, p.name`;
 
 export const DAILY_WEIGHT_TOTAL_BY_PAYMENT_METHOD_QUERY = `
@@ -164,6 +164,11 @@ export const DAILY_WEIGHT_TOTAL_BY_PAYMENT_METHOD_QUERY = `
         pm.name, 
         IFNULL(SUM(t.delivered_weight), 0) AS total
     FROM (
+        SELECT 'purchase' AS name
+        UNION
+        SELECT 'sale' AS name
+    ) AS type
+    CROSS JOIN (
         SELECT 'cash' AS name
         UNION
         SELECT 'transfer' AS name
@@ -183,12 +188,7 @@ export const DAILY_WEIGHT_TOTAL_BY_PAYMENT_METHOD_QUERY = `
         WHERE 
             DATE(t.created_at) = CURDATE()
             AND user.customer_id = ?
-    ) t ON pm.name = t.payment_method
-    RIGHT JOIN (
-        SELECT 'purchase' AS name
-        UNION
-        SELECT 'sale' AS name
-    ) AS type ON (t.transaction_type IS NULL OR t.transaction_type  = type.name)
+    ) t ON type.name = t.transaction_type AND pm.name = t.payment_method
     GROUP BY type.name, pm.name`;
 
 export const ORDER_BY_DATE_QUERY = `ORDER BY t.created_at DESC`;
