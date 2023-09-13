@@ -43,7 +43,7 @@ export default class ReportController {
     public static async getReports(req: Request, res: Response) {
         try {
             // Extract query parameters with default values if not provided
-            const parameters: ReportParametersInterface = req.body;
+            const parameters: ReportParametersInterface = JSON.parse(req.query.query?.toString() ?? "{}");
 
             // Get Customer Id
             const customerId = UserContextService.getCustomerId(req.headers.authorization!);
