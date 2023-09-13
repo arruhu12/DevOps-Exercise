@@ -90,7 +90,7 @@ export default class ReportService {
 
                 // Date Range Filter
                 if (parameters.startDate && parameters.endDate) {
-                    conditionals.push(`DATE(pt.created_at) BETWEEN DATE(?) AND DATE(?)`);
+                    conditionals.push(`DATE(t.created_at) BETWEEN DATE(?) AND DATE(?)`);
                     values.push(new Date(parameters.startDate).toISOString());
                     values.push(new Date(parameters.endDate).toISOString());
                 }
