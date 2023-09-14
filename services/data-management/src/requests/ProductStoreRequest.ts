@@ -28,6 +28,11 @@ export default {
             options: { gt: 0 },
             errorMessage: "Sale Price must be greater than 0",
         },
+        custom: {
+            options: (value: number, { req } : {req: any}) => 
+                (value > req.body.buyPrice),
+                errorMessage: "Sale Price must be greater than Buy Price"
+        }
     },
     quantity: {
         optional: true,
