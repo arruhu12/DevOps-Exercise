@@ -56,8 +56,8 @@ export default class SupplierManagementService {
         id: uuid(),
         customer_id: customerId,
         name: body.name,
-        address: body.address,
-        phone_number: body.phoneNumber
+        address: body.address ?? '-',
+        phone_number: body.phoneNumber ?? '-'
       }
       const result = await db.query("INSERT INTO suppliers SET ?", supplier);
       return result;

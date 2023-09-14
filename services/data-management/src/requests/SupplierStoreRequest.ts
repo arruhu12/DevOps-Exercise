@@ -14,10 +14,12 @@ export default {
         isString: { errorMessage: "Name must be a string" },
     },
     address: {
+        optional: true,
         exists: { errorMessage: "Address is required" },
         isString: { errorMessage: "Address must be a string" },
     },
     phoneNumber: {
+        optional: true,
         exists: { errorMessage: "Phone Number is required" },
         isMobilePhone: { locale: ['id-ID'] , errorMessage: "Phone number must be a valid Indonesian phone number" }
     }    
