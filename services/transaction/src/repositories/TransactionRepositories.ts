@@ -17,10 +17,22 @@ export default class TransactionRepositories {
     public static async getPurchaseDailyHistory(userId: string): Promise<TransactionOutput[]> {
         try {
             const [purchases] = await db.query<ITransactionOutput[] & RowDataPacket[]>(`
-                ${ALL_TRANSACTiON_QUERY} AND DATE(t.created_at) = CURDATE()
-                ${ORDER_BY_DATE_QUERY}`, 
-                ['purchase', userId])
-            console.log(purchases);
+                ${ALL_TRANSACTiON_QUERY} 
+                    AND (
+                        DATE(t.created_at) = CURDATE()
+                        OR t.payment_method = 'unpaid'
+                        OR t.delivery_status != 'fully delivered'
+                    )
+                ORDER BY 
+                    CASE
+                        WHEN 
+                            t.payment_method = 'unpaid' 
+                            OR
+                            t.delivery_status != 'fully delivered'
+                        THEN 1
+                        ELSE 0
+                    END DESC, t.created_at DESC`,
+                ['purchase', userId, 'purchase', userId]);
             return purchases.map(purchase => new TransactionOutput(purchase));
         } catch (error) {
             throw error;
@@ -56,7 +68,6 @@ export default class TransactionRepositories {
         try {
             const [[transaction]] = await db.query<RowDataPacket[]>(
                 TRANSACTION_DETAIL_FOR_VALIDATION_QUERY, [transactionId, customerId]);
-            console.log(transaction)
             return transaction.is_exists === 1;
         } catch (error) {
             throw error;
@@ -173,7 +184,6 @@ export default class TransactionRepositories {
      */
     public static async update(body: Transaction): Promise<void> {
         try {
-            console.log(body);
             await db.query(UPDATE_TRANSACTION_QUERY, [body, body.id]);
         } catch (error) {
             throw error;
