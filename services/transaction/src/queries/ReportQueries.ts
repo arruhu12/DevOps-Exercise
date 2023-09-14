@@ -29,12 +29,47 @@ export const ALL_TRANSACTiON_QUERY = `
         t.transaction_type = ?
         AND t.created_by = ?
     `;
+export const TRANSACTION_DETAIL_FOR_VALIDATION_QUERY = `
+    SELECT COUNT(*) AS is_exists
+    FROM 
+        transactions t
+        JOIN (
+            SELECT 
+                id AS customer_id, user_id, CONCAT(first_name, ' ',last_name) as name 
+            FROM customers c
+            UNION
+            SELECT 
+                customer_id, user_id, name 
+            FROM employees e
+        ) AS details ON details.user_id = t.created_by
+    WHERE
+        t.id = ?
+        AND details.customer_id = ?
+`;
+export const TRANSACTION_DETAIL_FOR_UPDATE_QUERY = `
+    SELECT * 
+    FROM
+        transactions t
+        LEFT JOIN (
+            SELECT 
+                transaction_id, 
+                s.name AS supplier_name, 
+                longitude, 
+                latitude
+            FROM transaction_purchase_details
+            JOIN suppliers s ON s.id = supplier_id
+        ) purchase_detail ON t.id = purchase_detail.transaction_id AND t.transaction_type = 'purchase'
+    WHERE 
+        t.transaction_type = ?
+        AND t.id = ?
+`;
 export const TRANSACTION_DETAIL_QUERY = `
     SELECT 
         t.id,
         p.name as product_name,
         purchase_detail.supplier_name,
         t.created_at as transaction_date,
+        t.transaction_type,
         IFNULL(t.gross_weight, 0) AS gross_weight,
         IFNULL(t.tare_weight, 0) AS tare_weight,
         IFNULL((t.gross_weight - t.tare_weight), 0) AS netto_weight,
@@ -50,7 +85,8 @@ export const TRANSACTION_DETAIL_QUERY = `
         purchase_detail.longitude,
         purchase_detail.latitude,
         t.source_of_purchase,
-        t.additional_notes
+        t.additional_notes,
+        t.created_by
     FROM 
         transactions t
         JOIN products p ON t.product_id = p.id

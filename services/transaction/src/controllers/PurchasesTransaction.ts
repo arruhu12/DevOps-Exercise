@@ -9,6 +9,7 @@ import { errorResponse, successResponse } from "../utils/writer";
 import { validationResult } from "express-validator";
 import TransactionImageService from "../service/TransactionImageService";
 import { camelCaseKeys } from "../utils/keyConverter";
+import TransactionRepositories from "../repositories/TransactionRepositories";
 
 export default class PurchasesTransactionController {
     /**
@@ -68,7 +69,7 @@ export default class PurchasesTransactionController {
             return errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
         }
     }
-    
+
     /**
      * Store Purchase
      * 
@@ -90,6 +91,42 @@ export default class PurchasesTransactionController {
 
             await PurchasesTransactionService.store(userId, customerId, req.body);
             return successResponse(res, 201, 'Purchase Transaction Stored Successfully');
+        } catch (error) {
+            if (error instanceof Error && error.message === 'DELIVERED_WEIGHT_MISMATCH') {
+                return errorResponse(res, 400, error.message, 'Delivered Weight Mismatch');
+            }
+            return errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
+        }
+    }
+
+    /**
+     * Update Purchase Transaction
+     * 
+     * @param req Request
+     * @param res Response
+     * @returns Response
+     */
+    public static async updatePurchase(req: Request, res: Response) {
+        try {
+            // Get Validation Result and return error
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return errorResponse(res, 400, "INPUT_VALIDATION_ERROR", "Input Validation Error", errors.array());
+            }
+
+            // Get Employee Id and Customer Id
+            const userId = UserContextService.getUserId(req.headers.authorization!);
+            const customerId = UserContextService.getCustomerId(req.headers.authorization!);
+
+            // Check Purchase Transaction Exists
+            const isTransactionExists = await TransactionRepositories.checkTransactionExists(req.body.id, customerId);
+            if (!isTransactionExists) {
+                return errorResponse(res, 404, 'NOT_FOUND', 'Purchase Transaction Not Found');
+            }
+
+            // Update Purchase Transaction
+            await PurchasesTransactionService.update(userId, customerId, req.body);
+            return successResponse(res, 200, 'Purchase Transaction Updated Successfully');
         } catch (error) {
             if (error instanceof Error && error.message === 'DELIVERED_WEIGHT_MISMATCH') {
                 return errorResponse(res, 400, error.message, 'Delivered Weight Mismatch');

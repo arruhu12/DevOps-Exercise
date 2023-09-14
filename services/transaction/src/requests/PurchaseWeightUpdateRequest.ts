@@ -66,6 +66,14 @@ export default {
         exists: { errorMessage: "Delivered Weight is required" },
         isNumeric: { errorMessage: "Delivered Weight must be a number" },
         isInt: {options: {min: 0}, errorMessage: "Delivered Weight minimum is 0"},
+        custom: {
+            options: (value: string, { req}: {req: any}) => {
+                return !(+value > (
+                    (req.body.grossWeight - req.body.tareWeight) - 
+                    ((req.body.grossWeight - req.body.tareWeight) * req.body.deductionPercentage / 100)))
+            },
+            errorMessage: "Delivered Weight must be less or same as netto with deduction"
+        }
     },
     paymentMethod: {
         exists: { errorMessage: "Payment Method is required" },
@@ -88,7 +96,7 @@ export default {
         }
     },
     deliveryStatus: {
-        exists: { errorMessage: "Delivery Status is required" },
+        exists: { errorMessage: "Delivery Status is required" }, 
         isString: { errorMessage: "Delivery Status must be a string" },
         custom: {
             options: (value: string) => {

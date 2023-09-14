@@ -2,7 +2,7 @@ import PurchasesTransactionController from "../controllers/PurchasesTransaction"
 import { Router } from "express";
 import RoleMiddleware from "../middlewares/RoleMiddleware";
 import { checkSchema } from "express-validator";
-import { purchaseTransactionStore, saleTransactionStore } from "../requests";
+import { purchaseTransactionStore, purchaseTransactionWeightUpdate, saleTransactionStore } from "../requests";
 import SalesTransactionController from "../controllers/SalesTransaction";
 import ReportController from "../controllers/ReportController";
 
@@ -14,6 +14,7 @@ apiRouter.use(['/purchases', '/purchase'], RoleMiddleware(['employee']));
 apiRouter.get('/purchases', PurchasesTransactionController.getPurchases);
 apiRouter.get('/purchase/:id', PurchasesTransactionController.getPurchasesById);
 apiRouter.post('/purchase/store', checkSchema(purchaseTransactionStore), PurchasesTransactionController.storePurchase);
+apiRouter.put('/purchase/update', checkSchema(purchaseTransactionWeightUpdate), PurchasesTransactionController.updatePurchase);
 
 // Sales Transaction
 apiRouter.use(['/sales', '/sale'], RoleMiddleware(['customer']));

@@ -44,7 +44,8 @@ export default class PurchasesTransactionService {
      * Store Purchases Transaction
      * 
      * @param userId string
-     * @param body TransactionStoreBody
+     * @param customerId number
+     * @param body any
      * @returns void
      */
     public static async store(userId: string, customerId: number, body: any): Promise<void> {
@@ -78,6 +79,48 @@ export default class PurchasesTransactionService {
                 supplier_id: body.supplierId,
                 longitude: long,
                 latitude: lat
+            });
+            await TransactionImageService.store(transactionId, customerId, body.proofImages);
+            await connection.commit();
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        }
+    }
+
+    /**
+     * Update Purchases Transaction
+     * @param userId string
+     * @param customerId number
+     * @param body any
+     * @returns Promise<void>
+     */
+    public static async update(userId: string, customerId: number, body: any): Promise<void> {
+        const connection = await db.getConnection();
+        try {
+            // Database Transaction
+            await connection.beginTransaction();
+            const transactionId = body.id;
+            const currentTransactionData = await TransactionRepositories.getTransactionDetailForUpdate(userId, transactionId, 'purchase');
+
+            // Update Transaction
+            await TransactionRepositories.update({
+                id: transactionId,
+                transaction_type: 'purchase',
+                product_id: currentTransactionData.product_id,
+                gross_weight: body.grossWeight,
+                tare_weight: body.tareWeight,
+                deduction_percentage: body.deductionPercentage,
+                delivered_weight: body.deliveredWeight,
+                price: currentTransactionData.price,
+                vehicle_registration_number: currentTransactionData.vehicle_registration_number,
+                payment_status: body.paymentStatus,
+                delivery_status: body.deliveryStatus,
+                payment_method: body.paymentMethod,
+                source_of_purchase: currentTransactionData.source_of_purchase,
+                additional_notes: currentTransactionData.additional_notes,
+                created_by: currentTransactionData.created_by,
+                updated_by: userId
             });
             await TransactionImageService.store(transactionId, customerId, body.proofImages);
             await connection.commit();

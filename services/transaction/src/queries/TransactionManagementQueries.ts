@@ -10,6 +10,9 @@ export const PRODUCT_STOCK_QUERY = `
 export const STORE_TRANSACTION_QUERY = `
     INSERT INTO transactions SET ?
 `;
+export const UPDATE_TRANSACTION_QUERY = `
+    UPDATE transactions SET ? WHERE id = ?
+`;
 export const STORE_TRANSACTION_IMAGE_QUERY = `
     INSERT INTO transaction_images SET ?
 `;
