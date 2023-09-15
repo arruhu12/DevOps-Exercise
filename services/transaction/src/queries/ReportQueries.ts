@@ -121,7 +121,8 @@ export const REPORT_QUERY = `
         JOIN products p ON t.product_id = p.id
         LEFT JOIN (
             SELECT 
-                transaction_id, 
+                transaction_id,
+                supplier_id,
                 s.name AS supplier_name, 
                 longitude, 
                 latitude

@@ -109,7 +109,7 @@ export default class ReportService {
 
                 // Suppliers Filter
                 if (parameters.suppliers && parameters.suppliers.length > 0) {
-                    conditionals.push(`supplier_id IN (?)`);
+                    conditionals.push(`purchase_detail.supplier_id IN (?)`);
                     values.push(parameters.suppliers);
                 }
 
