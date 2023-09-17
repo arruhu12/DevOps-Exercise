@@ -102,7 +102,7 @@ export default {
             options: (value: string) => {
                 return DELIVERY_STATUS.includes(value.toLowerCase());
             },
-            errorMessage: "Delivery Status must be either 'fully delivered', 'partially delivered', or 'not delivered'"
+            errorMessage: "Delivery Status must be either 'fully delivered', 'partially delivered', or 'undelivered'"
         }
     },
     proofImages: {
