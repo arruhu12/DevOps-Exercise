@@ -17,7 +17,15 @@ export default class SupplierManagementService {
   public static async getSuppliers(customerId: number) {
     try {
       const [suppliers] = await db.query<RowDataPacket[]>(
-        "SELECT id, name FROM suppliers WHERE customer_id = ?", [customerId]);
+        `SELECT 
+          id,
+          name,
+          IFNULL(phone_number, '-') AS phone_number,
+          is_priority
+        FROM 
+          suppliers 
+        WHERE customer_id = ?
+        ORDER BY name`, [customerId]);
       return suppliers;
     } catch (error) {
       throw error;
@@ -34,7 +42,14 @@ export default class SupplierManagementService {
   public static async getSupplierById(customerId: number, supplierId: string) {
     try {
       const [[supplier]] = await db.query<RowDataPacket[]>(
-        "SELECT id, name, address, phone_number FROM suppliers WHERE id = ? AND customer_id = ?",
+        `SELECT 
+          id,
+          name, 
+          IFNULL(address, '-') AS address,
+          IFNULL(phone_number, '-') AS phone_number,
+          is_priority
+        FROM suppliers 
+        WHERE id = ? AND customer_id = ?`,
         [supplierId, customerId]
       );
       return supplier;
@@ -57,7 +72,8 @@ export default class SupplierManagementService {
         customer_id: customerId,
         name: body.name,
         address: body.address ?? '-',
-        phone_number: body.phoneNumber ?? '-'
+        phone_number: body.phoneNumber ?? '-',
+        is_priority: body.isPriority ?? false
       }
       const result = await db.query("INSERT INTO suppliers SET ?", supplier);
       return result;
@@ -81,7 +97,8 @@ export default class SupplierManagementService {
         customer_id: customerId,
         name: body.name,
         address: body.address,
-        phone_number: body.phoneNumber
+        phone_number: body.phoneNumber,
+        is_priority: body.isPriority
       }
       const result = await db.query("UPDATE suppliers SET ? WHERE id = ?", [supplier, supplierId]);
       return result;

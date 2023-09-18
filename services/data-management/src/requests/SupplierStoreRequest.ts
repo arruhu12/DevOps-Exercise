@@ -22,5 +22,9 @@ export default {
         optional: true,
         exists: { errorMessage: "Phone Number is required" },
         isMobilePhone: { locale: ['id-ID'] , errorMessage: "Phone number must be a valid Indonesian phone number" }
-    }    
+    },
+    isPriority: {
+        exists: { errorMessage: "Is Priority is required" },
+        isBoolean: { errorMessage: "Is Priority must be a boolean" },
+    }
 };

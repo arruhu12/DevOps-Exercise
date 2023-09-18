@@ -4,4 +4,5 @@ export type Supplier = {
     name: string,
     address: string,
     phone_number: string,
+    is_priority: boolean,
 }

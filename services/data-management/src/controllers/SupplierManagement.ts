@@ -35,7 +35,7 @@ export default class SupplierManagementController {
       if (suppliers.length === 0) {
         return successResponse(res, 200, 'Supplier List Empty', []);
       }
-      return successResponse(res, 200, 'Supplier List Fetched Successfully', suppliers);
+      return successResponse(res, 200, 'Supplier List Fetched Successfully', camelCaseKeys(suppliers));
     } catch (error) {
       errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
     }
