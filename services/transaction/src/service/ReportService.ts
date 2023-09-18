@@ -91,7 +91,7 @@ export default class ReportService {
 
                 // Date Range Filter
                 if (parameters.startDate && parameters.endDate) {
-                    conditionals.push(`DATE(t.created_at) BETWEEN DATE(?) AND DATE(?)`);
+                    conditionals.push(`t.created_at BETWEEN ? AND ?`);
 
                     const startDate = new Date(
                         new Date(parameters.startDate).setUTCHours(0,0,0,0)
@@ -104,6 +104,7 @@ export default class ReportService {
 
                     values.push(new Date(startDate.getTime() - (startDate.getTimezoneOffset() * 60000)));
                     values.push(new Date(endDate.getTime() - (endDate.getTimezoneOffset() * 60000)));
+                    console.log(values)
                 }
 
                 // Transaction Type Filter
