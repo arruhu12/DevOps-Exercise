@@ -145,7 +145,8 @@ CREATE TABLE IF NOT EXISTS transactions (
 );
 CREATE TABLE IF NOT EXISTS transaction_purchase_details (
   transaction_id varchar(36) NOT NULL,
-  supplier_id varchar(36),
+  supplier_id varchar(36) NOT NULL,
+  commision int unsigned DEFAULT 0,
   longitude decimal(9,6) NOT NULL,
   latitude decimal(8,6) NOT NULL,
   INDEX(longitude, latitude)
@@ -178,6 +179,7 @@ CREATE TABLE IF NOT EXISTS suppliers (
   name varchar(50) NOT NULL,
   address varchar(150) DEFAULT '-',
   phone_number varchar(15) DEFAULT '-',
+  isPriority boolean DEFAULT false,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP,
