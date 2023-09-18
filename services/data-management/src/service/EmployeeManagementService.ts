@@ -37,8 +37,20 @@ export default class EmployeeManagementService {
   public static async getEmployees(customerId: number) {
     try {
       const [employees] = await db.query<RowDataPacket[]>(
-        `SELECT e.id, e.name, e.phone_number, u.username, u.roles, e.is_farmer FROM employees e, users u
-        WHERE u.id = e.user_id AND e.customer_id = ?`, [customerId]);
+        `SELECT 
+          e.id, 
+          e.name, 
+          e.phone_number, 
+          u.username, 
+          u.roles, 
+          e.is_farmer 
+        FROM 
+          employees e,
+          users u
+        WHERE 
+          u.id = e.user_id 
+          AND e.customer_id = ?
+        ORDER BY e.name`, [customerId]);
       return employees;
     } catch (err) {
       throw err;

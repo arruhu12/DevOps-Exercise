@@ -20,11 +20,28 @@ export default class ProductManagementService {
       let products;
       if (showNameOnly) {
         [products] = await db.query<RowDataPacket[]>(
-          "SELECT id, name, buy_price, sell_price FROM products WHERE customer_id = ?", [customerId]);
+          `SELECT
+            id,
+            name,
+            buy_price,
+            sell_price
+          FROM products 
+          WHERE customer_id = ?
+          ORDER BY name`, [customerId]);
       }
       else {
         [products] = await db.query<RowDataPacket[]>(
-          "SELECT id, name, buy_price, sell_price, stock, created_at, updated_at FROM products WHERE customer_id = ?", [customerId]);
+          `SELECT
+            id,
+            name,
+            buy_price,
+            sell_price,
+            stock,
+            created_at,
+            updated_at 
+          FROM products
+          WHERE customer_id = ?
+          ORDER BY name`, [customerId]);
       }
       return products;
     } catch (error) {
