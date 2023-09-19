@@ -19,6 +19,9 @@ export const STORE_TRANSACTION_IMAGE_QUERY = `
 export const STORE_TRANSACTION_PURCHASE_DETAIL_QUERY = `
     INSERT INTO transaction_purchase_details SET ?
 `;
+export const UPDATE_TRANSACTION_PURCHASE_DETAIL_QUERY = `
+    UPDATE transaction_purchase_details SET ? WHERE transaction_id = ?
+`;
 export const GET_TRANSACTION_IMAGE_QUERY = `
     SELECT id, image_type, image_path
     FROM transaction_images

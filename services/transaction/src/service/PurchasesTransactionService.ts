@@ -77,6 +77,7 @@ export default class PurchasesTransactionService {
             await TransactionRepositories.storePurchaseDetail({
                 transaction_id: transactionId,
                 supplier_id: body.supplierId,
+                commision: body.commision ?? 0,
                 longitude: long,
                 latitude: lat
             });
@@ -122,6 +123,15 @@ export default class PurchasesTransactionService {
                 created_by: currentTransactionData.created_by,
                 updated_by: userId
             });
+
+            await TransactionRepositories.updatePurchaseDetail({
+                transaction_id: transactionId,
+                supplier_id: currentTransactionData.supplier_id,
+                commision: (currentTransactionData.is_priority ? body.commision : 0) ?? 0,
+                longitude: currentTransactionData.longitude,
+                latitude: currentTransactionData.latitude
+            });
+
             await TransactionImageService.store(transactionId, customerId, body.proofImages);
             await connection.commit();
         } catch (error) {

@@ -13,6 +13,7 @@ export interface ITransactionOutput {
     total_weight: number,
     delivered_weight: number,
     price?: number,
+    commision?: number,
     total: number,
     vehicle_registration_number?: string,
     payment_method: string,
@@ -46,6 +47,7 @@ export class TransactionOutput implements ITransactionOutput {
     total_weight: number;
     delivered_weight: number;
     price?: number;
+    commision?: number;
     total: number;
     vehicle_registration_number?: string;
     payment_method: string;
@@ -97,6 +99,8 @@ export class TransactionOutput implements ITransactionOutput {
         this.delivered_weight = transaction.delivered_weight;
         this.price = (transaction.price === undefined) ? 
         undefined : +transaction.price;
+        this.commision = (transaction.commision === undefined) ? 
+        undefined : +transaction.commision;
         this.total = +transaction.total;
         this.vehicle_registration_number = transaction.vehicle_registration_number;
         this.payment_method = transaction.payment_method;

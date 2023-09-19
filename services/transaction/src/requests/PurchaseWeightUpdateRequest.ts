@@ -75,6 +75,11 @@ export default {
             errorMessage: "Delivered Weight must be less or same as netto with deduction"
         }
     },
+    commision: {
+        optional: true,
+        isNumeric: { errorMessage: "Commision must be a number" },
+        isInt: {options: {min: 0}, errorMessage: "Commision minimum is 0"},
+    },
     paymentMethod: {
         exists: { errorMessage: "Payment Method is required" },
         isString: { errorMessage: "Payment Method must be a string" },

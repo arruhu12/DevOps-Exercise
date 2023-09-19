@@ -11,7 +11,9 @@ export const ALL_TRANSACTiON_QUERY = `
         t.created_at as transaction_date,
         IFNULL(t.delivered_weight, 0) AS delivered_weight,
         IFNULL((t.gross_weight - t.tare_weight) - ((t.gross_weight - t.tare_weight) * t.deduction_percentage DIV 100), 0) AS total_weight,
-        IFNULL(((t.gross_weight - t.tare_weight) - ((t.gross_weight - t.tare_weight) * t.deduction_percentage DIV 100)) * price, 0) AS total,
+        IFNULL(
+            ((t.gross_weight - t.tare_weight) - ((t.gross_weight - t.tare_weight) * t.deduction_percentage DIV 100)) * price
+            + ((t.gross_weight - t.tare_weight) * t.deduction_percentage DIV 100) * purchase_detail.commision, 0) AS total,
         t.payment_status,
         t.delivery_status,
         t.payment_method,
@@ -21,7 +23,7 @@ export const ALL_TRANSACTiON_QUERY = `
         transactions t
         JOIN products p ON t.product_id = p.id
         LEFT JOIN (
-            SELECT transaction_id, s.name AS supplier_name
+            SELECT transaction_id, s.name AS supplier_name, commision
             FROM transaction_purchase_details
             JOIN suppliers s ON s.id = supplier_id
         ) purchase_detail ON t.id = purchase_detail.transaction_id AND t.transaction_type = 'purchase'
@@ -52,8 +54,10 @@ export const TRANSACTION_DETAIL_FOR_UPDATE_QUERY = `
         transactions t
         LEFT JOIN (
             SELECT 
-                transaction_id, 
-                s.name AS supplier_name, 
+                transaction_id,
+                supplier_id,
+                s.is_priority,
+                commision,
                 longitude, 
                 latitude
             FROM transaction_purchase_details
@@ -77,7 +81,10 @@ export const TRANSACTION_DETAIL_QUERY = `
         IFNULL(t.deduction_percentage, 0) AS deduction_percentage,
         IFNULL((t.gross_weight - t.tare_weight) - ((t.gross_weight - t.tare_weight) * t.deduction_percentage DIV 100), 0) AS total_weight,
         t.price,
-        IFNULL(((t.gross_weight - t.tare_weight) - ((t.gross_weight - t.tare_weight) * t.deduction_percentage DIV 100)) * price, 0) AS total,
+        purchase_detail.commision,
+        IFNULL(
+            ((t.gross_weight - t.tare_weight) - ((t.gross_weight - t.tare_weight) * t.deduction_percentage DIV 100)) * price
+            + ((t.gross_weight - t.tare_weight) * t.deduction_percentage DIV 100) * purchase_detail.commision, 0) AS total,
         t.vehicle_registration_number, 
         t.payment_status,
         t.delivery_status,
@@ -93,7 +100,8 @@ export const TRANSACTION_DETAIL_QUERY = `
         LEFT JOIN (
             SELECT 
                 transaction_id, 
-                s.name AS supplier_name, 
+                s.name AS supplier_name,
+                commision,
                 longitude, 
                 latitude
             FROM transaction_purchase_details

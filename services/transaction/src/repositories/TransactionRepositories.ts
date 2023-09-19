@@ -1,7 +1,7 @@
 import { ALL_TRANSACTiON_QUERY, ORDER_BY_DATE_QUERY, TRANSACTION_DETAIL_FOR_UPDATE_QUERY, TRANSACTION_DETAIL_FOR_VALIDATION_QUERY, TRANSACTION_DETAIL_QUERY } from "../queries/ReportQueries";
 import { db } from "../service/DatabaseService";
 import { Transaction } from "../models/Transaction";
-import { PRODUCT_BUY_PRICE_QUERY, PRODUCT_SELL_PRICE_QUERY, PRODUCT_STOCK_QUERY, STORE_TRANSACTION_IMAGE_QUERY, STORE_TRANSACTION_PURCHASE_DETAIL_QUERY, STORE_TRANSACTION_QUERY, UPDATE_TRANSACTION_QUERY } from "../queries/TransactionManagementQueries";
+import { PRODUCT_BUY_PRICE_QUERY, PRODUCT_SELL_PRICE_QUERY, PRODUCT_STOCK_QUERY, STORE_TRANSACTION_IMAGE_QUERY, STORE_TRANSACTION_PURCHASE_DETAIL_QUERY, STORE_TRANSACTION_QUERY, UPDATE_TRANSACTION_PURCHASE_DETAIL_QUERY, UPDATE_TRANSACTION_QUERY } from "../queries/TransactionManagementQueries";
 import TransactionImage from "../models/TransactionImage";
 import { ITransactionOutput, TransactionOutput } from "../interfaces/TransactionOutputInterface";
 import { RowDataPacket } from "mysql2";
@@ -199,6 +199,20 @@ export default class TransactionRepositories {
     public static async storePurchaseDetail(body: TransactionPurchaseDetail): Promise<void> {
         try {
             await db.query(STORE_TRANSACTION_PURCHASE_DETAIL_QUERY, [body]);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Update Purchase Transaction Detail
+     * 
+     * @param body TransactionPurchaseDetail
+     * @returns Promise<void>
+     */
+    public static async updatePurchaseDetail(body: TransactionPurchaseDetail): Promise<void> {
+        try {
+            await db.query(UPDATE_TRANSACTION_PURCHASE_DETAIL_QUERY, [body, body.transaction_id]);
         } catch (error) {
             throw error;
         }
