@@ -5,6 +5,7 @@ import ReportRepositories, { ITotalByPaymentMethod, ITotalByProductName } from "
 import { ITransactionOutput } from "../interfaces/TransactionOutputInterface";
 
 export default class ReportService {
+    private static UTC_OFFSET_MINUTES = 7 * 60;
     /**
      * Split transaction type
      * 
@@ -90,9 +91,20 @@ export default class ReportService {
 
                 // Date Range Filter
                 if (parameters.startDate && parameters.endDate) {
-                    conditionals.push(`DATE(t.created_at) BETWEEN DATE(?) AND DATE(?)`);
-                    values.push(new Date(parameters.startDate).toISOString());
-                    values.push(new Date(parameters.endDate).toISOString());
+                    conditionals.push(`t.created_at BETWEEN ? AND ?`);
+
+                    const startDate = new Date(
+                        new Date(parameters.startDate).setUTCHours(0,0,0,0)
+                    );
+                    const endDate = new Date(
+                        new Date(parameters.endDate).setUTCHours(23,59,59,999)
+                    );
+                    startDate.setMinutes(startDate.getMinutes() - this.UTC_OFFSET_MINUTES);
+                    endDate.setMinutes(endDate.getMinutes() - this.UTC_OFFSET_MINUTES);
+
+                    values.push(new Date(startDate.getTime() - (startDate.getTimezoneOffset() * 60000)));
+                    values.push(new Date(endDate.getTime() - (endDate.getTimezoneOffset() * 60000)));
+                    console.log(values)
                 }
 
                 // Transaction Type Filter

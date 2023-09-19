@@ -13,7 +13,7 @@ const IMAGE_MIME_TYPES = [
 const VEHICLE_LICENSE_REGEX = /^([A-Z]{1,3})(\s|-)*([1-9][0-9]{0,3})(\s|-)*([A-Z]{0,3}|[1-9][0-9]{1,2})$/i;
 const PAYMENT_METHOD = ['cash', 'transfer'];
 const PAYMENT_STATUS = ['paid', 'unpaid'];
-const DELIVERY_STATUS = ['fully delivered', 'partially delivered', 'not delivered'];
+const DELIVERY_STATUS = ['fully delivered', 'partially delivered', 'undelivered'];
 
 
 const isBase64 = (text: string): boolean => {
@@ -118,7 +118,7 @@ export default {
             options: (value: string) => {
                 return DELIVERY_STATUS.includes(value.toLowerCase());
             },
-            errorMessage: "Delivery Status must be either 'fully delivered', 'partially delivered', or 'not delivered'"
+            errorMessage: "Delivery Status must be either 'fully delivered', 'partially delivered', or 'undelivered'"
         }
     },
     proofImages: {
