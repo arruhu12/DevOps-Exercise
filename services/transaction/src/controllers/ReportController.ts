@@ -4,6 +4,7 @@ import { errorResponse, successResponse } from "../utils/writer";
 import ReportParametersInterface from "../interfaces/ReportParameterInterface";
 import ReportService from "../service/ReportService";
 import { camelCaseKeys } from "../utils/keyConverter";
+import TransactionImageService from "../service/TransactionImageService";
 
 
 
@@ -18,7 +19,6 @@ export default class ReportController {
     public static async getDashboard(req: Request, res: Response) {
         try {
             // Get Employee Id
-            const userId = UserContextService.getUserId(req.headers.authorization!);
             const customerId = UserContextService.getCustomerId(req.headers.authorization!);
 
             // Get Sales Transactions
@@ -58,6 +58,33 @@ export default class ReportController {
             const transactionsFormatted = transactions.map((transaction) => 
                 camelCaseKeys(transaction));
             return successResponse(res, 200, `Report Fetched Succesfull`, transactionsFormatted);
+        } catch (error) {
+            return errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
+        }
+    }
+
+    /**
+     * Get Report Detail
+     * 
+     * @param req Request
+     * @param res Response
+     * @returns Response
+     */
+    public static async getReportDetail(req: Request, res: Response) {
+        try {
+            // Get Customer Id
+            const customerId = UserContextService.getCustomerId(req.headers.authorization!);
+
+            // Get Sales Transactions
+            const transaction = await ReportService.getTransactionDetail(customerId, req.params.id);
+            if (!transaction) {
+                return errorResponse(res, 404, 'NOT_FOUND', `Report Not Found`);
+            }
+
+             // Get Proof Images
+            transaction.proof_images = await TransactionImageService.getImages(transaction.id);
+
+            return successResponse(res, 200, `Report Fetched Succesfull`, camelCaseKeys(transaction));
         } catch (error) {
             return errorResponse(res, 500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error);
         }

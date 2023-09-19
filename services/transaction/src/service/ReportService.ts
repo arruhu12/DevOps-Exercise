@@ -3,6 +3,7 @@ import { db } from "./DatabaseService";
 import ReportParametersInterface from "../interfaces/ReportParameterInterface";
 import ReportRepositories, { ITotalByPaymentMethod, ITotalByProductName } from "../repositories/ReportRepositories";
 import { ITransactionOutput } from "../interfaces/TransactionOutputInterface";
+import TransactionRepositories from "../repositories/TransactionRepositories";
 
 export default class ReportService {
     private static UTC_OFFSET_MINUTES = 7 * 60;
@@ -154,5 +155,21 @@ export default class ReportService {
             } catch (error) {
                 throw error;
             }
+    }
+
+    /**
+     * Get Transaction Detail
+     * 
+     * @param customerId Number
+     * @param transactionId String
+     * @returns Promise<ITransactionOutput>
+     */
+    public static async getTransactionDetail(customerId: number, transactionId: string): Promise<ITransactionOutput> {
+        try {
+            const transaction = await TransactionRepositories.getTransactionDetailForReport(customerId, transactionId);
+            return transaction;
+        } catch (error) {
+            throw error;
+        }
     }
 }

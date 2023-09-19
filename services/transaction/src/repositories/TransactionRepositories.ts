@@ -1,4 +1,4 @@
-import { ALL_TRANSACTiON_QUERY, ORDER_BY_DATE_QUERY, TRANSACTION_DETAIL_FOR_UPDATE_QUERY, TRANSACTION_DETAIL_FOR_VALIDATION_QUERY, TRANSACTION_DETAIL_QUERY } from "../queries/ReportQueries";
+import { ALL_TRANSACTiON_QUERY, ORDER_BY_DATE_QUERY, TRANSACTION_DETAIL_FOR_UPDATE_QUERY, TRANSACTION_DETAIL_FOR_VALIDATION_QUERY, TRANSACTION_DETAIL_GENERAL_QUERY, TRANSACTION_DETAIL_QUERY } from "../queries/ReportQueries";
 import { db } from "../service/DatabaseService";
 import { Transaction } from "../models/Transaction";
 import { PRODUCT_BUY_PRICE_QUERY, PRODUCT_SELL_PRICE_QUERY, PRODUCT_STOCK_QUERY, STORE_TRANSACTION_IMAGE_QUERY, STORE_TRANSACTION_PURCHASE_DETAIL_QUERY, STORE_TRANSACTION_QUERY, UPDATE_TRANSACTION_PURCHASE_DETAIL_QUERY, UPDATE_TRANSACTION_QUERY } from "../queries/TransactionManagementQueries";
@@ -108,6 +108,26 @@ export default class TransactionRepositories {
                 `${TRANSACTION_DETAIL_QUERY} AND created_by = ?`, [
                     transactionType, transactionId, userId
                 ]);
+            if (!transaction) {
+                return transaction;
+            }
+            return new TransactionOutput(transaction);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Get Transaction Detail for Report
+     * 
+     * @param customeId number
+     * @param transactionId
+     * @returns Promise<TransactionOutput>
+     */
+    public static async getTransactionDetailForReport(customeId: number, transactionId: string): Promise<any> {
+        try {
+            const [[transaction]] = await db.query<ITransactionOutput[] & RowDataPacket[]>(
+                TRANSACTION_DETAIL_GENERAL_QUERY, [customeId, transactionId]);
             if (!transaction) {
                 return transaction;
             }

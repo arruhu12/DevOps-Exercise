@@ -111,6 +111,59 @@ export const TRANSACTION_DETAIL_QUERY = `
         t.transaction_type = ?
         AND t.id = ?
     `;
+    export const TRANSACTION_DETAIL_GENERAL_QUERY = `
+    SELECT 
+        t.id,
+        p.name as product_name,
+        purchase_detail.supplier_name,
+        t.created_at as transaction_date,
+        t.transaction_type,
+        IFNULL(t.gross_weight, 0) AS gross_weight,
+        IFNULL(t.tare_weight, 0) AS tare_weight,
+        IFNULL((t.gross_weight - t.tare_weight), 0) AS netto_weight,
+        IFNULL(t.delivered_weight, 0) AS delivered_weight,
+        IFNULL(t.deduction_percentage, 0) AS deduction_percentage,
+        IFNULL((t.gross_weight - t.tare_weight) - ((t.gross_weight - t.tare_weight) * t.deduction_percentage DIV 100), 0) AS total_weight,
+        t.price,
+        purchase_detail.commision,
+        IFNULL(
+            ((t.gross_weight - t.tare_weight) - ((t.gross_weight - t.tare_weight) * t.deduction_percentage DIV 100)) * price
+            + ((t.gross_weight - t.tare_weight) * t.deduction_percentage DIV 100) * purchase_detail.commision, 0) AS total,
+        t.vehicle_registration_number, 
+        t.payment_status,
+        t.delivery_status,
+        t.payment_method,
+        purchase_detail.longitude,
+        purchase_detail.latitude,
+        t.source_of_purchase,
+        t.additional_notes,
+        t.created_by
+    FROM 
+        transactions t
+        JOIN products p ON t.product_id = p.id
+        LEFT JOIN (
+            SELECT 
+                transaction_id, 
+                s.name AS supplier_name,
+                commision,
+                longitude, 
+                latitude
+            FROM transaction_purchase_details
+            JOIN suppliers s ON s.id = supplier_id
+        ) purchase_detail ON t.id = purchase_detail.transaction_id AND t.transaction_type = 'purchase'
+        JOIN (
+            SELECT 
+                id AS customer_id, user_id, CONCAT(first_name, ' ',last_name) as name 
+            FROM customers c
+            UNION
+            SELECT 
+                customer_id, user_id, name 
+            FROM employees e
+        ) AS details ON details.user_id = t.created_by
+    WHERE 
+        details.customer_id = ?
+        AND t.id = ?
+    `;
 export const REPORT_QUERY = `
     SELECT 
         t.id, t.created_at AS transaction_date,
