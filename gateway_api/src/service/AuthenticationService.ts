@@ -23,6 +23,7 @@ interface UserContext {
   };
   roles: string[];
   isNewAccount?: boolean;
+  isFarmer?: boolean;
   isSubscriptionActive?: boolean;
 }
 
@@ -65,6 +66,7 @@ export default class AuthenticationService {
           companyName: employee.company_name
         },
         roles: ["employee"],
+        isFarmer: employee.is_farmer,
         isSubscriptionActive: true
       }
     }
@@ -89,10 +91,10 @@ export default class AuthenticationService {
    */
   private static validateEmail(email: string) {
     return String(email)
-    .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    );
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
   }
 
   /**
@@ -103,7 +105,7 @@ export default class AuthenticationService {
    * @param identification string
    * @returns Boolean
    **/
-  public static async isExists (identification: string) {
+  public static async isExists(identification: string) {
     try {
       let query;
       if (this.validateEmail(identification)) {
@@ -115,7 +117,7 @@ export default class AuthenticationService {
       const [rows] = await pool.query<RowDataPacket[]>(query, [identification]);
       return rows.length > 0;
     } catch (error) {
-        throw error;
+      throw error;
     }
   }
 
@@ -131,7 +133,7 @@ export default class AuthenticationService {
     try {
       // Get user
       let user;
-      
+
       if (this.validateEmail(identification)) {
         [[user]] = await pool.query<RowDataPacket[]>(`SELECT id, email, password, is_active, roles FROM users WHERE email = ?`, [identification]);
       }
